@@ -1,8 +1,8 @@
 import { NavLink } from "react-router-dom";
 
 const items = [
-  { to: "/", label: "Learn", icon: "◎" },
-  { to: "/profile", label: "Profile", icon: "●" },
+  { to: "/learn", label: "Learn", icon: "◎" },
+  { to: "/learn/profile", label: "Profile", icon: "●" },
 ];
 
 export function BottomNav() {
@@ -13,10 +13,10 @@ export function BottomNav() {
           <NavLink
             key={item.to}
             to={item.to}
-            end={item.to === "/"}
+            end={item.to === "/learn"}
             className={({ isActive }) =>
               `flex min-w-[88px] flex-col items-center gap-0.5 rounded-xl px-4 py-2 text-sm font-extrabold uppercase tracking-wide ${
-                isActive ? "text-[#58cc02]" : "text-[#afafaf]"
+                isActive ? "text-[var(--xpi-green)]" : "text-[#afafaf]"
               }`
             }
           >

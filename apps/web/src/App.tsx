@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { api } from "./lib/api";
 import { useAppStore } from "./store";
+import { LandingPage } from "./components/marketing/LandingPage";
+import { LessonShell } from "./components/learn/LessonShell";
 import { AuthPage } from "./pages/AuthPage";
 import { HomePage } from "./pages/HomePage";
 import { LessonPage } from "./pages/LessonPage";
@@ -30,12 +32,14 @@ function Guard({ children }: { children: React.ReactNode }) {
   if (!token) return <Navigate to="/auth" replace />;
   if (!ready) {
     return (
-      <div className="flex min-h-full items-center justify-center font-extrabold text-[#777]">
-        Loading x-pi...
-      </div>
+      <LessonShell>
+        <div className="flex min-h-full items-center justify-center font-extrabold text-[#777]">
+          Loading x-pi...
+        </div>
+      </LessonShell>
     );
   }
-  return <>{children}</>;
+  return <LessonShell>{children}</LessonShell>;
 }
 
 export default function App() {
@@ -43,12 +47,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<LandingPage />} />
         <Route
           path="/auth"
-          element={token ? <Navigate to="/" replace /> : <AuthPage />}
+          element={token ? <Navigate to="/learn" replace /> : <AuthPage />}
         />
         <Route
-          path="/"
+          path="/learn"
           element={
             <Guard>
               <HomePage />
@@ -56,7 +61,7 @@ export default function App() {
           }
         />
         <Route
-          path="/lesson/:lessonId"
+          path="/learn/lesson/:lessonId"
           element={
             <Guard>
               <LessonPage />
@@ -64,13 +69,16 @@ export default function App() {
           }
         />
         <Route
-          path="/profile"
+          path="/learn/profile"
           element={
             <Guard>
               <ProfilePage />
             </Guard>
           }
         />
+        {/* Back-compat redirects */}
+        <Route path="/lesson/:lessonId" element={<Navigate to="/learn" replace />} />
+        <Route path="/profile" element={<Navigate to="/learn/profile" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

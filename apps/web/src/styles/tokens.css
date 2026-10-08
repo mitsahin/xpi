@@ -1,0 +1,21 @@
+/* Shared brand tokens — continuity across marketing + learn shells */
+:root {
+  --xpi-green: #58cc02;
+  --xpi-green-deep: #3d9a00;
+  --xpi-green-soft: #d7ffb8;
+  --xpi-ink: #0f1712;
+  --xpi-ink-soft: #3c3c3c;
+  --xpi-muted: #7a857c;
+  --xpi-blue: #1cb0f6;
+  --xpi-red: #ff4b4b;
+  --xpi-gold: #ffc800;
+  --xpi-learn-bg: #ffffff;
+  --xpi-border: #e5e5e5;
+
+  --font-display: "Syne", ui-sans-serif, sans-serif;
+  --font-body: "Outfit", ui-sans-serif, sans-serif;
+  --font-learn: "Nunito", ui-sans-serif, sans-serif;
+
+  --space-section: clamp(3rem, 8vw, 6rem);
+  --radius-cta: 999px;
+}

@@ -81,9 +81,19 @@ GitHub Actions (`.github/workflows/ci.yml`) installs deps, migrates Postgres, se
 - **SRS**: Modified SM-2 (`packages/shared`) schedules `SrsCard.dueAt` from lesson answers.
 - **Lessons**: Session state machine (IN_PROGRESS → COMPLETED / ABANDONED); Phase 1 question types: `MCQ`, `FILL_BLANK`.
 
+## Web routes
+
+| Path | Shell |
+| --- | --- |
+| `/` | Marketing landing (`MarketingHero`) |
+| `/auth` | Login / register |
+| `/learn` | Duolingo-like lesson path (`LessonShell`) |
+| `/learn/lesson/:id` | Lesson session |
+| `/learn/profile` | Profile / stats |
+
 ## Demo path
 
-1. Start API + web, log in as demo user.
-2. Open unit path → play **Greetings** (MCQ + fill-blank).
+1. Start API + web — open `/` for the marketing landing, then **Start learning**.
+2. Log in as demo user → `/learn` path → play **Greetings** (MCQ + fill-blank).
 3. Finish lesson → see XP / streak / daily goal update on home + profile.
-4. Mobile: same login → Learn tab → lesson → Profile.
+4. Mobile: light splash → login → Learn tab → lesson → Profile.

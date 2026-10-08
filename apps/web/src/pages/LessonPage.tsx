@@ -73,7 +73,7 @@ export function LessonPage() {
 
   function continueNext() {
     if (done) {
-      navigate("/");
+      navigate("/learn");
       return;
     }
     if (nextSession) {
@@ -95,7 +95,7 @@ export function LessonPage() {
     return (
       <div className="flex min-h-full flex-col items-center justify-center gap-4 p-6">
         <p className="font-bold text-[#ff4b4b]">{error}</p>
-        <Link className="font-extrabold text-[#1cb0f6]" to="/">
+        <Link className="font-extrabold text-[#1cb0f6]" to="/learn">
           Back
         </Link>
       </div>
@@ -118,7 +118,7 @@ export function LessonPage() {
   return (
     <div className="flex min-h-full flex-col bg-white">
       <div className="flex items-center gap-3 px-4 py-3">
-        <Link to="/" className="text-2xl font-black text-[#777]">
+        <Link to="/learn" className="text-2xl font-black text-[#777]">
           ×
         </Link>
         <div className="h-4 flex-1 overflow-hidden rounded-full bg-[#e5e5e5]">
@@ -138,7 +138,7 @@ export function LessonPage() {
             <p className="mt-2 font-black text-[#1cb0f6]">Level up → {done.newLevel}</p>
           )}
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/learn")}
             className="mt-8 w-full max-w-sm rounded-2xl bg-[#58cc02] py-4 text-lg font-black uppercase text-white shadow-[0_4px_0_#46a302]"
           >
             Continue

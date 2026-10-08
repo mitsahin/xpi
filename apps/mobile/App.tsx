@@ -10,6 +10,7 @@ import { AuthScreen } from "./src/screens/AuthScreen";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { LessonScreen } from "./src/screens/LessonScreen";
 import { ProfileScreen } from "./src/screens/ProfileScreen";
+import { SplashScreen } from "./src/screens/SplashScreen";
 import type { RootStackParamList } from "./src/types";
 
 const Tab = createBottomTabNavigator();
@@ -47,6 +48,7 @@ function Tabs({
 
 export default function App() {
   const [booting, setBooting] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
@@ -58,6 +60,7 @@ export default function App() {
       try {
         const me = await api.me();
         setUser(me.user);
+        setShowSplash(false);
       } catch {
         await AsyncStorage.removeItem("xpi_token");
       } finally {
@@ -71,6 +74,15 @@ export default function App() {
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator color="#58cc02" size="large" />
       </View>
+    );
+  }
+
+  if (!user && showSplash) {
+    return (
+      <>
+        <StatusBar style="dark" />
+        <SplashScreen onContinue={() => setShowSplash(false)} />
+      </>
     );
   }
 

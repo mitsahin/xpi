@@ -51,11 +51,11 @@ export function HomePage() {
                         </div>
                       ) : (
                         <Link
-                          to={`/lesson/${lesson.id}`}
+                          to={`/learn/lesson/${lesson.id}`}
                           className={`flex h-20 w-20 flex-col items-center justify-center rounded-full border-b-8 text-white transition hover:brightness-105 active:border-b-4 active:translate-y-1 ${
                             lesson.completed
-                              ? "border-[#46a302] bg-[#58cc02]"
-                              : "border-[#1899d6] bg-[#1cb0f6]"
+                              ? "border-[#46a302] bg-[var(--xpi-green)]"
+                              : "border-[#1899d6] bg-[var(--xpi-blue)]"
                           }`}
                         >
                           <span className="text-2xl font-black">
