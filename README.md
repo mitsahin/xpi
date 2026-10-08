@@ -29,7 +29,11 @@ cp apps/api/.env.example apps/api/.env
 
 # 3) Build shared + migrate + seed
 npm run build -w @x-pi/shared
-cd apps/api && npx prisma migrate dev && npx tsx prisma/seed.ts && cd ../..
+cd apps/api
+npx prisma migrate deploy   # use `migrate dev` only when changing the schema
+npx prisma generate
+npx tsx prisma/seed.ts
+cd ../..
 ```
 
 Demo user from seed:
@@ -50,6 +54,10 @@ npm run dev:web
 EXPO_PUBLIC_API_URL=http://localhost:4000 npm run dev:mobile
 # On a physical device, use your machine LAN IP instead of localhost.
 ```
+
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`) installs deps, migrates Postgres, seeds, typechecks the API, and builds the web app on pushes/PRs to `main`.
 
 ## API overview
 

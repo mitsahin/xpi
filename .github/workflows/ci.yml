@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "cursor/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: xpi
+          POSTGRES_PASSWORD: xpi
+          POSTGRES_DB: xpi
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U xpi -d xpi"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://xpi:xpi@localhost:5432/xpi?schema=public
+      JWT_SECRET: ci-test-secret
+      PORT: 4000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build shared
+        run: npm run build -w @x-pi/shared
+
+      - name: Prisma migrate + generate
+        working-directory: apps/api
+        run: |
+          cp .env.example .env
+          npx prisma migrate deploy
+          npx prisma generate
+
+      - name: Typecheck API
+        working-directory: apps/api
+        run: npx tsc -p tsconfig.json --noEmit
+
+      - name: Seed (smoke)
+        working-directory: apps/api
+        run: npx tsx prisma/seed.ts
+
+      - name: Build web
+        run: npm run build -w @x-pi/web
