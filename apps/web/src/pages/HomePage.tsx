@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api, type PublicLesson } from "../lib/api";
+import { ApiError, api, type PublicLesson } from "../lib/api";
 import { BottomNav } from "../components/BottomNav";
 import { TopStats } from "../components/TopStats";
 import { useAppStore } from "../store";
@@ -9,8 +9,10 @@ export function HomePage() {
   const [lessons, setLessons] = useState<PublicLesson[]>([]);
   const [dueReviews, setDueReviews] = useState(0);
   const [error, setError] = useState("");
+  const [offline, setOffline] = useState(false);
   const setUser = useAppStore((s) => s.setUser);
   const setStreak = useAppStore((s) => s.setStreak);
+  const setApiHealthy = useAppStore((s) => s.setApiHealthy);
 
   useEffect(() => {
     Promise.all([api.lessons(), api.stats(), api.reviews()])
@@ -19,9 +21,19 @@ export function HomePage() {
         setUser(s.user);
         setStreak(s.streak);
         setDueReviews(r.reviews.length);
+        setError("");
+        setOffline(false);
+        setApiHealthy(true);
       })
-      .catch((e) => setError(e.message));
-  }, [setUser, setStreak]);
+      .catch((e) => {
+        const msg = e instanceof Error ? e.message : "Failed to load";
+        setError(msg);
+        if (e instanceof ApiError && e.offline) {
+          setOffline(true);
+          setApiHealthy(false);
+        }
+      });
+  }, [setUser, setStreak, setApiHealthy]);
 
   const units = lessons.reduce<Record<number, PublicLesson[]>>((acc, l) => {
     (acc[l.unitOrder] ||= []).push(l);
@@ -43,7 +55,26 @@ export function HomePage() {
             <span>Practice →</span>
           </Link>
         )}
-        {error && <p className="mt-4 font-bold text-[#ff4b4b]">{error}</p>}
+        {error && (
+          <div
+            className={`mt-4 rounded-2xl border-2 px-4 py-3 font-bold ${
+              offline
+                ? "border-[#ffb02e] bg-[#fff4ce] text-[#915f10]"
+                : "border-[#ff4b4b] bg-[#fff0f0] text-[#ff4b4b]"
+            }`}
+          >
+            <p>{error}</p>
+            {offline && (
+              <button
+                type="button"
+                className="mt-2 underline"
+                onClick={() => window.location.reload()}
+              >
+                Retry
+              </button>
+            )}
+          </div>
+        )}
         <div className="relative mt-8 space-y-10">
           <div className="pointer-events-none absolute left-1/2 top-4 bottom-4 w-1 -translate-x-1/2 rounded-full bg-[#e5e5e5]" />
           {Object.entries(units).map(([unit, items]) => (

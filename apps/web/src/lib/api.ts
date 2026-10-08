@@ -1,3 +1,9 @@
+import {
+  getStoredAccessToken,
+  getStoredRefreshToken,
+  useAppStore,
+} from "../store";
+
 const BASE = import.meta.env.VITE_API_URL || "/api";
 
 export type AuthUser = {
@@ -67,39 +73,154 @@ export type StreakSummary = {
   freezesUsed: number;
 };
 
-function token() {
-  return localStorage.getItem("xpi_token");
+export type TokenPair = {
+  accessToken: string;
+  refreshToken: string;
+  /** @deprecated alias of accessToken */
+  token: string;
+  expiresIn: number;
+  tokenType: "Bearer";
+};
+
+export class ApiError extends Error {
+  status: number;
+  code?: string;
+  offline?: boolean;
+
+  constructor(
+    message: string,
+    opts?: { status?: number; code?: string; offline?: boolean }
+  ) {
+    super(message);
+    this.name = "ApiError";
+    this.status = opts?.status ?? 0;
+    this.code = opts?.code;
+    this.offline = opts?.offline;
+  }
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+type AuthResponse = TokenPair & { user: AuthUser };
+
+let refreshInFlight: Promise<boolean> | null = null;
+
+async function tryRefresh(): Promise<boolean> {
+  if (refreshInFlight) return refreshInFlight;
+  refreshInFlight = (async () => {
+    const refreshToken = getStoredRefreshToken();
+    if (!refreshToken) return false;
+    try {
+      const res = await fetch(`${BASE}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
+        credentials: "include",
+      });
+      const data = (await res.json().catch(() => ({}))) as Partial<AuthResponse>;
+      if (!res.ok || !data.accessToken) return false;
+      useAppStore
+        .getState()
+        .setTokens(data.accessToken, data.refreshToken ?? refreshToken);
+      return true;
+    } catch {
+      return false;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+  return refreshInFlight;
+}
+
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+  opts?: { skipAuthRetry?: boolean }
+): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(init?.headers as Record<string, string>),
   };
-  const t = token();
+  const t = getStoredAccessToken();
   if (t) headers.Authorization = `Bearer ${t}`;
-  const res = await fetch(`${BASE}${path}`, { ...init, headers });
+
+  let res: Response;
+  try {
+    res = await fetch(`${BASE}${path}`, {
+      ...init,
+      headers,
+      credentials: "include",
+    });
+  } catch {
+    useAppStore.getState().setApiHealthy(false);
+    throw new ApiError(
+      "Can't reach the x-pi API. Is it running on :4000?",
+      { status: 0, code: "NETWORK", offline: true }
+    );
+  }
+
+  if (res.status === 401 && !opts?.skipAuthRetry && !path.startsWith("/auth/")) {
+    const ok = await tryRefresh();
+    if (ok) return request<T>(path, init, { skipAuthRetry: true });
+  }
+
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || res.statusText);
+  if (!res.ok) {
+    throw new ApiError(data.error || res.statusText || "Request failed", {
+      status: res.status,
+      code: data.code,
+    });
+  }
   return data as T;
 }
 
 export const api = {
+  health: async () => {
+    try {
+      const res = await fetch(`${BASE}/health`, { credentials: "include" });
+      const data = await res.json().catch(() => ({}));
+      const ok = res.ok && data?.ok === true;
+      useAppStore.getState().setApiHealthy(ok);
+      return { ok, ...(data as object) } as { ok: boolean; service?: string };
+    } catch {
+      useAppStore.getState().setApiHealthy(false);
+      return { ok: false as const };
+    }
+  },
   register: (body: {
     email: string;
     password: string;
     displayName: string;
     timezone?: string;
   }) =>
-    request<{ token: string; user: AuthUser }>("/auth/register", {
+    request<AuthResponse>("/auth/register", {
       method: "POST",
       body: JSON.stringify(body),
     }),
   login: (body: { email: string; password: string }) =>
-    request<{ token: string; user: AuthUser }>("/auth/login", {
+    request<AuthResponse>("/auth/login", {
       method: "POST",
       body: JSON.stringify(body),
     }),
+  refresh: (refreshToken: string) =>
+    request<AuthResponse>(
+      "/auth/refresh",
+      { method: "POST", body: JSON.stringify({ refreshToken }) },
+      { skipAuthRetry: true }
+    ),
+  logout: async () => {
+    const refreshToken = getStoredRefreshToken();
+    try {
+      await request(
+        "/auth/logout",
+        {
+          method: "POST",
+          body: JSON.stringify({ refreshToken }),
+        },
+        { skipAuthRetry: true }
+      );
+    } catch {
+      /* best-effort */
+    }
+  },
   me: () => request<{ user: AuthUser }>("/auth/me"),
   stats: () =>
     request<{

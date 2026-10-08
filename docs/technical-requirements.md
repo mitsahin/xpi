@@ -15,7 +15,7 @@ x-pi is a gamified micro-learning platform (Duolingo-like loop, original brandin
 | Mobile (Expo) | Learn + lesson + reviews + profile against the same API |
 | API | Auth, lessons, stats, SRS queue |
 
-**Out of scope (current phases):** payments, social graph, shops, CMS, GraphQL, microservices, multi-tenant SaaS, OAuth providers, refresh-token rotation (planned).
+**Out of scope (current phases):** payments, social graph, shops, CMS, GraphQL, microservices, multi-tenant SaaS, OAuth providers.
 
 ---
 
@@ -108,7 +108,9 @@ xpi/
 | --- | --- | --- |
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `JWT_SECRET` | Yes in production | Fail-closed if missing; must be ≥32 chars and not the example value |
-| `JWT_EXPIRES_IN` | No | Access-token lifetime for `jsonwebtoken` (default `7d`) |
+| `JWT_EXPIRES_IN` | No | Short-lived access JWT (default `15m`) |
+| `JWT_REFRESH_EXPIRES_IN` | No | Opaque refresh lifetime (default `30d`) |
+| `AUTH_SET_COOKIE` | No | When `true`, also Set-Cookie httpOnly `xpi_refresh` (cookie-ready) |
 | `PORT` | No | Default `4000` |
 | `CORS_ORIGIN` | No | Comma-separated allowlist; default `http://localhost:5173,http://localhost:5174` |
 | `JSON_BODY_LIMIT` | No | `express.json` limit (default `32kb`) |
@@ -137,17 +139,23 @@ See `apps/api/.env.example`. Never commit real secrets.
 
 | Endpoint | Body (Zod) | Behavior |
 | --- | --- | --- |
-| `POST /auth/register` | email, password (≥6), displayName (≤40), optional timezone | bcrypt hash cost **10**; create `User` + empty `Streak`; issue JWT; `201` |
-| `POST /auth/login` | email, password | Compare hash; issue JWT; generic `401 Invalid credentials` on failure |
-| `GET /auth/me` | — (Bearer) | Public user fields only (no `passwordHash`) |
+| `POST /auth/register` | email, password (≥6), displayName (≤40), optional timezone | bcrypt hash cost **10**; create `User` + empty `Streak`; issue access+refresh; `201` |
+| `POST /auth/login` | email, password | Compare hash; issue access+refresh; generic `401 Invalid credentials` on failure |
+| `POST /auth/refresh` | optional `refreshToken` (or httpOnly cookie) | Rotate refresh (one-time); return new pair; reuse → revoke family |
+| `POST /auth/logout` | optional `refreshToken`, optional `allDevices` | Revoke current refresh; or all devices (requires Bearer) |
+| `GET /auth/me` | — (Bearer access) | Public user fields only (no `passwordHash`) |
 
 ### 5.2 JWT strategy (current)
 
-- **Access tokens only** (no refresh token issued yet).
-- Claims: `{ userId, email }` signed with `HS256` via `jsonwebtoken`.
-- Lifetime: `JWT_EXPIRES_IN` (default `7d`). Clients store the token (web: Zustand + `localStorage`; mobile: AsyncStorage) and send `Authorization: Bearer <token>`.
-- Verification: `requireAuth` rejects missing/malformed/expired tokens with `401` + `code: AUTH_REQUIRED | AUTH_INVALID`.
-- **Planned:** refresh + short-lived access tokens, token revocation / rotation, optional email verification.
+- **Short-lived access JWT** + **opaque refresh token** (hash stored in `RefreshToken`).
+- Access claims: `{ userId, email, typ: "access" }` signed HS256; lifetime `JWT_EXPIRES_IN` (default **15m**).
+- Refresh: 48-byte `base64url` secret; only SHA-256 hash persisted; lifetime `JWT_REFRESH_EXPIRES_IN` (default **30d**); rotated on every `/auth/refresh`.
+- Reuse detection: presenting a revoked refresh revokes **all** active refresh tokens for that user (`REFRESH_REUSE`).
+- Response shape: `{ accessToken, refreshToken, token, expiresIn, tokenType, user }` where `token` aliases `accessToken` for backward compatibility.
+- **httpOnly-ready:** when `AUTH_SET_COOKIE=true`, login/refresh also Set-Cookie `xpi_refresh` (`HttpOnly`, `SameSite=Lax`, `Secure` in production, `Path=/auth`). SPA may keep using JSON body; cookie path is for future BFF / same-site deploy.
+- Web client: stores both tokens; auto-refresh on `401` before failing; logout calls `/auth/logout`.
+- Verification: `requireAuth` rejects missing/malformed/expired access tokens with `401` + `AUTH_REQUIRED | AUTH_INVALID`.
+- **Planned:** optional email verification; Redis-backed rate limits.
 
 ### 5.3 Password hashing
 
@@ -238,8 +246,8 @@ Clients must never trust client-supplied `userId` for writes — the API derives
 | HTTPS termination | Expected at reverse proxy / platform |
 | SQL injection | Mitigated by Prisma parameterized queries + limited `$queryRaw` with bound params |
 | XSS | API returns JSON; web uses React escaping |
-| CSRF | Bearer tokens (not cookie session) — CSRF surface low |
-| Refresh tokens / logout denylist | Planned |
+| CSRF | Bearer access + optional refresh cookie (`SameSite=Lax`); SPA body refresh avoids CSRF |
+| Refresh tokens / rotation / logout | Done (`RefreshToken` + reuse revoke) |
 | Distributed rate limit | Planned (Redis) |
 
 ---
@@ -258,6 +266,7 @@ Authoritative schema: `apps/api/prisma/schema.prisma`.
 | `DailyActivity` | per calendar-day XP, lessons, reviews, goalMet |
 | `XpEvent` | unique `(userId, reason, refId)` for idempotent awards |
 | `SrsCard` | SM-2 fields + `dueAt`, unique `(userId, questionId)` |
+| `RefreshToken` | hashed opaque refresh; `expiresAt`, `revokedAt`, `replacedById` |
 
 ---
 
@@ -266,8 +275,10 @@ Authoritative schema: `apps/api/prisma/schema.prisma`.
 | Method | Path | Auth | Behavior |
 | --- | --- | --- | --- |
 | GET | `/health` | No | Liveness + DB readiness |
-| POST | `/auth/register` | No (+ rate limit) | Create user + JWT |
-| POST | `/auth/login` | No (+ rate limit) | Login + JWT |
+| POST | `/auth/register` | No (+ rate limit) | Create user + access/refresh |
+| POST | `/auth/login` | No (+ rate limit) | Login + access/refresh |
+| POST | `/auth/refresh` | No (+ rate limit) | Rotate refresh → new pair |
+| POST | `/auth/logout` | Partial | Revoke refresh; `allDevices` needs Bearer |
 | GET | `/auth/me` | Yes | Current public user |
 | GET | `/lessons` | Yes | Path with lock / complete / stars |
 | GET | `/lessons/:lessonId/active` | Yes | In-progress session for resume probe |
@@ -288,7 +299,8 @@ JSON shape:
 
 | Code | Typical status | Meaning |
 | --- | --- | --- |
-| `AUTH_REQUIRED` / `AUTH_INVALID` | 401 | Missing or bad JWT |
+| `AUTH_REQUIRED` / `AUTH_INVALID` | 401 | Missing or bad access JWT |
+| `REFRESH_REQUIRED` / `REFRESH_INVALID` / `REFRESH_EXPIRED` / `REFRESH_REUSE` | 401 | Refresh flow failures |
 | `BAD_BODY` / `BAD_PARAMS` | 400 | Zod validation failed |
 | `NOT_FOUND` | 404 | Missing or not owned |
 | `LESSON_LOCKED` | 403 | Path gate |
@@ -444,11 +456,12 @@ Must remain free of Node/React/RN imports.
 
 | Layer | Expectation | Status |
 | --- | --- | --- |
-| Unit | `npm test -w @x-pi/api` — grade, SM-2, streakLogic, levels, rateLimit | Done (CI) |
+| Unit | grade, SM-2, streak, levels, rateLimit, validators, ownership, duration | Done (CI) |
 | Typecheck | `npm run typecheck -w @x-pi/api` | Done (CI) |
 | Seed/migrate | Prisma migrate deploy + seed in CI | Done |
 | Web build | `npm run build -w @x-pi/web` | Done (CI) |
-| Integration | Session/XP/SRS against Postgres | Planned |
+| Integration | Refresh token rotate/reuse against Postgres | Done (CI when `DATABASE_URL` set) |
+| Integration | Session/XP/SRS concurrency | Planned |
 | E2E | Playwright learn path | Planned |
 
 New algorithm changes must add/extend unit tests under `apps/api/src/tests/unit/`.
@@ -481,15 +494,23 @@ New algorithm changes must add/extend unit tests under `apps/api/src/tests/unit/
 - [x] Security hardening: helmet, JWT strength/expiry, Zod validators module, `AppError`, ownership `assertOwner`
 - [x] Windows `scripts/dev-api.ps1` bootstrap
 
+### Phase 2+ hardening (this iteration)
+
+- [x] Refresh tokens + short-lived access (`15m` / `30d`) + rotate/reuse revoke
+- [x] httpOnly cookie-ready design (`AUTH_SET_COOKIE`)
+- [x] Web auto-refresh + health banner + offline learn UX
+- [x] Stronger AuthZ (`assertOwner` on active session + SRS) + unit tests
+- [x] Integration test for refresh rotate/reuse
+
 ### Planned (later)
 
-- [ ] Refresh tokens + short-lived access tokens
 - [ ] Redis-backed rate limiting
 - [ ] Structured request logging / request ids
-- [ ] Postgres integration tests for sessions
+- [ ] Postgres integration tests for sessions/XP
 - [ ] OAuth / magic-link (if product asks)
 - [ ] Hearts regeneration schedule
 - [ ] Controllers layer extraction (optional)
+- [ ] Production cookie-only refresh (drop localStorage refresh)
 
 ---
 

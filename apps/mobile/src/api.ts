@@ -91,9 +91,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 }
 
+export type AuthTokens = {
+  accessToken?: string;
+  refreshToken?: string;
+  /** @deprecated alias of accessToken */
+  token: string;
+  user: AuthUser;
+};
+
 export const api = {
   login: (body: { email: string; password: string }) =>
-    request<{ token: string; user: AuthUser }>("/auth/login", {
+    request<AuthTokens>("/auth/login", {
       method: "POST",
       body: JSON.stringify(body),
     }),
@@ -103,9 +111,14 @@ export const api = {
     displayName: string;
     timezone?: string;
   }) =>
-    request<{ token: string; user: AuthUser }>("/auth/register", {
+    request<AuthTokens>("/auth/register", {
       method: "POST",
       body: JSON.stringify(body),
+    }),
+  refresh: (refreshToken: string) =>
+    request<AuthTokens>("/auth/refresh", {
+      method: "POST",
+      body: JSON.stringify({ refreshToken }),
     }),
   me: () => request<{ user: AuthUser }>("/auth/me"),
   stats: () =>

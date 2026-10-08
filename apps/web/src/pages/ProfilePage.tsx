@@ -49,7 +49,10 @@ export function ProfilePage() {
         </div>
 
         <button
-          onClick={logout}
+          onClick={async () => {
+            await api.logout();
+            logout();
+          }}
           className="mt-10 w-full rounded-2xl border-2 border-[#e5e5e5] py-3 font-black uppercase text-[#777]"
         >
           Log out

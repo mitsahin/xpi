@@ -131,8 +131,10 @@ GitHub Actions (`.github/workflows/ci.yml`) installs deps, migrates Postgres, se
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| POST | `/auth/register` | Create user + JWT |
-| POST | `/auth/login` | Login |
+| POST | `/auth/register` | Create user + access/refresh tokens |
+| POST | `/auth/login` | Login + access/refresh |
+| POST | `/auth/refresh` | Rotate refresh → new pair |
+| POST | `/auth/logout` | Revoke refresh (optional all devices) |
 | GET | `/auth/me` | Current user |
 | GET | `/lessons` | Path with lock/complete state |
 | GET | `/lessons/:id/active` | In-progress session (resume probe) |

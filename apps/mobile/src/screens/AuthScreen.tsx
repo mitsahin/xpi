@@ -25,8 +25,12 @@ export function AuthScreen({
     setError("");
     try {
       const res = await api.login({ email, password });
-      await AsyncStorage.setItem("xpi_token", res.token);
-      onAuth(res.token, res.user);
+      const access = res.accessToken || res.token;
+      await AsyncStorage.setItem("xpi_token", access);
+      if (res.refreshToken) {
+        await AsyncStorage.setItem("xpi_refresh", res.refreshToken);
+      }
+      onAuth(access, res.user);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Login failed");
     } finally {

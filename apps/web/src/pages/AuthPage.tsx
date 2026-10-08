@@ -21,7 +21,7 @@ export function AuthPage() {
         mode === "login"
           ? await api.login({ email, password })
           : await api.register({ email, password, displayName, timezone: tz });
-      setAuth(res.token, res.user);
+      setAuth(res.accessToken || res.token, res.user, res.refreshToken);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed");
     } finally {
