@@ -262,12 +262,11 @@ packages/shared/src/
 - [x] Question types: `TRANSLATE`, `LISTEN`, `MATCH` (engine + web + seed + mobile)
 - [x] Mid-lesson disconnect resume (`GET …/active`, `start` resumes unless `forceNew`)
 - [x] Streak freeze hooks (consume 1-day gap; award on daily goal, cap 2)
-- [x] Web review UI (`/learn/reviews`); mobile review tab still open
+- [x] Web review UI (`/learn/reviews`) + mobile Review tab
 - [x] Mobile parity: new types, resume/restart, freezes, Android API host, timeouts
 - [x] Engines wired: `engines/lesson`, `engines/progression`
-- [ ] Auth rate limiting
-- [ ] Real automated tests under `src/tests/`
-- [ ] Mobile dedicated review screen
+- [x] Auth rate limiting (20 / 15m per IP on `/auth/*`)
+- [x] Unit tests for grade / streak / SM-2 / XP / rate limit (CI)
 
 ---
 

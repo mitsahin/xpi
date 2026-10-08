@@ -147,4 +147,29 @@ export const api = {
       method: "POST",
       body: JSON.stringify(body),
     }),
+  reviews: () =>
+    request<{
+      reviews: Array<{
+        cardId: string;
+        prompt: string;
+        type: QuestionType;
+        options?: string[] | null;
+        pairs?: { left: string[]; right: string[] } | null;
+        speakText?: string | null;
+        locale?: string | null;
+        hint?: string | null;
+      }>;
+    }>("/me/reviews"),
+  answerReview: (
+    cardId: string,
+    body: { answer: unknown; responseMs?: number }
+  ) =>
+    request<{
+      correct: boolean;
+      expected?: string | string[] | Record<string, string>;
+      xpEarned?: number;
+    }>(`/me/reviews/${cardId}/answer`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
 };

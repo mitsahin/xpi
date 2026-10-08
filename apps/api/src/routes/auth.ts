@@ -4,8 +4,11 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { asyncHandler } from "../lib/asyncHandler";
 import { requireAuth, signToken } from "../middleware/auth";
+import { authRateLimit } from "../middleware/rateLimit";
 
 export const authRouter = Router();
+
+authRouter.use(authRateLimit);
 
 function isValidTimeZone(tz: string): boolean {
   try {

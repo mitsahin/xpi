@@ -38,11 +38,13 @@ export function ProfilePage() {
           <Stat label="Level" value={String(user.level)} />
           <Stat label="Total XP" value={String(user.xp)} />
           <Stat label="Streak" value={`${streak?.currentStreak ?? 0} days`} />
+          <Stat label="Freezes" value={String(streak?.freezesAvailable ?? 0)} />
           <Stat label="Best streak" value={`${streak?.longestStreak ?? 0} days`} />
           <Stat
             label="Today"
             value={`${streak?.todayXp ?? 0}/${streak?.dailyXpGoal ?? user.dailyXpGoal} XP`}
           />
+          <Stat label="Hearts" value={String(user.hearts)} />
           <Stat label="Timezone" value={user.timezone} />
         </div>
 

@@ -24,7 +24,8 @@ Ship a demoable Duolingo-like learning loop (web + Expo) without burning tokens 
 - [x] Mid-lesson disconnect resume
 - [x] Streak freeze/recovery hooks
 - [x] Stronger mobile parity (lesson types, resume, freezes)
-- [ ] Mobile review screen + auth rate limits + automated tests
+- [x] Mobile review screen + auth rate limits + automated unit tests
+- [ ] Integration tests / content CMS / payments (out of Phase 2)
 
 ## Out of scope for Phase 1
 - Payments, social, shops, full CMS, GraphQL, microservices

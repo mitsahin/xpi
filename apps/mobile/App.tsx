@@ -10,6 +10,7 @@ import { AuthScreen } from "./src/screens/AuthScreen";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { LessonScreen } from "./src/screens/LessonScreen";
 import { ProfileScreen } from "./src/screens/ProfileScreen";
+import { ReviewsScreen } from "./src/screens/ReviewsScreen";
 import { SplashScreen } from "./src/screens/SplashScreen";
 import type { RootStackParamList } from "./src/types";
 
@@ -36,6 +37,9 @@ function Tabs({
     >
       <Tab.Screen name="Learn">
         {() => <HomeScreen user={user} onUser={onUser} />}
+      </Tab.Screen>
+      <Tab.Screen name="Review">
+        {() => <ReviewsScreen onUser={onUser} />}
       </Tab.Screen>
       <Tab.Screen name="Profile">
         {() => (

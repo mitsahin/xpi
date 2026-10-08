@@ -1,5 +1,9 @@
+import path from "path";
+import dotenv from "dotenv";
 import { PrismaClient, QuestionType } from "@prisma/client";
 import bcrypt from "bcryptjs";
+
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 const prisma = new PrismaClient();
 

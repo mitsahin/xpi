@@ -56,6 +56,10 @@ jobs:
         working-directory: apps/api
         run: npx tsc -p tsconfig.json --noEmit
 
+      - name: Unit tests
+        working-directory: apps/api
+        run: npm test
+
       - name: Seed (smoke)
         working-directory: apps/api
         run: npx tsx prisma/seed.ts

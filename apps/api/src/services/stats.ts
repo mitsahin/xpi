@@ -1,12 +1,9 @@
-import {
-  calendarDateInTz,
-  daysBetween,
-  levelFromXp,
-} from "@x-pi/shared";
+import { calendarDateInTz, levelFromXp } from "@x-pi/shared";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import {
   applyStreakActivity,
+  effectiveCurrentStreak,
   maybeAwardStreakFreeze,
 } from "../engines/progression";
 
@@ -134,15 +131,14 @@ export async function getStreakSummary(userId: string, tx: Tx = prisma) {
     where: { userId_date: { userId, date: today } },
   });
 
-  let currentStreak = streak?.currentStreak ?? 0;
   const last = streak?.lastActiveDate ?? null;
   const freezesAvailable = streak?.freezesAvailable ?? 0;
-  if (last && last !== today) {
-    const gap = daysBetween(last, today);
-    if (gap >= 3 || (gap === 2 && freezesAvailable <= 0)) {
-      currentStreak = 0;
-    }
-  }
+  const currentStreak = effectiveCurrentStreak(
+    today,
+    last,
+    streak?.currentStreak ?? 0,
+    freezesAvailable
+  );
 
   return {
     currentStreak,

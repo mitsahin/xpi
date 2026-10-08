@@ -1,9 +1,6 @@
-import {
-  calendarDateInTz,
-  daysBetween,
-  previousCalendarDate,
-} from "@x-pi/shared";
+import { calendarDateInTz } from "@x-pi/shared";
 import type { Prisma, PrismaClient } from "@prisma/client";
+import { resolveStreakTransition } from "./streakLogic";
 
 type Tx = Prisma.TransactionClient | PrismaClient;
 
@@ -15,6 +12,8 @@ export type StreakUpdateResult = {
   freezesUsed: number;
   freezeConsumed: boolean;
 };
+
+export { resolveStreakTransition, effectiveCurrentStreak } from "./streakLogic";
 
 /**
  * Timezone-aware streak update.
@@ -34,7 +33,7 @@ export async function applyStreakActivity(
     SELECT id FROM "Streak" WHERE "userId" = ${userId} FOR UPDATE
   `;
 
-  let streak = await tx.streak.findUnique({ where: { userId } });
+  const streak = await tx.streak.findUnique({ where: { userId } });
   if (!streak) {
     const created = await tx.streak.create({
       data: {
@@ -49,43 +48,30 @@ export async function applyStreakActivity(
     return { ...created, freezeConsumed: false };
   }
 
-  if (streak.lastActiveDate === today) {
+  const next = resolveStreakTransition(today, {
+    currentStreak: streak.currentStreak,
+    longestStreak: streak.longestStreak,
+    lastActiveDate: streak.lastActiveDate,
+    freezesAvailable: streak.freezesAvailable,
+    freezesUsed: streak.freezesUsed,
+  });
+
+  if (next.unchanged) {
     return { ...streak, freezeConsumed: false };
-  }
-
-  const yesterday = previousCalendarDate(today);
-  let current = 1;
-  let freezesAvailable = streak.freezesAvailable;
-  let freezesUsed = streak.freezesUsed;
-  let freezeConsumed = false;
-
-  if (streak.lastActiveDate === yesterday) {
-    current = streak.currentStreak + 1;
-  } else if (
-    streak.lastActiveDate &&
-    daysBetween(streak.lastActiveDate, today) === 2 &&
-    freezesAvailable > 0
-  ) {
-    current = streak.currentStreak + 1;
-    freezesAvailable -= 1;
-    freezesUsed += 1;
-    freezeConsumed = true;
-  } else {
-    current = 1;
   }
 
   const updated = await tx.streak.update({
     where: { userId },
     data: {
-      currentStreak: current,
-      longestStreak: Math.max(streak.longestStreak, current),
-      lastActiveDate: today,
-      freezesAvailable,
-      freezesUsed,
+      currentStreak: next.currentStreak,
+      longestStreak: next.longestStreak,
+      lastActiveDate: next.lastActiveDate,
+      freezesAvailable: next.freezesAvailable,
+      freezesUsed: next.freezesUsed,
     },
   });
 
-  return { ...updated, freezeConsumed };
+  return { ...updated, freezeConsumed: next.freezeConsumed };
 }
 
 /** Award one freeze when daily goal is first met (cap 2). */
@@ -103,7 +89,6 @@ export async function maybeAwardStreakFreeze(
   const streak = await tx.streak.findUnique({ where: { userId } });
   if (!streak || streak.freezesAvailable >= 2) return streak?.freezesAvailable ?? 0;
 
-  // Award at most once per goal-met day via xp event style marker
   const id = `freeze_${userId}_${today}`;
   const rows = await tx.$queryRaw<Array<{ id: string }>>`
     INSERT INTO "XpEvent" (id, "userId", amount, reason, "refId", "createdAt")

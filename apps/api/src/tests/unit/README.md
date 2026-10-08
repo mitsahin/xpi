@@ -1,3 +1,3 @@
 # Unit tests
 
-Place engine/helper specs here (XP, SM-2 wrappers, answer normalization).
+Covers grading, streak freeze transitions, SM-2, XP levels, and auth rate limiting.
