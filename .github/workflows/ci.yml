@@ -27,6 +27,8 @@ jobs:
     env:
       DATABASE_URL: postgresql://xpi:xpi@localhost:5432/xpi?schema=public
       JWT_SECRET: ci-test-secret
+      ALLOW_SEED_RESET: "true"
+      NODE_ENV: development
       PORT: 4000
 
     steps:

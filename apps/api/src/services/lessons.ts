@@ -141,10 +141,39 @@ export async function submitAnswer(
   body: { questionId: string; answer: unknown; responseMs?: number }
 ): Promise<AnswerResult> {
   return prisma.$transaction(async (tx) => {
+    // Lock session row to prevent overlapping answer races
+    await tx.$executeRaw`
+      SELECT id FROM "LessonSession" WHERE id = ${sessionId} AND "userId" = ${userId} FOR UPDATE
+    `;
+
     const session = await tx.lessonSession.findFirst({
       where: { id: sessionId, userId },
     });
     if (!session) throw Object.assign(new Error("Session not found"), { status: 404 });
+
+    const answers = { ...((session.answersJson as object) || {}) } as Record<
+      string,
+      unknown
+    >;
+
+    // Idempotent retry: already answered this question
+    if (answers[body.questionId]) {
+      const recorded = answers[body.questionId] as { correct: boolean };
+      const qid = session.questionIds[session.currentIndex];
+      const nextQ =
+        session.status === "IN_PROGRESS" && qid
+          ? toQuestion(
+              await tx.question.findUniqueOrThrow({ where: { id: qid } })
+            )
+          : null;
+      return {
+        correct: recorded.correct,
+        heartsRemaining: session.heartsRemaining,
+        sessionComplete: session.status !== "IN_PROGRESS",
+        session: asState(session, nextQ),
+      };
+    }
+
     if (session.status !== "IN_PROGRESS") {
       throw Object.assign(new Error("Session not active"), { status: 400 });
     }
@@ -163,27 +192,6 @@ export async function submitAnswer(
     const correct = anyAnswerMatches(expectedArr, String(body.answer ?? ""));
     const expected = expectedArr.length === 1 ? expectedArr[0] : expectedArr;
 
-    const answers = { ...((session.answersJson as object) || {}) } as Record<
-      string,
-      unknown
-    >;
-    if (answers[body.questionId]) {
-      const nextQ =
-        session.currentIndex < session.questionIds.length
-          ? toQuestion(
-              await tx.question.findUniqueOrThrow({
-                where: { id: session.questionIds[session.currentIndex] },
-              })
-            )
-          : null;
-      return {
-        correct: (answers[body.questionId] as { correct: boolean }).correct,
-        heartsRemaining: session.heartsRemaining,
-        sessionComplete: false,
-        session: asState(session, nextQ),
-      };
-    }
-
     answers[body.questionId] = {
       correct,
       answer: body.answer,
@@ -197,16 +205,24 @@ export async function submitAnswer(
     else {
       incorrectCount += 1;
       hearts = Math.max(0, hearts - 1);
+      // Persist hearts on User so new sessions don't restore lost hearts
+      await tx.user.update({
+        where: { id: userId },
+        data: { hearts },
+      });
     }
 
     const nextIndex = session.currentIndex + 1;
     const reachedEnd = nextIndex >= session.questionIds.length;
-    const finished = reachedEnd || hearts <= 0;
-    const status = !finished
-      ? "IN_PROGRESS"
-      : reachedEnd
-        ? "COMPLETED"
-        : "ABANDONED";
+    const outOfHearts = hearts <= 0;
+    // Out of hearts before the end → abandon; reaching the end → complete
+    const resolvedStatus: "IN_PROGRESS" | "COMPLETED" | "ABANDONED" =
+      !reachedEnd && outOfHearts
+        ? "ABANDONED"
+        : reachedEnd
+          ? "COMPLETED"
+          : "IN_PROGRESS";
+    const isFinished = resolvedStatus !== "IN_PROGRESS";
 
     const updated = await tx.lessonSession.update({
       where: { id: session.id },
@@ -215,9 +231,9 @@ export async function submitAnswer(
         heartsRemaining: hearts,
         correctCount,
         incorrectCount,
-        currentIndex: finished ? session.currentIndex : nextIndex,
-        status,
-        completedAt: finished ? new Date() : null,
+        currentIndex: isFinished ? session.currentIndex : nextIndex,
+        status: resolvedStatus,
+        completedAt: isFinished ? new Date() : null,
       },
     });
 
@@ -230,7 +246,7 @@ export async function submitAnswer(
       });
     }
 
-    if (!finished) {
+    if (!isFinished) {
       const nextQ = toQuestion(
         await tx.question.findUniqueOrThrow({
           where: { id: updated.questionIds[nextIndex] },
@@ -250,7 +266,7 @@ export async function submitAnswer(
     let leveledUp = false;
     let newLevel: number | undefined;
 
-    if (status === "COMPLETED") {
+    if (resolvedStatus === "COMPLETED") {
       const lesson = await tx.lesson.findUniqueOrThrow({
         where: { id: session.lessonId },
       });
@@ -267,6 +283,7 @@ export async function submitAnswer(
         reason: "lesson_complete",
         refId: session.id,
         timezone: user.timezone,
+        lessonsCompleted: 1,
       });
       xpEarned = award.awarded;
       leveledUp = award.leveledUp;
@@ -275,46 +292,46 @@ export async function submitAnswer(
 
       const accuracy = correctCount / Math.max(1, correctCount + incorrectCount);
       const stars = accuracy >= 1 ? 3 : accuracy >= 0.8 ? 2 : 1;
-      const existing = await tx.userProgress.findUnique({
-        where: { userId_lessonId: { userId, lessonId: session.lessonId } },
-      });
-      await tx.userProgress.upsert({
-        where: { userId_lessonId: { userId, lessonId: session.lessonId } },
-        create: {
-          userId,
-          lessonId: session.lessonId,
-          completed: true,
-          stars,
-          bestScore: Math.round(accuracy * 100),
-          timesCompleted: 1,
-          lastCompletedAt: new Date(),
-        },
-        update: {
-          completed: true,
-          stars: Math.max(existing?.stars ?? 0, stars),
-          bestScore: Math.max(existing?.bestScore ?? 0, Math.round(accuracy * 100)),
-          timesCompleted: { increment: 1 },
-          lastCompletedAt: new Date(),
-        },
-      });
+      const score = Math.round(accuracy * 100);
+
+      // Atomic bestScore / stars via GREATEST
+      await tx.$executeRaw`
+        INSERT INTO "UserProgress" (id, "userId", "lessonId", completed, stars, "bestScore", "timesCompleted", "lastCompletedAt", "updatedAt")
+        VALUES (${`up_${session.id}`}, ${userId}, ${session.lessonId}, true, ${stars}, ${score}, 1, NOW(), NOW())
+        ON CONFLICT ("userId", "lessonId") DO UPDATE SET
+          completed = true,
+          stars = GREATEST("UserProgress".stars, EXCLUDED.stars),
+          "bestScore" = GREATEST("UserProgress"."bestScore", EXCLUDED."bestScore"),
+          "timesCompleted" = "UserProgress"."timesCompleted" + 1,
+          "lastCompletedAt" = NOW(),
+          "updatedAt" = NOW()
+      `;
+
       await tx.lessonSession.update({
         where: { id: session.id },
         data: { xpAwarded: xpEarned },
       });
+
+      // Soft heart regen on successful complete
+      await tx.user.update({
+        where: { id: userId },
+        data: { hearts: Math.min(5, hearts + 1) },
+      });
     }
 
-    const streak = await getStreakSummary(userId);
+    // Read streak from same transaction so response is not stale
+    const streak = await getStreakSummary(userId, tx);
     return {
       correct,
       expected: correct ? undefined : expected,
       explanation: question.explanation,
       heartsRemaining: hearts,
-      sessionComplete: true,
+      sessionComplete: resolvedStatus === "COMPLETED",
       xpEarned,
       leveledUp,
       newLevel,
       streak,
-      session: asState({ ...updated, status }, null),
+      session: asState({ ...updated, status: resolvedStatus }, null),
     };
   });
 }

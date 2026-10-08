@@ -35,7 +35,7 @@ function Tabs({
       }}
     >
       <Tab.Screen name="Learn">
-        {() => <HomeScreen user={user} />}
+        {() => <HomeScreen user={user} onUser={onUser} />}
       </Tab.Screen>
       <Tab.Screen name="Profile">
         {() => (

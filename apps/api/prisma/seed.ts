@@ -4,6 +4,18 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
+  const allowReset =
+    process.env.ALLOW_SEED_RESET === "true" ||
+    process.env.NODE_ENV === "development" ||
+    !process.env.NODE_ENV;
+
+  if (!allowReset) {
+    throw new Error(
+      "Refusing to seed-reset: set ALLOW_SEED_RESET=true (blocked outside development)."
+    );
+  }
+
+  // Destructive reset — demo/dev only
   await prisma.xpEvent.deleteMany();
   await prisma.srsCard.deleteMany();
   await prisma.lessonSession.deleteMany();

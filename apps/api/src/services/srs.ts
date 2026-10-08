@@ -96,11 +96,17 @@ export async function submitSrsReview(
   responseMs?: number
 ) {
   return prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`
+      SELECT id FROM "SrsCard" WHERE id = ${cardId} AND "userId" = ${userId} FOR UPDATE
+    `;
     const card = await tx.srsCard.findFirst({
       where: { id: cardId, userId },
       include: { question: true },
     });
     if (!card) throw Object.assign(new Error("Card not found"), { status: 404 });
+    if (card.dueAt.getTime() > Date.now()) {
+      throw Object.assign(new Error("Card not due yet"), { status: 400 });
+    }
 
     const expected = Array.isArray(card.question.answerJson)
       ? (card.question.answerJson as string[])
@@ -117,12 +123,14 @@ export async function submitSrsReview(
     let xpEarned = 0;
     if (correct) {
       const user = await tx.user.findUniqueOrThrow({ where: { id: userId } });
+      // Hour-bucketed refId limits redelivery spam for the same card
       const award = await awardXp(tx, {
         userId,
         amount: Math.floor(XP_PER_CORRECT / 2),
         reason: "srs_review",
         refId: `${cardId}:${new Date().toISOString().slice(0, 13)}`,
         timezone: user.timezone,
+        reviewsCompleted: 1,
       });
       xpEarned = award.awarded;
       await updateStreak(tx, userId, user.timezone);

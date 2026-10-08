@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import { env } from "./lib/env";
+import { prisma } from "./lib/prisma";
+import { asyncHandler } from "./lib/asyncHandler";
 import { authRouter } from "./routes/auth";
 import { lessonsRouter } from "./routes/lessons";
 import { meRouter } from "./routes/me";
@@ -14,7 +16,13 @@ app.use(
 );
 app.use(express.json());
 
-app.get("/health", (_req, res) => res.json({ ok: true, service: "x-pi-api" }));
+app.get(
+  "/health",
+  asyncHandler(async (_req, res) => {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ ok: true, service: "x-pi-api" });
+  })
+);
 app.use("/auth", authRouter);
 app.use("/lessons", lessonsRouter);
 app.use("/me", meRouter);

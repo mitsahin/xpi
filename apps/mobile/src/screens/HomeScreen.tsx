@@ -12,21 +12,34 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { api, type AuthUser, type PublicLesson } from "../api";
 import type { RootStackParamList } from "../types";
 
-export function HomeScreen({ user }: { user: AuthUser }) {
+export function HomeScreen({
+  user,
+  onUser,
+}: {
+  user: AuthUser;
+  onUser?: (u: AuthUser) => void;
+}) {
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [lessons, setLessons] = useState<PublicLesson[]>([]);
   const [streak, setStreak] = useState(0);
   const [todayXp, setTodayXp] = useState(0);
   const [goal, setGoal] = useState(user.dailyXpGoal);
+  const [liveUser, setLiveUser] = useState(user);
+  const [error, setError] = useState("");
 
   const load = useCallback(() => {
-    Promise.all([api.lessons(), api.stats()]).then(([l, s]) => {
-      setLessons(l.lessons);
-      setStreak(s.streak.currentStreak);
-      setTodayXp(s.streak.todayXp);
-      setGoal(s.streak.dailyXpGoal);
-    });
-  }, []);
+    setError("");
+    Promise.all([api.lessons(), api.stats()])
+      .then(([l, s]) => {
+        setLessons(l.lessons);
+        setStreak(s.streak.currentStreak);
+        setTodayXp(s.streak.todayXp);
+        setGoal(s.streak.dailyXpGoal);
+        setLiveUser(s.user);
+        onUser?.(s.user);
+      })
+      .catch((e) => setError(e instanceof Error ? e.message : "Failed to load"));
+  }, [onUser]);
 
   useFocusEffect(
     useCallback(() => {
@@ -41,10 +54,11 @@ export function HomeScreen({ user }: { user: AuthUser }) {
       refreshControl={<RefreshControl refreshing={false} onRefresh={load} />}
     >
       <Text style={styles.brand}>x-pi</Text>
+      {!!error && <Text style={{ color: "#ff4b4b", fontWeight: "800" }}>{error}</Text>}
       <View style={styles.row}>
         <Text style={styles.stat}>🔥 {streak}</Text>
-        <Text style={styles.stat}>💎 {user.xp} XP</Text>
-        <Text style={styles.stat}>❤ {user.hearts}</Text>
+        <Text style={styles.stat}>💎 {liveUser.xp} XP</Text>
+        <Text style={styles.stat}>❤ {liveUser.hearts}</Text>
       </View>
       <Text style={styles.goal}>
         Daily goal {todayXp}/{goal} XP
