@@ -66,7 +66,17 @@ Empty folders hold short `README.md` stubs describing purpose — no fake busine
 ## Prerequisites
 
 - Node.js 20+
-- PostgreSQL 14+
+- PostgreSQL 14+ (or Docker Desktop for the Windows one-shot script)
+
+## Local Windows (API + Postgres)
+
+If the Vite app is up (e.g. `:5173` / `:5174`) but `/api` fails because nothing is listening on `:4000`, run this **one** PowerShell command from the repo root (Docker Desktop must be running; `npm install` already done):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\dev-api.ps1
+```
+
+That script starts Postgres in Docker (if needed), writes `apps/api/.env`, runs migrate + seed, then starts `npm run dev:api` on **http://localhost:4000**. Leave that window open; keep `npm run dev:web` in another terminal. Demo login: `demo@x-pi.app` / `demo1234`.
 
 ## Setup
 
