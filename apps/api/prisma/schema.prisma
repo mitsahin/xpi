@@ -47,6 +47,24 @@ model User {
   srsCards        SrsCard[]
   xpEvents        XpEvent[]
   dailyActivities DailyActivity[]
+  refreshTokens   RefreshToken[]
+}
+
+/// Opaque refresh tokens (store hash only). Designed for body or httpOnly cookie delivery.
+model RefreshToken {
+  id           String    @id @default(cuid())
+  userId       String
+  tokenHash    String    @unique
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  replacedById String?
+  userAgent    String?
+  createdAt    DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Course {

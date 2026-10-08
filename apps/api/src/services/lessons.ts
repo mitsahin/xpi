@@ -91,6 +91,7 @@ export async function getActiveSession(userId: string, lessonId: string) {
     where: { userId, lessonId, status: "IN_PROGRESS" },
   });
   if (!session) return null;
+  assertOwner(session.userId, userId, "Session");
   const qid = session.questionIds[session.currentIndex];
   if (!qid) return null;
   const q = toQuestionPayload(

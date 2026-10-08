@@ -8,4 +8,9 @@ export {
   startLessonBodySchema,
 } from "./ids";
 
-export { registerBodySchema, loginBodySchema } from "./auth";
+export {
+  registerBodySchema,
+  loginBodySchema,
+  refreshBodySchema,
+  logoutBodySchema,
+} from "./auth";
