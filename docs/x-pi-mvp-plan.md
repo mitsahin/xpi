@@ -20,10 +20,11 @@ Ship a demoable Duolingo-like learning loop (web + Expo) without burning tokens 
 - Seed course + README + draft PR
 
 ## Phase 2 — After MVP works
-- Translation + listening/matching
-- Mid-lesson disconnect resume
-- Streak freeze/recovery
-- Stronger mobile parity and motion polish
+- [x] Translation + listening/matching (`TRANSLATE` / `LISTEN` / `MATCH`)
+- [x] Mid-lesson disconnect resume
+- [x] Streak freeze/recovery hooks
+- [x] Stronger mobile parity (lesson types, resume, freezes)
+- [ ] Mobile review screen + auth rate limits + automated tests
 
 ## Out of scope for Phase 1
 - Payments, social, shops, full CMS, GraphQL, microservices

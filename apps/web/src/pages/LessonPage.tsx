@@ -2,6 +2,11 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api, type LessonSessionState } from "../lib/api";
 import { useAppStore } from "../store";
+import { MatchBoard } from "../features/learn/MatchBoard";
+import {
+  questionTypeLabel,
+  speakText,
+} from "../features/learn/questionLabels";
 
 export function LessonPage() {
   const { lessonId } = useParams();
@@ -9,6 +14,7 @@ export function LessonPage() {
   const setUser = useAppStore((s) => s.setUser);
   const setStreak = useAppStore((s) => s.setStreak);
   const [session, setSession] = useState<LessonSessionState | null>(null);
+  const [resumed, setResumed] = useState(false);
   const [selected, setSelected] = useState("");
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const [expected, setExpected] = useState<string>("");
@@ -28,12 +34,13 @@ export function LessonPage() {
       .startLesson(lessonId)
       .then((r) => {
         setSession(r.session);
+        setResumed(r.resumed);
         startedAt.current = Date.now();
       })
       .catch((e) => setError(e.message));
   }, [lessonId]);
 
-  async function submit(answer: string) {
+  async function submit(answer: unknown) {
     if (!session?.question || busy || feedback) return;
     setBusy(true);
     try {
@@ -44,9 +51,17 @@ export function LessonPage() {
       });
       setFeedback(result.correct ? "correct" : "wrong");
       if (!result.correct && result.expected) {
-        setExpected(
-          Array.isArray(result.expected) ? result.expected[0] : result.expected
-        );
+        if (typeof result.expected === "object" && !Array.isArray(result.expected)) {
+          setExpected(
+            Object.entries(result.expected)
+              .map(([k, v]) => `${k}→${v}`)
+              .join(", ")
+          );
+        } else {
+          setExpected(
+            Array.isArray(result.expected) ? result.expected[0] : result.expected
+          );
+        }
       }
       if (result.sessionComplete) {
         setDone({
@@ -82,6 +97,7 @@ export function LessonPage() {
       setSelected("");
       setFeedback(null);
       setExpected("");
+      setResumed(false);
       startedAt.current = Date.now();
     }
   }
@@ -89,6 +105,26 @@ export function LessonPage() {
   function onFill(e: FormEvent) {
     e.preventDefault();
     submit(selected);
+  }
+
+  async function restart() {
+    if (!lessonId) return;
+    setBusy(true);
+    try {
+      const r = await api.startLesson(lessonId, { forceNew: true });
+      setSession(r.session);
+      setResumed(false);
+      setFeedback(null);
+      setExpected("");
+      setSelected("");
+      setDone(null);
+      setNextSession(null);
+      startedAt.current = Date.now();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed");
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (error) {
@@ -114,6 +150,7 @@ export function LessonPage() {
     ((session.currentIndex + (feedback ? 1 : 0)) / Math.max(1, session.totalQuestions)) *
     100;
   const q = session.question;
+  const textInputTypes = q?.type === "FILL_BLANK" || q?.type === "TRANSLATE" || q?.type === "LISTEN";
 
   return (
     <div className="flex min-h-full flex-col bg-white">
@@ -129,6 +166,22 @@ export function LessonPage() {
         </div>
         <div className="font-extrabold text-[#ff4b4b]">❤ {session.heartsRemaining}</div>
       </div>
+
+      {resumed && !done && (
+        <div className="mx-auto flex w-full max-w-lg items-center justify-between gap-2 px-4 py-2">
+          <p className="text-sm font-extrabold text-[#1cb0f6]">
+            Resumed where you left off
+          </p>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={restart}
+            className="text-xs font-black uppercase text-[#777] underline"
+          >
+            Restart
+          </button>
+        </div>
+      )}
 
       {done ? (
         <div className="animate-pop flex flex-1 flex-col items-center justify-center px-6 text-center">
@@ -148,11 +201,21 @@ export function LessonPage() {
         <>
           <div className="mx-auto w-full max-w-lg flex-1 px-4 py-6">
             <p className="text-sm font-extrabold uppercase tracking-wide text-[#afafaf]">
-              {q?.type === "MCQ" ? "Multiple choice" : "Fill in the blank"}
+              {questionTypeLabel(q?.type)}
             </p>
             <h2 className="mt-2 text-2xl font-black leading-snug">{q?.prompt}</h2>
             {q?.hint && (
               <p className="mt-2 text-sm font-bold text-[#1cb0f6]">Hint: {q.hint}</p>
+            )}
+
+            {q?.type === "LISTEN" && (
+              <button
+                type="button"
+                onClick={() => speakText(q.speakText || q.prompt, q.locale || "es-ES")}
+                className="mt-4 rounded-2xl border-2 border-b-4 border-[#1cb0f6] bg-[#ddf4ff] px-4 py-3 font-black text-[#1cb0f6]"
+              >
+                ▶ Play audio
+              </button>
             )}
 
             {q?.type === "MCQ" && (
@@ -160,7 +223,7 @@ export function LessonPage() {
                 {q.options?.map((opt) => (
                   <button
                     key={opt}
-                    disabled={!!feedback}
+                    disabled={!!feedback || busy}
                     onClick={() => {
                       setSelected(opt);
                       submit(opt);
@@ -179,11 +242,11 @@ export function LessonPage() {
               </div>
             )}
 
-            {q?.type === "FILL_BLANK" && (
+            {textInputTypes && (
               <form onSubmit={onFill} className="mt-8 space-y-4">
                 <input
                   autoFocus
-                  disabled={!!feedback}
+                  disabled={!!feedback || busy}
                   value={selected}
                   onChange={(e) => setSelected(e.target.value)}
                   className="w-full rounded-2xl border-2 border-[#e5e5e5] px-4 py-4 text-xl font-extrabold outline-none focus:border-[#1cb0f6]"
@@ -198,6 +261,15 @@ export function LessonPage() {
                   </button>
                 )}
               </form>
+            )}
+
+            {q?.type === "MATCH" && q.pairs && (
+              <MatchBoard
+                left={q.pairs.left}
+                right={q.pairs.right}
+                disabled={!!feedback || busy}
+                onSubmit={(pairs) => submit(pairs)}
+              />
             )}
           </div>
 

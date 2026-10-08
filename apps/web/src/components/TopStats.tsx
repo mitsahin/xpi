@@ -14,6 +14,9 @@ export function TopStats() {
         <div className="text-2xl font-black tracking-tight text-[#58cc02]">x-pi</div>
         <div className="flex items-center gap-3 text-sm font-extrabold">
           <span className="text-[#ff9600]">🔥 {streak?.currentStreak ?? 0}</span>
+          <span className="text-[#ce82ff]" title="Streak freezes">
+            ❄️ {streak?.freezesAvailable ?? 0}
+          </span>
           <span className="text-[#1cb0f6]">💎 {user.xp} XP</span>
           <span className="text-[#ff4b4b]">❤ {user.hearts}</span>
         </div>

@@ -23,13 +23,24 @@ export type PublicLesson = {
   locked: boolean;
   completed: boolean;
   stars: number;
+  hasActiveSession?: boolean;
 };
+
+export type QuestionType =
+  | "MCQ"
+  | "FILL_BLANK"
+  | "TRANSLATE"
+  | "LISTEN"
+  | "MATCH";
 
 export type QuestionPayload = {
   id: string;
-  type: "MCQ" | "FILL_BLANK";
+  type: QuestionType;
   prompt: string;
   options?: string[] | null;
+  pairs?: { left: string[]; right: string[] } | null;
+  speakText?: string | null;
+  locale?: string | null;
   hint?: string | null;
 };
 
@@ -52,6 +63,8 @@ export type StreakSummary = {
   todayXp: number;
   dailyXpGoal: number;
   goalMet: boolean;
+  freezesAvailable: number;
+  freezesUsed: number;
 };
 
 function token() {
@@ -100,17 +113,25 @@ export const api = {
       };
     }>("/me/stats"),
   lessons: () => request<{ lessons: PublicLesson[] }>("/lessons"),
-  startLesson: (lessonId: string) =>
-    request<{ session: LessonSessionState }>(`/lessons/${lessonId}/start`, {
-      method: "POST",
-    }),
+  activeSession: (lessonId: string) =>
+    request<{ session: LessonSessionState | null }>(
+      `/lessons/${lessonId}/active`
+    ),
+  startLesson: (lessonId: string, opts?: { forceNew?: boolean }) =>
+    request<{ session: LessonSessionState; resumed: boolean }>(
+      `/lessons/${lessonId}/start`,
+      {
+        method: "POST",
+        body: JSON.stringify({ forceNew: opts?.forceNew === true }),
+      }
+    ),
   answer: (
     sessionId: string,
     body: { questionId: string; answer: unknown; responseMs?: number }
   ) =>
     request<{
       correct: boolean;
-      expected?: string | string[];
+      expected?: string | string[] | Record<string, string>;
       explanation?: string | null;
       heartsRemaining: number;
       sessionComplete: boolean;
@@ -120,6 +141,28 @@ export const api = {
       streak?: StreakSummary;
       session?: LessonSessionState;
     }>(`/lessons/sessions/${sessionId}/answer`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    }),
+  reviews: () =>
+    request<{
+      reviews: Array<{
+        cardId: string;
+        prompt: string;
+        type: QuestionType;
+        options?: string[] | null;
+        hint?: string | null;
+      }>;
+    }>("/me/reviews"),
+  answerReview: (
+    cardId: string,
+    body: { answer: unknown; responseMs?: number }
+  ) =>
+    request<{
+      correct: boolean;
+      expected?: string | string[];
+      xpEarned?: number;
+    }>(`/me/reviews/${cardId}/answer`, {
       method: "POST",
       body: JSON.stringify(body),
     }),

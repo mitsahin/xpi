@@ -16,6 +16,7 @@ export function ProfileScreen({
   const [streak, setStreak] = useState(0);
   const [best, setBest] = useState(0);
   const [today, setToday] = useState(0);
+  const [freezes, setFreezes] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -24,6 +25,7 @@ export function ProfileScreen({
         setStreak(s.streak.currentStreak);
         setBest(s.streak.longestStreak);
         setToday(s.streak.todayXp);
+        setFreezes(s.streak.freezesAvailable ?? 0);
       });
     }, [onUser])
   );
@@ -42,6 +44,7 @@ export function ProfileScreen({
         <Tile label="Level" value={String(user.level)} />
         <Tile label="XP" value={String(user.xp)} />
         <Tile label="Streak" value={`${streak}d`} />
+        <Tile label="Freezes" value={String(freezes)} />
         <Tile label="Best" value={`${best}d`} />
         <Tile label="Today" value={`${today}/${user.dailyXpGoal}`} />
         <Tile label="TZ" value={user.timezone} />

@@ -257,15 +257,17 @@ packages/shared/src/
 - [x] CI: migrate, seed, typecheck API, build web
 - [x] Sourcery-blocking dependency mitigations documented
 
-### Phase 2 — Planned
+### Phase 2 — In progress / shipped on branch
 
-- [ ] Question types: translation, listening, matching
-- [ ] Mid-lesson disconnect resume
-- [ ] Streak freeze / recovery
-- [ ] Client review UIs (web + mobile)
-- [ ] Auth rate limiting, request timeouts
-- [ ] Extract engines/validators/controllers; add real tests
-- [ ] Stronger mobile parity and motion polish
+- [x] Question types: `TRANSLATE`, `LISTEN`, `MATCH` (engine + web + seed + mobile)
+- [x] Mid-lesson disconnect resume (`GET …/active`, `start` resumes unless `forceNew`)
+- [x] Streak freeze hooks (consume 1-day gap; award on daily goal, cap 2)
+- [x] Web review UI (`/learn/reviews`); mobile review tab still open
+- [x] Mobile parity: new types, resume/restart, freezes, Android API host, timeouts
+- [x] Engines wired: `engines/lesson`, `engines/progression`
+- [ ] Auth rate limiting
+- [ ] Real automated tests under `src/tests/`
+- [ ] Mobile dedicated review screen
 
 ---
 

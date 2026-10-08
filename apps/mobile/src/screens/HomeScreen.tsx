@@ -22,6 +22,7 @@ export function HomeScreen({
   const nav = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [lessons, setLessons] = useState<PublicLesson[]>([]);
   const [streak, setStreak] = useState(0);
+  const [freezes, setFreezes] = useState(0);
   const [todayXp, setTodayXp] = useState(0);
   const [goal, setGoal] = useState(user.dailyXpGoal);
   const [liveUser, setLiveUser] = useState(user);
@@ -33,6 +34,7 @@ export function HomeScreen({
       .then(([l, s]) => {
         setLessons(l.lessons);
         setStreak(s.streak.currentStreak);
+        setFreezes(s.streak.freezesAvailable ?? 0);
         setTodayXp(s.streak.todayXp);
         setGoal(s.streak.dailyXpGoal);
         setLiveUser(s.user);
@@ -57,6 +59,7 @@ export function HomeScreen({
       {!!error && <Text style={{ color: "#ff4b4b", fontWeight: "800" }}>{error}</Text>}
       <View style={styles.row}>
         <Text style={styles.stat}>🔥 {streak}</Text>
+        <Text style={styles.stat}>❄️ {freezes}</Text>
         <Text style={styles.stat}>💎 {liveUser.xp} XP</Text>
         <Text style={styles.stat}>❤ {liveUser.hearts}</Text>
       </View>
@@ -88,7 +91,8 @@ export function HomeScreen({
             {lesson.title}
           </Text>
           <Text style={styles.cardSub}>
-            +{lesson.xpReward} XP · {lesson.description}
+            +{lesson.xpReward} XP
+            {lesson.hasActiveSession ? " · resume" : ""} · {lesson.description}
           </Text>
         </Pressable>
       ))}

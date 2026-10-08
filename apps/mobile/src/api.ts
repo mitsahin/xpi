@@ -1,6 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Platform } from "react-native";
 
-const BASE = process.env.EXPO_PUBLIC_API_URL || "http://localhost:4000";
+function defaultBase() {
+  if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
+  // Android emulator reaches host machine via 10.0.2.2
+  if (Platform.OS === "android") return "http://10.0.2.2:4000";
+  return "http://localhost:4000";
+}
+
+const BASE = defaultBase();
 
 export type AuthUser = {
   id: string;
@@ -24,7 +32,15 @@ export type PublicLesson = {
   locked: boolean;
   completed: boolean;
   stars: number;
+  hasActiveSession?: boolean;
 };
+
+export type QuestionType =
+  | "MCQ"
+  | "FILL_BLANK"
+  | "TRANSLATE"
+  | "LISTEN"
+  | "MATCH";
 
 export type LessonSessionState = {
   sessionId: string;
@@ -37,9 +53,12 @@ export type LessonSessionState = {
   incorrectCount: number;
   question?: {
     id: string;
-    type: "MCQ" | "FILL_BLANK";
+    type: QuestionType;
     prompt: string;
     options?: string[] | null;
+    pairs?: { left: string[]; right: string[] } | null;
+    speakText?: string | null;
+    locale?: string | null;
     hint?: string | null;
   } | null;
 };
@@ -51,10 +70,25 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   };
   const t = await AsyncStorage.getItem("xpi_token");
   if (t) headers.Authorization = `Bearer ${t}`;
-  const res = await fetch(`${BASE}${path}`, { ...init, headers });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || res.statusText);
-  return data as T;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 20_000);
+  try {
+    const res = await fetch(`${BASE}${path}`, {
+      ...init,
+      headers,
+      signal: controller.signal,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || res.statusText);
+    return data as T;
+  } catch (e) {
+    if (e instanceof Error && e.name === "AbortError") {
+      throw new Error("Request timed out");
+    }
+    throw e;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export const api = {
@@ -83,20 +117,26 @@ export const api = {
         todayXp: number;
         dailyXpGoal: number;
         goalMet: boolean;
+        freezesAvailable: number;
+        freezesUsed: number;
       };
     }>("/me/stats"),
   lessons: () => request<{ lessons: PublicLesson[] }>("/lessons"),
-  startLesson: (id: string) =>
-    request<{ session: LessonSessionState }>(`/lessons/${id}/start`, {
-      method: "POST",
-    }),
+  startLesson: (id: string, opts?: { forceNew?: boolean }) =>
+    request<{ session: LessonSessionState; resumed: boolean }>(
+      `/lessons/${id}/start`,
+      {
+        method: "POST",
+        body: JSON.stringify({ forceNew: opts?.forceNew === true }),
+      }
+    ),
   answer: (
     sessionId: string,
     body: { questionId: string; answer: unknown; responseMs?: number }
   ) =>
     request<{
       correct: boolean;
-      expected?: string | string[];
+      expected?: string | string[] | Record<string, string>;
       heartsRemaining: number;
       sessionComplete: boolean;
       xpEarned?: number;

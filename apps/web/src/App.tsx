@@ -8,6 +8,7 @@ import { AuthPage } from "./pages/AuthPage";
 import { HomePage } from "./pages/HomePage";
 import { LessonPage } from "./pages/LessonPage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { ReviewsPage } from "./pages/ReviewsPage";
 
 function Guard({ children }: { children: React.ReactNode }) {
   const token = useAppStore((s) => s.token);
@@ -65,6 +66,14 @@ export default function App() {
           element={
             <Guard>
               <LessonPage />
+            </Guard>
+          }
+        />
+        <Route
+          path="/learn/reviews"
+          element={
+            <Guard>
+              <ReviewsPage />
             </Guard>
           }
         />

@@ -68,6 +68,7 @@ export function HomePage() {
                         <div className="text-xs font-bold text-[#777]">
                           +{lesson.xpReward} XP
                           {lesson.stars > 0 ? ` · ${"★".repeat(lesson.stars)}` : ""}
+                          {lesson.hasActiveSession ? " · resume" : ""}
                         </div>
                       </div>
                     </li>

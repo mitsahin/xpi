@@ -119,8 +119,9 @@ GitHub Actions (`.github/workflows/ci.yml`) installs deps, migrates Postgres, se
 | POST | `/auth/login` | Login |
 | GET | `/auth/me` | Current user |
 | GET | `/lessons` | Path with lock/complete state |
-| POST | `/lessons/:id/start` | Start lesson session |
-| POST | `/lessons/sessions/:id/answer` | Submit MCQ / fill-blank |
+| GET | `/lessons/:id/active` | In-progress session (resume probe) |
+| POST | `/lessons/:id/start` | Start or resume lesson (`forceNew` to abandon) |
+| POST | `/lessons/sessions/:id/answer` | Submit answer (MCQ / fill / translate / listen / match) |
 | GET | `/me/stats` | XP, level progress, streak, daily goal |
 | GET | `/me/queue` | Daily lesson + due SRS reviews |
 | GET | `/me/reviews` | Due SRS cards |
@@ -141,6 +142,7 @@ GitHub Actions (`.github/workflows/ci.yml`) installs deps, migrates Postgres, se
 | `/auth` | Login / register |
 | `/learn` | Duolingo-like lesson path (`LessonShell`) |
 | `/learn/lesson/:id` | Lesson session |
+| `/learn/reviews` | Due SRS reviews |
 | `/learn/profile` | Profile / stats |
 
 ## Demo path
