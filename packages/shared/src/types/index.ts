@@ -1,4 +1,9 @@
-export type QuestionType = "MCQ" | "FILL_BLANK";
+export type QuestionType =
+  | "MCQ"
+  | "FILL_BLANK"
+  | "TRANSLATE"
+  | "LISTEN"
+  | "MATCH";
 
 export type LessonSessionStatus = "IN_PROGRESS" | "COMPLETED" | "ABANDONED";
 
@@ -27,6 +32,12 @@ export interface PublicLesson {
   locked: boolean;
   completed: boolean;
   stars: number;
+  hasActiveSession?: boolean;
+}
+
+export interface MatchBanks {
+  left: string[];
+  right: string[];
 }
 
 export interface QuestionPayload {
@@ -34,6 +45,11 @@ export interface QuestionPayload {
   type: QuestionType;
   prompt: string;
   options?: string[] | null;
+  /** MATCH: left/right banks (right may be shuffled for display). */
+  pairs?: MatchBanks | null;
+  /** LISTEN: text spoken via TTS. */
+  speakText?: string | null;
+  locale?: string | null;
   hint?: string | null;
 }
 
@@ -56,11 +72,14 @@ export interface StreakSummary {
   todayXp: number;
   dailyXpGoal: number;
   goalMet: boolean;
+  freezesAvailable: number;
+  freezesUsed: number;
+  freezeConsumed?: boolean;
 }
 
 export interface AnswerResult {
   correct: boolean;
-  expected?: string | string[];
+  expected?: string | string[] | Record<string, string>;
   explanation?: string | null;
   heartsRemaining: number;
   sessionComplete: boolean;
@@ -85,5 +104,8 @@ export interface SrsReviewItem {
   prompt: string;
   type: QuestionType;
   options?: string[] | null;
+  pairs?: MatchBanks | null;
+  speakText?: string | null;
+  locale?: string | null;
   hint?: string | null;
 }

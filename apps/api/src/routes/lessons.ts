@@ -2,7 +2,12 @@ import { Router } from "express";
 import { z } from "zod";
 import { asyncHandler } from "../lib/asyncHandler";
 import { requireAuth } from "../middleware/auth";
-import { listLessonsForUser, startLesson, submitAnswer } from "../services/lessons";
+import {
+  getActiveSession,
+  listLessonsForUser,
+  startLesson,
+  submitAnswer,
+} from "../services/lessons";
 
 export const lessonsRouter = Router();
 
@@ -16,12 +21,28 @@ lessonsRouter.get(
   })
 );
 
+lessonsRouter.get(
+  "/:lessonId/active",
+  asyncHandler(async (req, res) => {
+    const session = await getActiveSession(
+      req.auth!.userId,
+      req.params.lessonId
+    );
+    return res.json({ session });
+  })
+);
+
 lessonsRouter.post(
   "/:lessonId/start",
   asyncHandler(async (req, res) => {
+    const forceNew = req.body?.forceNew === true;
     try {
-      const session = await startLesson(req.auth!.userId, req.params.lessonId);
-      return res.json({ session });
+      const result = await startLesson(
+        req.auth!.userId,
+        req.params.lessonId,
+        { forceNew }
+      );
+      return res.json(result);
     } catch (e) {
       const err = e as Error & { status?: number };
       return res.status(err.status || 500).json({ error: err.message });

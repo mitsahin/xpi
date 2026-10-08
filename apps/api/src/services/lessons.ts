@@ -2,7 +2,6 @@ import {
   XP_LESSON_BONUS,
   XP_PERFECT_BONUS,
   XP_PER_CORRECT,
-  anyAnswerMatches,
   type AnswerResult,
   type LessonSessionState,
   type PublicLesson,
@@ -10,33 +9,13 @@ import {
 } from "@x-pi/shared";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
+import {
+  gradeLessonAnswer,
+  shuffle,
+  toQuestionPayload,
+} from "../engines/lesson";
 import { awardXp, getStreakSummary, updateStreak } from "./stats";
 import { upsertSrsFromAnswer } from "./srs";
-
-function toQuestion(q: {
-  id: string;
-  type: QuestionPayload["type"];
-  prompt: string;
-  optionsJson: Prisma.JsonValue;
-  hint: string | null;
-}): QuestionPayload {
-  return {
-    id: q.id,
-    type: q.type,
-    prompt: q.prompt,
-    options: (q.optionsJson as string[] | null) ?? null,
-    hint: q.hint,
-  };
-}
-
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
 
 function asState(
   session: {
@@ -75,6 +54,11 @@ export async function listLessonsForUser(userId: string): Promise<PublicLesson[]
 
   const progress = await prisma.userProgress.findMany({ where: { userId } });
   const byLesson = new Map(progress.map((p) => [p.lessonId, p]));
+  const active = await prisma.lessonSession.findMany({
+    where: { userId, status: "IN_PROGRESS" },
+    select: { lessonId: true },
+  });
+  const activeSet = new Set(active.map((a) => a.lessonId));
 
   let unlockNext = true;
   return course.lessons.map((lesson) => {
@@ -95,15 +79,38 @@ export async function listLessonsForUser(userId: string): Promise<PublicLesson[]
       locked,
       completed,
       stars: p?.stars ?? 0,
+      hasActiveSession: activeSet.has(lesson.id),
     };
   });
 }
 
-export async function startLesson(userId: string, lessonId: string) {
+export async function getActiveSession(userId: string, lessonId: string) {
+  const session = await prisma.lessonSession.findFirst({
+    where: { userId, lessonId, status: "IN_PROGRESS" },
+  });
+  if (!session) return null;
+  const qid = session.questionIds[session.currentIndex];
+  if (!qid) return null;
+  const q = toQuestionPayload(
+    await prisma.question.findUniqueOrThrow({ where: { id: qid } })
+  );
+  return asState(session, q);
+}
+
+export async function startLesson(
+  userId: string,
+  lessonId: string,
+  opts: { forceNew?: boolean } = {}
+) {
   const lessons = await listLessonsForUser(userId);
   const meta = lessons.find((l) => l.id === lessonId);
   if (!meta) throw Object.assign(new Error("Lesson not found"), { status: 404 });
   if (meta.locked) throw Object.assign(new Error("Lesson locked"), { status: 403 });
+
+  if (!opts.forceNew) {
+    const resumed = await getActiveSession(userId, lessonId);
+    if (resumed) return { session: resumed, resumed: true as const };
+  }
 
   const questions = await prisma.question.findMany({
     where: { lessonId },
@@ -115,7 +122,6 @@ export async function startLesson(userId: string, lessonId: string) {
 
   const questionIds = shuffle(questions.map((q) => q.id));
 
-  // Abandon + create atomically so overlapping starts cannot leave two IN_PROGRESS sessions
   const session = await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`
       SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE
@@ -135,10 +141,10 @@ export async function startLesson(userId: string, lessonId: string) {
     });
   });
 
-  const q = toQuestion(
+  const q = toQuestionPayload(
     await prisma.question.findUniqueOrThrow({ where: { id: questionIds[0] } })
   );
-  return asState(session, q);
+  return { session: asState(session, q), resumed: false as const };
 }
 
 export async function submitAnswer(
@@ -147,7 +153,6 @@ export async function submitAnswer(
   body: { questionId: string; answer: unknown; responseMs?: number }
 ): Promise<AnswerResult> {
   return prisma.$transaction(async (tx) => {
-    // Lock session row to prevent overlapping answer races
     await tx.$executeRaw`
       SELECT id FROM "LessonSession" WHERE id = ${sessionId} AND "userId" = ${userId} FOR UPDATE
     `;
@@ -162,20 +167,19 @@ export async function submitAnswer(
       unknown
     >;
 
-    // Idempotent retry: already answered this question
     if (answers[body.questionId]) {
       const recorded = answers[body.questionId] as { correct: boolean };
       const qid = session.questionIds[session.currentIndex];
       const nextQ =
         session.status === "IN_PROGRESS" && qid
-          ? toQuestion(
+          ? toQuestionPayload(
               await tx.question.findUniqueOrThrow({ where: { id: qid } })
             )
           : null;
       return {
         correct: recorded.correct,
         heartsRemaining: session.heartsRemaining,
-        sessionComplete: session.status !== "IN_PROGRESS",
+        sessionComplete: session.status === "COMPLETED",
         session: asState(session, nextQ),
       };
     }
@@ -192,11 +196,11 @@ export async function submitAnswer(
     const question = await tx.question.findUniqueOrThrow({
       where: { id: body.questionId },
     });
-    const expectedArr = Array.isArray(question.answerJson)
-      ? (question.answerJson as string[])
-      : [String(question.answerJson)];
-    const correct = anyAnswerMatches(expectedArr, String(body.answer ?? ""));
-    const expected = expectedArr.length === 1 ? expectedArr[0] : expectedArr;
+    const { correct, expected } = gradeLessonAnswer(
+      question.type,
+      question.answerJson,
+      body.answer
+    );
 
     answers[body.questionId] = {
       correct,
@@ -211,7 +215,6 @@ export async function submitAnswer(
     else {
       incorrectCount += 1;
       hearts = Math.max(0, hearts - 1);
-      // Persist hearts on User so new sessions don't restore lost hearts
       await tx.user.update({
         where: { id: userId },
         data: { hearts },
@@ -221,7 +224,6 @@ export async function submitAnswer(
     const nextIndex = session.currentIndex + 1;
     const reachedEnd = nextIndex >= session.questionIds.length;
     const outOfHearts = hearts <= 0;
-    // Out of hearts before the end → abandon; reaching the end → complete
     const resolvedStatus: "IN_PROGRESS" | "COMPLETED" | "ABANDONED" =
       !reachedEnd && outOfHearts
         ? "ABANDONED"
@@ -253,7 +255,7 @@ export async function submitAnswer(
     }
 
     if (!isFinished) {
-      const nextQ = toQuestion(
+      const nextQ = toQuestionPayload(
         await tx.question.findUniqueOrThrow({
           where: { id: updated.questionIds[nextIndex] },
         })
@@ -300,7 +302,6 @@ export async function submitAnswer(
       const stars = accuracy >= 1 ? 3 : accuracy >= 0.8 ? 2 : 1;
       const score = Math.round(accuracy * 100);
 
-      // Atomic bestScore / stars via GREATEST
       await tx.$executeRaw`
         INSERT INTO "UserProgress" (id, "userId", "lessonId", completed, stars, "bestScore", "timesCompleted", "lastCompletedAt", "updatedAt")
         VALUES (${`up_${session.id}`}, ${userId}, ${session.lessonId}, true, ${stars}, ${score}, 1, NOW(), NOW())
@@ -318,14 +319,12 @@ export async function submitAnswer(
         data: { xpAwarded: xpEarned },
       });
 
-      // Soft heart regen on successful complete
       await tx.user.update({
         where: { id: userId },
         data: { hearts: Math.min(5, hearts + 1) },
       });
     }
 
-    // Read streak from same transaction so response is not stale
     const streak = await getStreakSummary(userId, tx);
     return {
       correct,

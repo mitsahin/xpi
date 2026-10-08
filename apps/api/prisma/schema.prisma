@@ -10,6 +10,9 @@ datasource db {
 enum QuestionType {
   MCQ
   FILL_BLANK
+  TRANSLATE
+  LISTEN
+  MATCH
 }
 
 enum LessonSessionStatus {
@@ -133,12 +136,15 @@ model LessonSession {
 }
 
 model Streak {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  currentStreak  Int      @default(0)
-  longestStreak  Int      @default(0)
-  lastActiveDate String?
-  updatedAt      DateTime @updatedAt
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  currentStreak    Int      @default(0)
+  longestStreak    Int      @default(0)
+  lastActiveDate   String?
+  /// Banked streak freezes (Phase 2). Consumed when bridging a 1-day gap.
+  freezesAvailable Int      @default(1)
+  freezesUsed      Int      @default(0)
+  updatedAt        DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

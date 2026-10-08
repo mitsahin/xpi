@@ -2,10 +2,13 @@ import {
   calendarDateInTz,
   daysBetween,
   levelFromXp,
-  previousCalendarDate,
 } from "@x-pi/shared";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { prisma } from "../lib/prisma";
+import {
+  applyStreakActivity,
+  maybeAwardStreakFreeze,
+} from "../engines/progression";
 
 type Tx = Prisma.TransactionClient | PrismaClient;
 
@@ -112,44 +115,16 @@ export async function awardXp(
   };
 }
 
-/** Timezone-aware streak: consecutive calendar days; gap resets to 1. */
+/** Timezone-aware streak with optional 1-day freeze bridge. */
 export async function updateStreak(tx: Tx, userId: string, timezone: string) {
-  const today = calendarDateInTz(new Date(), timezone);
-
-  await tx.$executeRaw`
-    SELECT id FROM "Streak" WHERE "userId" = ${userId} FOR UPDATE
-  `;
-
-  let streak = await tx.streak.findUnique({ where: { userId } });
-  if (!streak) {
-    return tx.streak.create({
-      data: {
-        userId,
-        currentStreak: 1,
-        longestStreak: 1,
-        lastActiveDate: today,
-      },
-    });
-  }
-  if (streak.lastActiveDate === today) return streak;
-
-  const yesterday = previousCalendarDate(today);
-  const current =
-    streak.lastActiveDate === yesterday ? streak.currentStreak + 1 : 1;
-
-  return tx.streak.update({
-    where: { userId },
-    data: {
-      currentStreak: current,
-      longestStreak: Math.max(streak.longestStreak, current),
-      lastActiveDate: today,
-    },
-  });
+  const result = await applyStreakActivity(tx, userId, timezone);
+  await maybeAwardStreakFreeze(tx, userId, timezone);
+  return result;
 }
 
 /**
- * Streak summary with stale-miss handling: if lastActiveDate is ≥2 days ago,
- * report currentStreak as 0 until the user plays again.
+ * Streak summary with stale-miss handling: if lastActiveDate is ≥2 days ago
+ * and no freeze would bridge it, report currentStreak as 0 until play resumes.
  */
 export async function getStreakSummary(userId: string, tx: Tx = prisma) {
   const user = await tx.user.findUniqueOrThrow({ where: { id: userId } });
@@ -161,8 +136,12 @@ export async function getStreakSummary(userId: string, tx: Tx = prisma) {
 
   let currentStreak = streak?.currentStreak ?? 0;
   const last = streak?.lastActiveDate ?? null;
-  if (last && last !== today && daysBetween(last, today) >= 2) {
-    currentStreak = 0;
+  const freezesAvailable = streak?.freezesAvailable ?? 0;
+  if (last && last !== today) {
+    const gap = daysBetween(last, today);
+    if (gap >= 3 || (gap === 2 && freezesAvailable <= 0)) {
+      currentStreak = 0;
+    }
   }
 
   return {
@@ -172,5 +151,7 @@ export async function getStreakSummary(userId: string, tx: Tx = prisma) {
     todayXp: activity?.xpEarned ?? 0,
     dailyXpGoal: user.dailyXpGoal,
     goalMet: activity?.goalMet ?? false,
+    freezesAvailable,
+    freezesUsed: streak?.freezesUsed ?? 0,
   };
 }

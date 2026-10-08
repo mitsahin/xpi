@@ -8,3 +8,8 @@ export {
   answersMatch,
   anyAnswerMatches,
 } from "./normalize";
+export {
+  gradeQuestionAnswer,
+  matchMapsEqual,
+  type ExpectedAnswer,
+} from "./grade";

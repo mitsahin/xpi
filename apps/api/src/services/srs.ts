@@ -1,6 +1,5 @@
 import {
   XP_PER_CORRECT,
-  anyAnswerMatches,
   newSm2Card,
   qualityFromAnswer,
   scheduleSm2,
@@ -11,6 +10,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { awardXp, updateStreak } from "./stats";
 import { listLessonsForUser } from "./lessons";
+import { gradeLessonAnswer, toQuestionPayload } from "../engines/lesson";
 
 type Tx = Prisma.TransactionClient;
 
@@ -80,13 +80,19 @@ export async function getDueReviews(userId: string, limit = 20): Promise<SrsRevi
     take: limit,
     include: { question: true },
   });
-  return cards.map((c) => ({
-    cardId: c.id,
-    prompt: c.question.prompt,
-    type: c.question.type,
-    options: (c.question.optionsJson as string[] | null) ?? null,
-    hint: c.question.hint,
-  }));
+  return cards.map((c) => {
+    const q = toQuestionPayload(c.question);
+    return {
+      cardId: c.id,
+      prompt: q.prompt,
+      type: q.type,
+      options: q.options ?? null,
+      pairs: q.pairs ?? null,
+      speakText: q.speakText ?? null,
+      locale: q.locale ?? null,
+      hint: q.hint,
+    } satisfies SrsReviewItem;
+  });
 }
 
 export async function submitSrsReview(
@@ -108,10 +114,11 @@ export async function submitSrsReview(
       throw Object.assign(new Error("Card not due yet"), { status: 400 });
     }
 
-    const expected = Array.isArray(card.question.answerJson)
-      ? (card.question.answerJson as string[])
-      : [String(card.question.answerJson)];
-    const correct = anyAnswerMatches(expected, String(answer ?? ""));
+    const { correct, expected } = gradeLessonAnswer(
+      card.question.type,
+      card.question.answerJson,
+      answer
+    );
 
     await upsertSrsFromAnswer(tx, {
       userId,

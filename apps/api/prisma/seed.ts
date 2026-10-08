@@ -3,6 +3,15 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
+type SeedQuestion = {
+  type: QuestionType;
+  prompt: string;
+  options?: string[] | Record<string, unknown>;
+  answer: string | string[] | Record<string, string>;
+  orderIndex: number;
+  hint?: string;
+};
+
 async function main() {
   const allowReset =
     process.env.ALLOW_SEED_RESET === "true" ||
@@ -15,7 +24,6 @@ async function main() {
     );
   }
 
-  // Destructive reset — demo/dev only
   await prisma.xpEvent.deleteMany();
   await prisma.srsCard.deleteMany();
   await prisma.lessonSession.deleteMany();
@@ -35,7 +43,7 @@ async function main() {
       displayName: "Demo Learner",
       timezone: "America/New_York",
       dailyXpGoal: 50,
-      streak: { create: {} },
+      streak: { create: { freezesAvailable: 1, freezesUsed: 0 } },
     },
   });
 
@@ -48,7 +56,14 @@ async function main() {
     },
   });
 
-  const lessons = [
+  const lessons: Array<{
+    slug: string;
+    title: string;
+    description: string;
+    unitOrder: number;
+    lessonOrder: number;
+    questions: SeedQuestion[];
+  }> = [
     {
       slug: "greetings",
       title: "Greetings",
@@ -57,34 +72,34 @@ async function main() {
       lessonOrder: 1,
       questions: [
         {
-          type: "MCQ" as QuestionType,
+          type: "MCQ",
           prompt: 'How do you say "Hello" in Spanish?',
           options: ["Hola", "Adiós", "Gracias", "Por favor"],
           answer: "Hola",
           orderIndex: 0,
         },
         {
-          type: "FILL_BLANK" as QuestionType,
+          type: "FILL_BLANK",
           prompt: 'Complete: "___ días" (Good morning)',
           answer: ["Buenos", "buenos"],
           orderIndex: 1,
           hint: "Starts with B",
         },
         {
-          type: "MCQ" as QuestionType,
+          type: "MCQ",
           prompt: 'What does "Gracias" mean?',
           options: ["Please", "Thank you", "Sorry", "Yes"],
           answer: "Thank you",
           orderIndex: 2,
         },
         {
-          type: "FILL_BLANK" as QuestionType,
+          type: "FILL_BLANK",
           prompt: 'Fill in: "Ad___" (Goodbye)',
           answer: ["iós", "ios", "Adiós", "adios"],
           orderIndex: 3,
         },
         {
-          type: "MCQ" as QuestionType,
+          type: "MCQ",
           prompt: 'How do you say "Please"?',
           options: ["Por favor", "De nada", "Lo siento", "Bien"],
           answer: "Por favor",
@@ -100,36 +115,86 @@ async function main() {
       lessonOrder: 2,
       questions: [
         {
-          type: "MCQ" as QuestionType,
+          type: "MCQ",
           prompt: 'What is "uno"?',
           options: ["1", "2", "3", "4"],
           answer: "1",
           orderIndex: 0,
         },
         {
-          type: "FILL_BLANK" as QuestionType,
+          type: "FILL_BLANK",
           prompt: 'Spanish for 2: "d___"',
           answer: ["os", "dos", "Dos"],
           orderIndex: 1,
         },
         {
-          type: "MCQ" as QuestionType,
+          type: "MCQ",
           prompt: 'What is "tres"?',
           options: ["2", "3", "4", "5"],
           answer: "3",
           orderIndex: 2,
         },
         {
-          type: "MCQ" as QuestionType,
-          prompt: 'How do you say 4?',
+          type: "MCQ",
+          prompt: "How do you say 4?",
           options: ["cinco", "cuatro", "seis", "siete"],
           answer: "cuatro",
           orderIndex: 3,
         },
         {
-          type: "FILL_BLANK" as QuestionType,
+          type: "FILL_BLANK",
           prompt: 'Fill in: "ci___" (5)',
           answer: ["nco", "cinco", "Cinco"],
+          orderIndex: 4,
+        },
+      ],
+    },
+    {
+      slug: "phrases-lab",
+      title: "Phrases Lab",
+      description: "Translate, listen, and match (Phase 2)",
+      unitOrder: 1,
+      lessonOrder: 3,
+      questions: [
+        {
+          type: "TRANSLATE",
+          prompt: 'Translate to Spanish: "Good night"',
+          answer: ["Buenas noches", "buenas noches"],
+          orderIndex: 0,
+          hint: "Two words",
+        },
+        {
+          type: "LISTEN",
+          prompt: "Type what you hear",
+          options: { speakText: "Hola", locale: "es-ES" },
+          answer: ["Hola", "hola"],
+          orderIndex: 1,
+        },
+        {
+          type: "MATCH",
+          prompt: "Match Spanish ↔ English",
+          options: {
+            left: ["Hola", "Adiós", "Gracias"],
+            right: ["Hello", "Goodbye", "Thank you"],
+          },
+          answer: {
+            Hola: "Hello",
+            Adiós: "Goodbye",
+            Gracias: "Thank you",
+          },
+          orderIndex: 2,
+        },
+        {
+          type: "TRANSLATE",
+          prompt: 'Translate to English: "De nada"',
+          answer: ["You're welcome", "You are welcome", "No problem"],
+          orderIndex: 3,
+        },
+        {
+          type: "LISTEN",
+          prompt: "Listen and type the word",
+          options: { speakText: "Gracias", locale: "es-ES" },
+          answer: ["Gracias", "gracias"],
           orderIndex: 4,
         },
       ],
@@ -142,34 +207,34 @@ async function main() {
       lessonOrder: 1,
       questions: [
         {
-          type: "MCQ" as QuestionType,
+          type: "MCQ",
           prompt: 'What is "agua"?',
           options: ["Water", "Bread", "Milk", "Coffee"],
           answer: "Water",
           orderIndex: 0,
         },
         {
-          type: "FILL_BLANK" as QuestionType,
+          type: "FILL_BLANK",
           prompt: 'Spanish for bread: "p___"',
           answer: ["an", "pan", "Pan"],
           orderIndex: 1,
         },
         {
-          type: "MCQ" as QuestionType,
+          type: "MCQ",
           prompt: 'What does "manzana" mean?',
           options: ["Banana", "Apple", "Orange", "Grape"],
           answer: "Apple",
           orderIndex: 2,
         },
         {
-          type: "MCQ" as QuestionType,
+          type: "MCQ",
           prompt: 'How do you say "milk"?',
           options: ["leche", "café", "té", "jugo"],
           answer: "leche",
           orderIndex: 3,
         },
         {
-          type: "FILL_BLANK" as QuestionType,
+          type: "FILL_BLANK",
           prompt: 'Complete: "caf___" (coffee)',
           answer: ["é", "e", "café", "cafe"],
           orderIndex: 4,
@@ -196,9 +261,9 @@ async function main() {
           lessonId: lesson.id,
           type: q.type,
           prompt: q.prompt,
-          optionsJson: "options" in q ? q.options : undefined,
+          optionsJson: q.options ?? undefined,
           answerJson: q.answer,
-          hint: "hint" in q ? q.hint : undefined,
+          hint: q.hint,
           orderIndex: q.orderIndex,
         },
       });

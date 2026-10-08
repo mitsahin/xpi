@@ -1,5 +1,11 @@
 # Engines
 
-Pure-ish domain helpers for progression, SRS, and lesson grading.
+Domain helpers extracted from services:
 
-Phase 1 orchestration lives in `src/services/{stats,srs,lessons}.ts` with shared math in `@x-pi/shared`. Move extractable logic into the subfolders below without inventing stub business logic.
+| Path | Role |
+| --- | --- |
+| `lesson/` | Question payload shaping + answer grading |
+| `progression/` | Streak activity + freeze award/consume |
+| `srs/` | (scheduling still in `@x-pi/shared` + `services/srs.ts`) |
+
+Services orchestrate transactions; engines stay side-effect light where possible.
