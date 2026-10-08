@@ -1,0 +1,17 @@
+# Residual / accepted risk — document only when scanners still match by CVE id
+# even after override. See docs/security-deps.md.
+
+# node-forge is overridden to digitalbazaar/forge#ceba344 (1.4.1-0) which includes
+# the nested DigestAlgorithm element-count fix for CVE-2026-85393 /
+# GHSA-86w9-cpqp-85rv. No npm release with a first_patched_version exists yet
+# (advisory lists fixed: none). Remove when node-forge publishes a patched release.
+CVE-2026-85393
+
+# braces is overridden to @dieub/braces-depth-guard@3.0.3-pn.3 (depth-guard
+# backport of micromatch/braces#72). Upstream braces still has no patched npm
+# release (through 3.0.3; advisory fixed: none). Scanners that match on the
+# 3.0.3* version string may still report CVE-2026-93687 / GHSA-vfj7-8cjw-p6xm.
+# Path is Expo Metro micromatch only (dev toolchain), not API runtime.
+# Remove when upstream braces publishes >= patched release.
+CVE-2026-93687
+GHSA-vfj7-8cjw-p6xm

@@ -1,0 +1,31 @@
+{
+  "name": "x-pi",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @x-pi/api",
+    "dev:web": "npm run dev -w @x-pi/web",
+    "dev:mobile": "npm run start -w @x-pi/mobile",
+    "build": "npm run build -w @x-pi/shared && npm run build -w @x-pi/api && npm run build -w @x-pi/web",
+    "db:migrate": "npm run db:migrate -w @x-pi/api",
+    "db:seed": "npm run db:seed -w @x-pi/api",
+    "db:studio": "npm run db:studio -w @x-pi/api",
+    "test": "npm test -w @x-pi/api"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "node-forge": "git+https://github.com/digitalbazaar/forge.git#ceba34402e329f0365134f23fe19898756527d65",
+    "braces": "npm:@dieub/braces-depth-guard@3.0.3-pn.3"
+  },
+  "overrides": {
+    "node-forge": "$node-forge",
+    "deepmerge-ts": "8.0.2",
+    "braces": "$braces"
+  }
+}

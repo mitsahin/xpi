@@ -1,0 +1,119 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Outfit:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap");
+@import "tailwindcss";
+@import "./styles/tokens.css";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Syne", ui-sans-serif, sans-serif;
+  --font-learn: "Nunito", ui-sans-serif, sans-serif;
+  --color-xpi-green: #58cc02;
+  --color-xpi-green-deep: #3d9a00;
+  --color-xpi-green-soft: #d7ffb8;
+  --color-xpi-ink: #0f1712;
+  --color-xpi-muted: #7a857c;
+  --color-xpi-blue: #1cb0f6;
+  --color-xpi-red: #ff4b4b;
+  --color-xpi-gold: #ffc800;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--xpi-ink);
+  background: #f4f7f4;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Marketing motion --- */
+@keyframes xpi-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, -2%, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes xpi-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes xpi-sheen {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.mkt-drift {
+  animation: xpi-drift 14s ease-in-out infinite;
+}
+
+.mkt-rise {
+  animation: xpi-rise 0.7s ease-out both;
+}
+
+.mkt-rise-delay {
+  animation: xpi-rise 0.7s ease-out 0.12s both;
+}
+
+.mkt-rise-delay-2 {
+  animation: xpi-rise 0.7s ease-out 0.24s both;
+}
+
+.mkt-brand-sheen {
+  background: linear-gradient(
+    105deg,
+    var(--xpi-green-deep) 0%,
+    var(--xpi-green) 40%,
+    #9dff4a 55%,
+    var(--xpi-green) 70%,
+    var(--xpi-green-deep) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: xpi-sheen 5s ease-in-out infinite alternate;
+}
+
+/* --- Learn shell --- */
+.learn-shell {
+  font-family: var(--font-learn);
+  color: var(--xpi-ink-soft);
+  background: var(--xpi-learn-bg);
+  min-height: 100%;
+}
+
+@keyframes pop-in {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pop {
+  animation: pop-in 0.25s ease-out;
+}
