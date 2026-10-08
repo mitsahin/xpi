@@ -1,0 +1,21 @@
+{
+  "name": "x-pi",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev -w @x-pi/api",
+    "dev:web": "npm run dev -w @x-pi/web",
+    "dev:mobile": "npm run start -w @x-pi/mobile",
+    "build": "npm run build -w @x-pi/shared && npm run build -w @x-pi/api && npm run build -w @x-pi/web",
+    "db:migrate": "npm run db:migrate -w @x-pi/api",
+    "db:seed": "npm run db:seed -w @x-pi/api",
+    "db:studio": "npm run db:studio -w @x-pi/api"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

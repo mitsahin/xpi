@@ -1,0 +1,44 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --color-xpi-green: #58cc02;
+  --color-xpi-green-dark: #46a302;
+  --color-xpi-blue: #1cb0f6;
+  --color-xpi-red: #ff4b4b;
+  --color-xpi-gold: #ffc800;
+  --color-xpi-ink: #3c3c3c;
+  --color-xpi-muted: #afafaf;
+  --color-xpi-bg: #ffffff;
+  --color-xpi-soft: #f7f7f7;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-xpi-ink);
+  background: var(--color-xpi-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes pop-in {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pop {
+  animation: pop-in 0.25s ease-out;
+}
