@@ -1,7 +1,12 @@
 import { Router } from "express";
-import { z } from "zod";
 import { asyncHandler } from "../lib/asyncHandler";
 import { requireAuth } from "../middleware/auth";
+import {
+  answerBodySchema,
+  lessonIdParam,
+  sessionIdParam,
+  startLessonBodySchema,
+} from "../validators";
 import {
   getActiveSession,
   listLessonsForUser,
@@ -24,9 +29,13 @@ lessonsRouter.get(
 lessonsRouter.get(
   "/:lessonId/active",
   asyncHandler(async (req, res) => {
+    const params = lessonIdParam.safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).json({ error: "Invalid lesson id", code: "BAD_PARAMS" });
+    }
     const session = await getActiveSession(
       req.auth!.userId,
-      req.params.lessonId
+      params.data.lessonId
     );
     return res.json({ session });
   })
@@ -35,17 +44,24 @@ lessonsRouter.get(
 lessonsRouter.post(
   "/:lessonId/start",
   asyncHandler(async (req, res) => {
-    const forceNew = req.body?.forceNew === true;
+    const params = lessonIdParam.safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).json({ error: "Invalid lesson id", code: "BAD_PARAMS" });
+    }
+    const body = startLessonBodySchema.safeParse(req.body ?? {});
+    if (!body.success) {
+      return res.status(400).json({ error: "Invalid body", code: "BAD_BODY" });
+    }
     try {
-      const result = await startLesson(
-        req.auth!.userId,
-        req.params.lessonId,
-        { forceNew }
-      );
+      const result = await startLesson(req.auth!.userId, params.data.lessonId, {
+        forceNew: body.data?.forceNew === true,
+      });
       return res.json(result);
     } catch (e) {
-      const err = e as Error & { status?: number };
-      return res.status(err.status || 500).json({ error: err.message });
+      const err = e as Error & { status?: number; code?: string };
+      return res
+        .status(err.status || 500)
+        .json({ error: err.message, code: err.code });
     }
   })
 );
@@ -53,23 +69,30 @@ lessonsRouter.post(
 lessonsRouter.post(
   "/sessions/:sessionId/answer",
   asyncHandler(async (req, res) => {
-    const schema = z.object({
-      questionId: z.string(),
-      answer: z.any(),
-      responseMs: z.number().optional(),
-    });
-    const parsed = schema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: "Invalid body" });
+    const params = sessionIdParam.safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).json({ error: "Invalid session id", code: "BAD_PARAMS" });
+    }
+    const parsed = answerBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid body", code: "BAD_BODY" });
+    }
     try {
-      const result = await submitAnswer(req.auth!.userId, req.params.sessionId, {
-        questionId: parsed.data.questionId,
-        answer: parsed.data.answer,
-        responseMs: parsed.data.responseMs,
-      });
+      const result = await submitAnswer(
+        req.auth!.userId,
+        params.data.sessionId,
+        {
+          questionId: parsed.data.questionId,
+          answer: parsed.data.answer,
+          responseMs: parsed.data.responseMs,
+        }
+      );
       return res.json(result);
     } catch (e) {
-      const err = e as Error & { status?: number };
-      return res.status(err.status || 500).json({ error: err.message });
+      const err = e as Error & { status?: number; code?: string };
+      return res
+        .status(err.status || 500)
+        .json({ error: err.message, code: err.code });
     }
   })
 );

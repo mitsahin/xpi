@@ -1,5 +1,3 @@
 # Validators
 
-Shared Zod schemas for auth, lesson answers, and reviews.
-
-Phase 1 schemas are inline in `src/routes/*.ts`. Extract here when reused across routes/controllers.
+Shared Zod schemas for route params and bodies (`ids.ts`, `auth.ts`). Routes must parse before calling services.

@@ -14,6 +14,8 @@ import {
   shuffle,
   toQuestionPayload,
 } from "../engines/lesson";
+import { AppError } from "../lib/errors";
+import { assertOwner } from "../middleware/auth";
 import { awardXp, getStreakSummary, updateStreak } from "./stats";
 import { upsertSrsFromAnswer } from "./srs";
 
@@ -104,8 +106,8 @@ export async function startLesson(
 ) {
   const lessons = await listLessonsForUser(userId);
   const meta = lessons.find((l) => l.id === lessonId);
-  if (!meta) throw Object.assign(new Error("Lesson not found"), { status: 404 });
-  if (meta.locked) throw Object.assign(new Error("Lesson locked"), { status: 403 });
+  if (!meta) throw new AppError("Lesson not found", 404, "NOT_FOUND");
+  if (meta.locked) throw new AppError("Lesson locked", 403, "LESSON_LOCKED");
 
   if (!opts.forceNew) {
     const resumed = await getActiveSession(userId, lessonId);
@@ -117,7 +119,7 @@ export async function startLesson(
     orderBy: { orderIndex: "asc" },
   });
   if (!questions.length) {
-    throw Object.assign(new Error("Lesson has no questions"), { status: 400 });
+    throw new AppError("Lesson has no questions", 400, "EMPTY_LESSON");
   }
 
   const questionIds = shuffle(questions.map((q) => q.id));
@@ -160,7 +162,9 @@ export async function submitAnswer(
     const session = await tx.lessonSession.findFirst({
       where: { id: sessionId, userId },
     });
-    if (!session) throw Object.assign(new Error("Session not found"), { status: 404 });
+    if (!session) throw new AppError("Session not found", 404, "NOT_FOUND");
+    // Ownership: query already scoped to userId; assertOwner fails closed (404)
+    assertOwner(session.userId, userId, "Session");
 
     const answers = { ...((session.answersJson as object) || {}) } as Record<
       string,
@@ -185,12 +189,12 @@ export async function submitAnswer(
     }
 
     if (session.status !== "IN_PROGRESS") {
-      throw Object.assign(new Error("Session not active"), { status: 400 });
+      throw new AppError("Session not active", 400, "SESSION_INACTIVE");
     }
 
     const currentQid = session.questionIds[session.currentIndex];
     if (body.questionId !== currentQid) {
-      throw Object.assign(new Error("Unexpected question"), { status: 409 });
+      throw new AppError("Unexpected question", 409, "QUESTION_MISMATCH");
     }
 
     const question = await tx.question.findUniqueOrThrow({

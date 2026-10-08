@@ -12,10 +12,32 @@ if (nodeEnv === "production" && !jwtFromEnv) {
   );
 }
 
+if (
+  nodeEnv === "production" &&
+  jwtFromEnv &&
+  (jwtFromEnv.length < 32 || jwtFromEnv === "change-me-in-production")
+) {
+  throw new Error(
+    "JWT_SECRET in production must be a strong secret (≥32 chars), not the example value."
+  );
+}
+
+/** Access-token lifetime (jsonwebtoken expiresIn). Refresh tokens are planned. */
+const jwtExpiresIn = process.env.JWT_EXPIRES_IN?.trim() || "7d";
+
 export const env = {
   port: Number(process.env.PORT || 4000),
   nodeEnv,
   jwtSecret: jwtFromEnv || "x-pi-dev-secret",
-  corsOrigin: (process.env.CORS_ORIGIN || "http://localhost:5173").split(","),
+  jwtExpiresIn,
+  corsOrigin: (
+    process.env.CORS_ORIGIN ||
+    "http://localhost:5173,http://localhost:5174"
+  )
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
   databaseUrl: process.env.DATABASE_URL || "",
+  /** Max JSON body size for express.json */
+  jsonLimit: process.env.JSON_BODY_LIMIT || "32kb",
 };

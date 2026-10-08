@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { xpProgressInLevel } from "@x-pi/shared";
-import { z } from "zod";
 import { asyncHandler } from "../lib/asyncHandler";
 import { requireAuth } from "../middleware/auth";
 import { prisma } from "../lib/prisma";
@@ -10,6 +9,7 @@ import {
   getDueReviews,
   submitSrsReview,
 } from "../services/srs";
+import { cardIdParam, reviewAnswerBodySchema } from "../validators";
 
 export const meRouter = Router();
 meRouter.use(requireAuth);
@@ -58,23 +58,27 @@ meRouter.get(
 meRouter.post(
   "/reviews/:cardId/answer",
   asyncHandler(async (req, res) => {
-    const schema = z.object({
-      answer: z.unknown(),
-      responseMs: z.number().optional(),
-    });
-    const parsed = schema.safeParse(req.body);
-    if (!parsed.success) return res.status(400).json({ error: "Invalid body" });
+    const params = cardIdParam.safeParse(req.params);
+    if (!params.success) {
+      return res.status(400).json({ error: "Invalid card id", code: "BAD_PARAMS" });
+    }
+    const parsed = reviewAnswerBodySchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "Invalid body", code: "BAD_BODY" });
+    }
     try {
       const result = await submitSrsReview(
         req.auth!.userId,
-        req.params.cardId,
+        params.data.cardId,
         parsed.data.answer,
         parsed.data.responseMs
       );
       return res.json(result);
     } catch (e) {
-      const err = e as Error & { status?: number };
-      return res.status(err.status || 500).json({ error: err.message });
+      const err = e as Error & { status?: number; code?: string };
+      return res
+        .status(err.status || 500)
+        .json({ error: err.message, code: err.code });
     }
   })
 );

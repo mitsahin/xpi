@@ -11,6 +11,8 @@ import { prisma } from "../lib/prisma";
 import { awardXp, updateStreak } from "./stats";
 import { listLessonsForUser } from "./lessons";
 import { gradeLessonAnswer, toQuestionPayload } from "../engines/lesson";
+import { AppError } from "../lib/errors";
+import { assertOwner } from "../middleware/auth";
 
 type Tx = Prisma.TransactionClient;
 
@@ -109,9 +111,10 @@ export async function submitSrsReview(
       where: { id: cardId, userId },
       include: { question: true },
     });
-    if (!card) throw Object.assign(new Error("Card not found"), { status: 404 });
+    if (!card) throw new AppError("Card not found", 404, "NOT_FOUND");
+    assertOwner(card.userId, userId, "Card");
     if (card.dueAt.getTime() > Date.now()) {
-      throw Object.assign(new Error("Card not due yet"), { status: 400 });
+      throw new AppError("Card not due yet", 400, "NOT_DUE");
     }
 
     const { correct, expected } = gradeLessonAnswer(

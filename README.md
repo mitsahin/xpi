@@ -11,7 +11,13 @@ Gamified micro-learning (Duolingo-like UX, original **x-pi** branding). Monorepo
 
 Phase 1 MVP: MCQ + fill-in-blank lessons, XP/levels, timezone-aware streaks, daily XP goal, modified SM-2 SRS.
 
-**Spec:** [`docs/technical-requirements.md`](./docs/technical-requirements.md) · plan: [`docs/x-pi-mvp-plan.md`](./docs/x-pi-mvp-plan.md)
+## Technical requirements
+
+Full production spec (frontend + backend, AuthN/AuthZ, security, algorithms, folder map, errors, testing, phase status):
+
+→ **[`docs/technical-requirements.md`](./docs/technical-requirements.md)**
+
+Product phases: [`docs/x-pi-mvp-plan.md`](./docs/x-pi-mvp-plan.md) · dependency CVE notes: [`docs/security-deps.md`](./docs/security-deps.md)
 
 ## Repository structure
 
@@ -26,9 +32,9 @@ xpi/
 │   │       ├── engines/          # progression / srs / lesson (extract target)
 │   │       ├── controllers/      # future request/response layer
 │   │       ├── validators/       # shared Zod schemas (extract target)
-│   │       ├── middleware/       # JWT auth (+ future rate limits)
-│   │       ├── lib/              # env, prisma, asyncHandler
-│   │       └── tests/            # unit + integration placeholders
+│   │       ├── middleware/       # JWT auth, assertOwner, auth rate limit
+│   │       ├── lib/              # env, prisma, asyncHandler, AppError
+│   │       └── tests/unit/       # grade, SM-2, streak, levels, rate-limit
 │   ├── web/                      # React + Vite + Tailwind
 │   │   └── src/
 │   │       ├── pages/            # route screens

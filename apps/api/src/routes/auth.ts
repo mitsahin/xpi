@@ -1,10 +1,10 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
-import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { asyncHandler } from "../lib/asyncHandler";
 import { requireAuth, signToken } from "../middleware/auth";
 import { authRateLimit } from "../middleware/rateLimit";
+import { loginBodySchema, registerBodySchema } from "../validators";
 
 export const authRouter = Router();
 
@@ -44,15 +44,11 @@ function publicUser(u: {
 authRouter.post(
   "/register",
   asyncHandler(async (req, res) => {
-    const schema = z.object({
-      email: z.string().email(),
-      password: z.string().min(6),
-      displayName: z.string().min(1).max(40),
-      timezone: z.string().optional(),
-    });
-    const parsed = schema.safeParse(req.body);
+    const parsed = registerBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ error: parsed.error.flatten() });
+      return res
+        .status(400)
+        .json({ error: "Invalid body", code: "BAD_BODY", details: parsed.error.flatten() });
     }
 
     const tz =
@@ -87,13 +83,9 @@ authRouter.post(
 authRouter.post(
   "/login",
   asyncHandler(async (req, res) => {
-    const schema = z.object({
-      email: z.string().email(),
-      password: z.string().min(1),
-    });
-    const parsed = schema.safeParse(req.body);
+    const parsed = loginBodySchema.safeParse(req.body);
     if (!parsed.success) {
-      return res.status(400).json({ error: "Invalid credentials" });
+      return res.status(400).json({ error: "Invalid credentials", code: "BAD_BODY" });
     }
 
     const user = await prisma.user.findUnique({
