@@ -21,6 +21,7 @@ export function LessonScreen({ route, navigation }: Props) {
   const [next, setNext] = useState<LessonSessionState | null>(null);
   const [done, setDone] = useState<{ xp: number; level?: number } | null>(null);
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const startedAt = useRef(Date.now());
 
   useEffect(() => {
@@ -34,26 +35,33 @@ export function LessonScreen({ route, navigation }: Props) {
   }, [lessonId]);
 
   async function submit(answer: string) {
-    if (!session?.question || feedback) return;
-    const result = await api.answer(session.sessionId, {
-      questionId: session.question.id,
-      answer,
-      responseMs: Date.now() - startedAt.current,
-    });
-    setFeedback(result.correct ? "correct" : "wrong");
-    if (!result.correct && result.expected) {
-      setExpected(
-        Array.isArray(result.expected) ? result.expected[0] : result.expected
-      );
-    }
-    if (result.sessionComplete) {
-      setDone({
-        xp: result.xpEarned || 0,
-        level: result.leveledUp ? result.newLevel : undefined,
+    if (!session?.question || feedback || busy) return;
+    setBusy(true);
+    try {
+      const result = await api.answer(session.sessionId, {
+        questionId: session.question.id,
+        answer,
+        responseMs: Date.now() - startedAt.current,
       });
-    } else if (result.session) {
-      setSession({ ...session, heartsRemaining: result.heartsRemaining });
-      setNext(result.session);
+      setFeedback(result.correct ? "correct" : "wrong");
+      if (!result.correct && result.expected) {
+        setExpected(
+          Array.isArray(result.expected) ? result.expected[0] : result.expected
+        );
+      }
+      if (result.sessionComplete) {
+        setDone({
+          xp: result.xpEarned || 0,
+          level: result.leveledUp ? result.newLevel : undefined,
+        });
+      } else if (result.session) {
+        setSession({ ...session, heartsRemaining: result.heartsRemaining });
+        setNext(result.session);
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Submit failed");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -127,7 +135,7 @@ export function LessonScreen({ route, navigation }: Props) {
         q.options?.map((opt) => (
           <Pressable
             key={opt}
-            disabled={!!feedback}
+            disabled={!!feedback || busy}
             onPress={() => {
               setSelected(opt);
               submit(opt);
@@ -146,7 +154,7 @@ export function LessonScreen({ route, navigation }: Props) {
           <TextInput
             style={styles.input}
             value={selected}
-            editable={!feedback}
+            editable={!feedback && !busy}
             onChangeText={setSelected}
             placeholder="Type your answer"
           />
@@ -154,7 +162,7 @@ export function LessonScreen({ route, navigation }: Props) {
             <Pressable
               style={styles.btn}
               onPress={() => submit(selected)}
-              disabled={!selected.trim()}
+              disabled={!selected.trim() || busy}
             >
               <Text style={styles.btnText}>CHECK</Text>
             </Pressable>

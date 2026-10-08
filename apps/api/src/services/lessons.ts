@@ -105,12 +105,6 @@ export async function startLesson(userId: string, lessonId: string) {
   if (!meta) throw Object.assign(new Error("Lesson not found"), { status: 404 });
   if (meta.locked) throw Object.assign(new Error("Lesson locked"), { status: 403 });
 
-  // Phase 1: abandon any in-progress session and start fresh
-  await prisma.lessonSession.updateMany({
-    where: { userId, lessonId, status: "IN_PROGRESS" },
-    data: { status: "ABANDONED", completedAt: new Date() },
-  });
-
   const questions = await prisma.question.findMany({
     where: { lessonId },
     orderBy: { orderIndex: "asc" },
@@ -119,16 +113,28 @@ export async function startLesson(userId: string, lessonId: string) {
     throw Object.assign(new Error("Lesson has no questions"), { status: 400 });
   }
 
-  const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
   const questionIds = shuffle(questions.map((q) => q.id));
-  const session = await prisma.lessonSession.create({
-    data: {
-      userId,
-      lessonId,
-      questionIds,
-      heartsRemaining: Math.min(5, user.hearts),
-    },
+
+  // Abandon + create atomically so overlapping starts cannot leave two IN_PROGRESS sessions
+  const session = await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`
+      SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE
+    `;
+    await tx.lessonSession.updateMany({
+      where: { userId, lessonId, status: "IN_PROGRESS" },
+      data: { status: "ABANDONED", completedAt: new Date() },
+    });
+    const user = await tx.user.findUniqueOrThrow({ where: { id: userId } });
+    return tx.lessonSession.create({
+      data: {
+        userId,
+        lessonId,
+        questionIds,
+        heartsRemaining: Math.min(5, user.hearts),
+      },
+    });
   });
+
   const q = toQuestion(
     await prisma.question.findUniqueOrThrow({ where: { id: questionIds[0] } })
   );

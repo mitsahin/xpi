@@ -19,9 +19,12 @@
     "node": ">=20"
   },
   "dependencies": {
-    "node-forge": "git+https://github.com/digitalbazaar/forge.git#ceba34402e329f0365134f23fe19898756527d65"
+    "node-forge": "git+https://github.com/digitalbazaar/forge.git#ceba34402e329f0365134f23fe19898756527d65",
+    "braces": "npm:@dieub/braces-depth-guard@3.0.3-pn.3"
   },
   "overrides": {
-    "node-forge": "$node-forge"
+    "node-forge": "$node-forge",
+    "deepmerge-ts": "8.0.2",
+    "braces": "$braces"
   }
 }
