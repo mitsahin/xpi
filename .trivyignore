@@ -1,0 +1,7 @@
+# Residual / accepted risk — document only when scanners still match by CVE id
+# even after override. node-forge is overridden to digitalbazaar/forge#ceba344
+# (1.4.1-0) which includes the nested DigestAlgorithm element-count fix for
+# CVE-2026-85393 / GHSA-86w9-cpqp-85rv. No npm release with a first_patched_version
+# exists yet (advisory lists fixed: none). Remove this ignore when node-forge
+# publishes >= patched release and we can drop the git pin.
+CVE-2026-85393
