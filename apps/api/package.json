@@ -10,6 +10,7 @@
     "db:migrate": "prisma migrate deploy && prisma generate",
     "db:migrate:dev": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
     "db:studio": "prisma studio",
     "db:push": "prisma db push"
   },
