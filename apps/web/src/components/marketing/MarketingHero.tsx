@@ -1,80 +1,104 @@
+import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { HeroCtas } from "./HeroCtas";
+import { HeroVisual } from "./HeroVisual";
+
+const rise = (delay: number, reduced: boolean | null) =>
+  reduced
+    ? { initial: { opacity: 1, y: 0 }, animate: { opacity: 1, y: 0 } }
+    : {
+        initial: { opacity: 0, y: 22 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] as const, delay },
+      };
 
 /**
- * First-viewport marketing composition: brand-first, full-bleed atmosphere,
- * one headline + support + CTAs. No cards / stats / clutter in the hero.
+ * First-viewport marketing composition: brand-first, full-bleed cinematic plane,
+ * one headline + support + CTAs + dominant 3D visual. No cards / stats / clutter.
  */
 export function MarketingHero() {
+  const reduced = useReducedMotion();
+
   return (
-    <section className="relative isolate min-h-[100svh] overflow-hidden">
-      {/* Full-bleed atmospheric plane */}
+    <section className="relative isolate min-h-[100svh] overflow-hidden text-[#e8f5e4]">
+      {/* Full-bleed atmospheric plane — deep teal → emerald mist */}
       <div
         aria-hidden
-        className="absolute inset-0 -z-20 bg-[radial-gradient(120%_80%_at_10%_-10%,#c8f59a_0%,transparent_55%),radial-gradient(90%_70%_at_90%_10%,#8fd6c4_0%,transparent_50%),linear-gradient(165deg,#eef6ea_0%,#f7faf6_45%,#e3efe0_100%)]"
+        className="absolute inset-0 -z-30 bg-[radial-gradient(90%_70%_at_78%_42%,rgba(45,212,160,0.28)_0%,transparent_55%),radial-gradient(70%_55%_at_12%_80%,rgba(15,90,70,0.45)_0%,transparent_50%),linear-gradient(165deg,#041612_0%,#0a2a22_42%,#123d32_72%,#1a4d3c_100%)]"
       />
-      <svg
+      <motion.div
         aria-hidden
-        className="mkt-drift pointer-events-none absolute inset-0 -z-10 h-full w-full opacity-70"
-        viewBox="0 0 1440 900"
-        preserveAspectRatio="xMidYMid slice"
-      >
-        <defs>
-          <linearGradient id="fluidA" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#58cc02" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#1a3d24" stopOpacity="0.08" />
-          </linearGradient>
-          <linearGradient id="fluidB" x1="1" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#2f6b3a" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="#58cc02" stopOpacity="0.05" />
-          </linearGradient>
-        </defs>
-        <path
-          fill="url(#fluidA)"
-          d="M0,180 C220,40 420,320 680,220 C940,120 1120,40 1440,160 L1440,0 L0,0 Z"
-        />
-        <path
-          fill="url(#fluidB)"
-          d="M0,900 C280,720 520,820 780,700 C1040,580 1240,760 1440,640 L1440,900 Z"
-        />
-        <circle cx="1180" cy="220" r="180" fill="#58cc02" fillOpacity="0.12" />
-        <circle cx="180" cy="640" r="220" fill="#0f1712" fillOpacity="0.06" />
-      </svg>
+        className="pointer-events-none absolute -left-[20%] top-[-10%] -z-20 h-[70vmax] w-[70vmax] rounded-full bg-[radial-gradient(circle,rgba(88,204,2,0.22)_0%,transparent_68%)] blur-3xl"
+        animate={
+          reduced
+            ? undefined
+            : { x: [0, 36, -12, 0], y: [0, 18, -24, 0], scale: [1, 1.06, 0.98, 1] }
+        }
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        aria-hidden
+        className="pointer-events-none absolute -right-[15%] bottom-[-20%] -z-20 h-[60vmax] w-[60vmax] rounded-full bg-[radial-gradient(circle,rgba(26,155,108,0.35)_0%,transparent_70%)] blur-3xl"
+        animate={
+          reduced
+            ? undefined
+            : { x: [0, -28, 16, 0], y: [0, -20, 12, 0], scale: [1, 0.96, 1.05, 1] }
+        }
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+      />
 
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-6">
-        <span className="font-[family-name:var(--font-display)] text-xl font-extrabold tracking-tight text-[var(--xpi-ink)]">
+      {/* Glass veil over the scene */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(4,22,18,0.15)_0%,transparent_35%,rgba(4,22,18,0.45)_100%)]"
+      />
+
+      <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 pt-6">
+        <span className="font-[family-name:var(--font-display)] text-lg font-extrabold tracking-tight text-[#e8f5e4]">
           x-pi
         </span>
         <Link
           to="/auth"
-          className="text-sm font-semibold text-[var(--xpi-ink)]/70 transition hover:text-[var(--xpi-ink)]"
+          className="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-semibold text-[#c5ddd0] backdrop-blur-md transition hover:border-white/30 hover:bg-white/10 hover:text-[#e8f5e4]"
         >
           Sign in
         </Link>
       </header>
 
-      <div className="mx-auto flex min-h-[calc(100svh-5rem)] max-w-6xl flex-col justify-center px-6 pb-16 pt-10">
-        <p className="mkt-rise font-[family-name:var(--font-display)] text-[clamp(4.5rem,14vw,9.5rem)] font-extrabold leading-[0.9] tracking-[-0.04em]">
-          <span className="mkt-brand-sheen">x-pi</span>
-        </p>
-        <h1 className="mkt-rise-delay mt-6 max-w-2xl font-[family-name:var(--font-display)] text-[clamp(1.75rem,4vw,3rem)] font-bold leading-[1.1] tracking-tight text-[var(--xpi-ink)]">
-          Micro-lessons that move with you.
-        </h1>
-        <p className="mkt-rise-delay-2 mt-4 max-w-md text-lg font-medium leading-relaxed text-[var(--xpi-muted)]">
-          Streaks, XP, and spaced practice — built for daily momentum, not marathon study.
-        </p>
-        <div className="mkt-rise-delay-2 mt-8 flex flex-wrap items-center gap-3">
-          <Link
-            to="/auth"
-            className="inline-flex items-center justify-center rounded-full bg-[var(--xpi-green)] px-7 py-3.5 text-base font-bold text-white transition hover:bg-[var(--xpi-green-deep)]"
+      <div className="relative z-10 mx-auto grid min-h-[calc(100svh-5rem)] max-w-6xl items-center gap-8 px-6 pb-16 pt-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-4">
+        <div className="relative z-10 max-w-xl">
+          <motion.p
+            className="font-[family-name:var(--font-display)] text-[clamp(4.25rem,13vw,8.75rem)] font-extrabold leading-[0.88] tracking-[-0.045em]"
+            {...rise(0, reduced)}
           >
-            Start learning
-          </Link>
-          <a
-            href="#how"
-            className="inline-flex items-center justify-center rounded-full border border-[var(--xpi-ink)]/15 bg-white/50 px-7 py-3.5 text-base font-semibold text-[var(--xpi-ink)] backdrop-blur transition hover:border-[var(--xpi-ink)]/30"
+            <span className="mkt-brand-sheen">x-pi</span>
+          </motion.p>
+          <motion.h1
+            className="mt-5 max-w-lg font-[family-name:var(--font-display)] text-[clamp(1.55rem,3.4vw,2.55rem)] font-bold leading-[1.12] tracking-tight text-[#e8f5e4]"
+            {...rise(0.12, reduced)}
           >
-            How it works
-          </a>
+            Micro-lessons that move with you.
+          </motion.h1>
+          <motion.p
+            className="mt-4 max-w-md text-lg font-medium leading-relaxed text-[#a8c4b4]"
+            {...rise(0.22, reduced)}
+          >
+            Streaks, XP, and spaced practice — built for daily momentum, not marathon study.
+          </motion.p>
+          <motion.div className="mt-8" {...rise(0.32, reduced)}>
+            <HeroCtas howHref="#how" />
+          </motion.div>
+        </div>
+
+        {/* Dominant visual — atmosphere behind copy on small screens; stage on lg+ */}
+        <div className="pointer-events-none absolute inset-0 -z-0 lg:pointer-events-auto lg:relative lg:inset-auto lg:h-[min(68vh,560px)] lg:min-h-[320px]">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[72%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-[2px] lg:block"
+          />
+          <div className="absolute inset-0 opacity-50 lg:opacity-100">
+            <HeroVisual />
+          </div>
         </div>
       </div>
     </section>
