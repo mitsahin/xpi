@@ -1,7 +1,9 @@
 import { motion, useReducedMotion } from "framer-motion";
+import type { CSSProperties } from "react";
 import { Link } from "react-router-dom";
 import { HeroCtas } from "./HeroCtas";
 import { HeroVisual } from "./HeroVisual";
+import type { HeroTheme } from "./heroThemes";
 
 const rise = (delay: number, reduced: boolean | null) =>
   reduced
@@ -12,23 +14,38 @@ const rise = (delay: number, reduced: boolean | null) =>
         transition: { duration: 0.75, ease: [0.22, 1, 0.36, 1] as const, delay },
       };
 
+type MarketingHeroProps = {
+  theme: HeroTheme;
+};
+
 /**
  * First-viewport marketing composition: brand-first, full-bleed cinematic plane,
  * one headline + support + CTAs + dominant 3D visual. No cards / stats / clutter.
  */
-export function MarketingHero() {
+export function MarketingHero({ theme }: MarketingHeroProps) {
   const reduced = useReducedMotion();
 
   return (
-    <section className="relative isolate min-h-[100svh] overflow-hidden text-[#e8f5e4]">
-      {/* Full-bleed atmospheric plane — deep teal → emerald mist */}
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-30 bg-[radial-gradient(90%_70%_at_78%_42%,rgba(45,212,160,0.28)_0%,transparent_55%),radial-gradient(70%_55%_at_12%_80%,rgba(15,90,70,0.45)_0%,transparent_50%),linear-gradient(165deg,#041612_0%,#0a2a22_42%,#123d32_72%,#1a4d3c_100%)]"
-      />
+    <section
+      className="relative isolate min-h-[100svh] overflow-hidden"
+      data-hero-theme={theme.id}
+      style={
+        {
+          color: theme.text,
+          "--mkt-sheen": theme.sheen,
+          "--mkt-orb-a": theme.cssOrbA,
+          "--mkt-orb-b": theme.cssOrbB,
+          "--mkt-orb-c": theme.cssOrbC,
+          "--mkt-orb-core": theme.cssOrbCore,
+          "--mkt-orb-glow": theme.cssOrbGlow,
+        } as CSSProperties
+      }
+    >
+      <div aria-hidden className="absolute inset-0 -z-30" style={{ background: theme.plane }} />
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute -left-[20%] top-[-10%] -z-20 h-[70vmax] w-[70vmax] rounded-full bg-[radial-gradient(circle,rgba(88,204,2,0.22)_0%,transparent_68%)] blur-3xl"
+        className="pointer-events-none absolute -left-[20%] top-[-10%] -z-20 h-[70vmax] w-[70vmax] rounded-full blur-3xl"
+        style={{ background: theme.bloomA }}
         animate={
           reduced
             ? undefined
@@ -38,7 +55,8 @@ export function MarketingHero() {
       />
       <motion.div
         aria-hidden
-        className="pointer-events-none absolute -right-[15%] bottom-[-20%] -z-20 h-[60vmax] w-[60vmax] rounded-full bg-[radial-gradient(circle,rgba(26,155,108,0.35)_0%,transparent_70%)] blur-3xl"
+        className="pointer-events-none absolute -right-[15%] bottom-[-20%] -z-20 h-[60vmax] w-[60vmax] rounded-full blur-3xl"
+        style={{ background: theme.bloomB }}
         animate={
           reduced
             ? undefined
@@ -47,19 +65,20 @@ export function MarketingHero() {
         transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Glass veil over the scene */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(4,22,18,0.15)_0%,transparent_35%,rgba(4,22,18,0.45)_100%)]"
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{ background: theme.veil }}
       />
 
       <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 pt-6">
-        <span className="font-[family-name:var(--font-display)] text-lg font-extrabold tracking-tight text-[#e8f5e4]">
+        <span className="font-[family-name:var(--font-display)] text-lg font-extrabold tracking-tight">
           x-pi
         </span>
         <Link
           to="/auth"
-          className="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-semibold text-[#c5ddd0] backdrop-blur-md transition hover:border-white/30 hover:bg-white/10 hover:text-[#e8f5e4]"
+          className="rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm font-semibold backdrop-blur-md transition hover:border-white/30 hover:bg-white/10"
+          style={{ color: theme.textMuted }}
         >
           Sign in
         </Link>
@@ -74,30 +93,31 @@ export function MarketingHero() {
             <span className="mkt-brand-sheen">x-pi</span>
           </motion.p>
           <motion.h1
-            className="mt-5 max-w-lg font-[family-name:var(--font-display)] text-[clamp(1.55rem,3.4vw,2.55rem)] font-bold leading-[1.12] tracking-tight text-[#e8f5e4]"
+            className="mt-5 max-w-lg font-[family-name:var(--font-display)] text-[clamp(1.55rem,3.4vw,2.55rem)] font-bold leading-[1.12] tracking-tight"
+            style={{ color: theme.text }}
             {...rise(0.12, reduced)}
           >
             Micro-lessons that move with you.
           </motion.h1>
           <motion.p
-            className="mt-4 max-w-md text-lg font-medium leading-relaxed text-[#a8c4b4]"
+            className="mt-4 max-w-md text-lg font-medium leading-relaxed"
+            style={{ color: theme.textMuted }}
             {...rise(0.22, reduced)}
           >
             Streaks, XP, and spaced practice — built for daily momentum, not marathon study.
           </motion.p>
           <motion.div className="mt-8" {...rise(0.32, reduced)}>
-            <HeroCtas howHref="#how" />
+            <HeroCtas howHref="#how" theme={theme} />
           </motion.div>
         </div>
 
-        {/* Dominant visual — atmosphere behind copy on small screens; stage on lg+ */}
         <div className="pointer-events-none absolute inset-0 -z-0 lg:pointer-events-auto lg:relative lg:inset-auto lg:h-[min(68vh,560px)] lg:min-h-[320px]">
           <div
             aria-hidden
             className="pointer-events-none absolute left-1/2 top-1/2 hidden h-[72%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/10 bg-white/[0.04] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-[2px] lg:block"
           />
           <div className="absolute inset-0 opacity-50 lg:opacity-100">
-            <HeroVisual />
+            <HeroVisual theme={theme} />
           </div>
         </div>
       </div>

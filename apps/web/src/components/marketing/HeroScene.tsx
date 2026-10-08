@@ -2,13 +2,16 @@ import { Float, MeshDistortMaterial, Sphere } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Suspense, useRef } from "react";
 import type { Mesh } from "three";
+import type { HeroTheme } from "./heroThemes";
 
 type OrbProps = {
   animate: boolean;
+  theme: HeroTheme;
 };
 
-function EmeraldOrb({ animate }: OrbProps) {
+function ThemeOrb({ animate, theme }: OrbProps) {
   const mesh = useRef<Mesh>(null);
+  const { orb } = theme;
 
   useFrame((_, delta) => {
     if (!animate || !mesh.current) return;
@@ -24,27 +27,33 @@ function EmeraldOrb({ animate }: OrbProps) {
     >
       <Sphere ref={mesh} args={[1.15, 80, 80]} scale={1.35}>
         <MeshDistortMaterial
-          color="#2dd4a0"
+          color={orb.color}
           attach="material"
           distort={animate ? 0.38 : 0.2}
           speed={animate ? 1.6 : 0}
           roughness={0.18}
           metalness={0.35}
-          emissive="#0d3d2e"
+          emissive={orb.emissive}
           emissiveIntensity={0.45}
         />
       </Sphere>
       <Sphere args={[1.05, 32, 32]} scale={1.55}>
-        <meshBasicMaterial color="#58cc02" transparent opacity={0.07} />
+        <meshBasicMaterial color={orb.glow} transparent opacity={0.07} />
       </Sphere>
     </Float>
   );
 }
 
 /**
- * WebGL emerald orb — import only when desktop + motion are allowed.
+ * Themed WebGL orb — import only when desktop + motion are allowed.
  */
-export function HeroScene({ animate = true }: { animate?: boolean }) {
+export function HeroScene({
+  animate = true,
+  theme,
+}: {
+  animate?: boolean;
+  theme: HeroTheme;
+}) {
   return (
     <div className="absolute inset-0" aria-hidden>
       <Canvas
@@ -54,10 +63,10 @@ export function HeroScene({ animate = true }: { animate?: boolean }) {
         style={{ background: "transparent" }}
       >
         <ambientLight intensity={0.55} />
-        <directionalLight position={[4, 3, 2]} intensity={1.15} color="#d7ffb8" />
-        <pointLight position={[-3, -1, 2]} intensity={0.7} color="#1a9b6c" />
+        <directionalLight position={[4, 3, 2]} intensity={1.15} color={theme.orb.lightDir} />
+        <pointLight position={[-3, -1, 2]} intensity={0.7} color={theme.orb.lightPoint} />
         <Suspense fallback={null}>
-          <EmeraldOrb animate={animate} />
+          <ThemeOrb animate={animate} theme={theme} />
         </Suspense>
       </Canvas>
     </div>

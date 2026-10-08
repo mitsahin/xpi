@@ -53,13 +53,9 @@ body {
 }
 
 .mkt-brand-sheen {
-  background: linear-gradient(
-    105deg,
-    #1a6b45 0%,
-    var(--xpi-green) 38%,
-    #b8ff6a 52%,
-    var(--xpi-green) 68%,
-    #0f4d36 100%
+  background: var(
+    --mkt-sheen,
+    linear-gradient(105deg, #1e3a8a 0%, #38bdf8 38%, #a5f3fc 52%, #3b82f6 68%, #0ea5e9 100%)
   );
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -68,12 +64,12 @@ body {
   animation: xpi-sheen 5s ease-in-out infinite alternate;
 }
 
-/* CSS orb when WebGL is skipped (mobile / reduced motion) */
+/* CSS orb when WebGL is skipped (mobile / reduced motion) — colors from theme CSS vars */
 .mkt-orb-fallback {
   background:
-    radial-gradient(circle at 42% 38%, rgba(184, 255, 106, 0.55) 0%, transparent 28%),
-    radial-gradient(circle at 55% 55%, rgba(45, 212, 160, 0.5) 0%, transparent 42%),
-    radial-gradient(circle at 50% 50%, rgba(15, 90, 70, 0.35) 0%, transparent 58%);
+    radial-gradient(circle at 42% 38%, var(--mkt-orb-a, rgba(165, 243, 252, 0.55)) 0%, transparent 28%),
+    radial-gradient(circle at 55% 55%, var(--mkt-orb-b, rgba(56, 189, 248, 0.5)) 0%, transparent 42%),
+    radial-gradient(circle at 50% 50%, var(--mkt-orb-c, rgba(30, 58, 138, 0.4)) 0%, transparent 58%);
 }
 
 .mkt-orb-fallback::after {
@@ -85,12 +81,14 @@ body {
   height: min(52vmin, 280px);
   border-radius: 9999px;
   transform: translate(-50%, -50%);
-  background:
-    radial-gradient(circle at 35% 30%, rgba(215, 255, 184, 0.65) 0%, transparent 40%),
-    radial-gradient(circle at 60% 65%, #1a9b6c 0%, #0a2a22 70%);
+  background: var(
+    --mkt-orb-core,
+    radial-gradient(circle at 35% 30%, rgba(186, 230, 253, 0.7) 0%, transparent 40%),
+      radial-gradient(circle at 60% 65%, #0ea5e9 0%, #0a1628 70%)
+  );
   box-shadow:
-    0 0 80px rgba(88, 204, 2, 0.25),
-    inset 0 0 40px rgba(88, 204, 2, 0.2);
+    0 0 80px var(--mkt-orb-glow, rgba(56, 189, 248, 0.3)),
+    inset 0 0 40px var(--mkt-orb-glow, rgba(56, 189, 248, 0.25));
   animation: xpi-orb-breathe 7s ease-in-out infinite;
 }
 

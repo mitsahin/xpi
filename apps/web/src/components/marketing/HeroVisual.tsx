@@ -1,4 +1,5 @@
 import { lazy, Suspense } from "react";
+import type { HeroTheme } from "./heroThemes";
 import { useIsNarrow } from "./useIsNarrow";
 import { usePrefersReducedMotion } from "./usePrefersReducedMotion";
 
@@ -14,7 +15,7 @@ function CssOrb() {
  * Dominant hero visual: R3F orb on capable desktops, CSS orb elsewhere.
  * Keeps three.js out of the critical path on mobile / reduced-motion.
  */
-export function HeroVisual() {
+export function HeroVisual({ theme }: { theme: HeroTheme }) {
   const reduced = usePrefersReducedMotion();
   const narrow = useIsNarrow();
 
@@ -24,7 +25,7 @@ export function HeroVisual() {
 
   return (
     <Suspense fallback={<CssOrb />}>
-      <HeroScene animate />
+      <HeroScene animate theme={theme} />
     </Suspense>
   );
 }
