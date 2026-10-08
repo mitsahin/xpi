@@ -11,6 +11,58 @@ Gamified micro-learning (Duolingo-like UX, original **x-pi** branding). Monorepo
 
 Phase 1 MVP: MCQ + fill-in-blank lessons, XP/levels, timezone-aware streaks, daily XP goal, modified SM-2 SRS.
 
+**Spec:** [`docs/technical-requirements.md`](./docs/technical-requirements.md) · plan: [`docs/x-pi-mvp-plan.md`](./docs/x-pi-mvp-plan.md)
+
+## Repository structure
+
+```
+xpi/
+├── apps/
+│   ├── api/                      # Express + Prisma + PostgreSQL
+│   │   ├── prisma/               # schema, migrations, seed.ts (+ seed/ modules)
+│   │   └── src/
+│   │       ├── routes/           # HTTP adapters (auth, lessons, me)
+│   │       ├── services/         # Phase 1 domain orchestration
+│   │       ├── engines/          # progression / srs / lesson (extract target)
+│   │       ├── controllers/      # future request/response layer
+│   │       ├── validators/       # shared Zod schemas (extract target)
+│   │       ├── middleware/       # JWT auth (+ future rate limits)
+│   │       ├── lib/              # env, prisma, asyncHandler
+│   │       └── tests/            # unit + integration placeholders
+│   ├── web/                      # React + Vite + Tailwind
+│   │   └── src/
+│   │       ├── pages/            # route screens
+│   │       ├── features/         # auth / learn / reviews (growth)
+│   │       ├── components/
+│   │       │   ├── marketing/    # `/` landing only
+│   │       │   ├── learn/        # `/learn` shell
+│   │       │   └── common/       # shared presentational
+│   │       ├── hooks/
+│   │       ├── stores/           # Zustand barrels → store.ts
+│   │       ├── api/ · lib/       # API client
+│   │       └── styles/           # tokens.css
+│   └── mobile/                   # Expo
+│       └── src/
+│           ├── screens/
+│           ├── components/
+│           ├── services/         # API client barrel
+│           └── navigation/       # extract from App.tsx
+├── packages/
+│   └── shared/src/
+│       ├── types/                # DTOs
+│       ├── constants/            # XP / hearts defaults
+│       ├── xp/                   # level curve
+│       ├── srs/                  # modified SM-2
+│       └── utils/                # dates, normalize
+└── docs/
+    ├── technical-requirements.md
+    ├── x-pi-mvp-plan.md
+    ├── ide-handoff.md
+    └── security-deps.md
+```
+
+Empty folders hold short `README.md` stubs describing purpose — no fake business logic.
+
 ## Prerequisites
 
 - Node.js 20+

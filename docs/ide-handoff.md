@@ -17,7 +17,7 @@ Monorepo: `apps/api` (Express + Prisma + Postgres), `apps/web` (React + Vite + T
 - Demo: `demo@x-pi.app` / `demo1234`
 
 ## Plan
-See [x-pi MVP plan](./x-pi-mvp-plan.md). Phase 2 still open: translation, listening/matching, disconnect resume, streak freeze, stronger mobile.
+See [x-pi MVP plan](./x-pi-mvp-plan.md) and full [technical requirements](./technical-requirements.md) (stack, APIs, engines, dual UI, Phase 1/2). Phase 2 still open: translation, listening/matching, disconnect resume, streak freeze, stronger mobile.
 
 ## Preference
 IDE/local for UI iteration; cloud only for large scaffold/CI/PR-wide work.
