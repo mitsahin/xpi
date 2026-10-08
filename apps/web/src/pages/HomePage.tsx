@@ -7,16 +7,18 @@ import { useAppStore } from "../store";
 
 export function HomePage() {
   const [lessons, setLessons] = useState<PublicLesson[]>([]);
+  const [dueReviews, setDueReviews] = useState(0);
   const [error, setError] = useState("");
   const setUser = useAppStore((s) => s.setUser);
   const setStreak = useAppStore((s) => s.setStreak);
 
   useEffect(() => {
-    Promise.all([api.lessons(), api.stats()])
-      .then(([l, s]) => {
+    Promise.all([api.lessons(), api.stats(), api.reviews()])
+      .then(([l, s, r]) => {
         setLessons(l.lessons);
         setUser(s.user);
         setStreak(s.streak);
+        setDueReviews(r.reviews.length);
       })
       .catch((e) => setError(e.message));
   }, [setUser, setStreak]);
@@ -32,6 +34,15 @@ export function HomePage() {
       <main className="mx-auto max-w-lg px-4 py-6">
         <h1 className="text-2xl font-black">Spanish Basics</h1>
         <p className="mt-1 font-bold text-[#777]">Follow the path. Earn XP. Keep your streak.</p>
+        {dueReviews > 0 && (
+          <Link
+            to="/learn/reviews"
+            className="mt-4 flex items-center justify-between rounded-2xl border-2 border-b-4 border-[#ce82ff] bg-[#f3e8ff] px-4 py-3 font-extrabold text-[#7c3aed]"
+          >
+            <span>↻ {dueReviews} review{dueReviews === 1 ? "" : "s"} due</span>
+            <span>Practice →</span>
+          </Link>
+        )}
         {error && <p className="mt-4 font-bold text-[#ff4b4b]">{error}</p>}
         <div className="relative mt-8 space-y-10">
           <div className="pointer-events-none absolute left-1/2 top-4 bottom-4 w-1 -translate-x-1/2 rounded-full bg-[#e5e5e5]" />
