@@ -1,14 +1,18 @@
 import { Link, useSearchParams } from "react-router-dom";
+import { useAppStore } from "../../store";
+import { BeeHomeHero } from "./BeeHomeHero";
 import { DuoHomeHero, useHomeVariant } from "./DuoHomeVariants";
 import { MarketingHero } from "./MarketingHero";
 
 /**
- * Marketing `/` — Duolingo-inspired homepage variants via `?home=1..5`.
- * Default preview: variant 1. Pass `?home=legacy` to show the prior MarketingHero.
+ * Marketing `/` — default is H2 centered bee (BeeHomeHero).
+ * Optional alt layouts: `?home=1..5`. Prior hero: `?home=legacy`.
  */
 export function LandingPage() {
   const [params] = useSearchParams();
-  const legacy = params.get("home") === "legacy";
+  const home = params.get("home");
+  const legacy = home === "legacy";
+  const altVariant = home && /^[1-5]$/.test(home);
   const variant = useHomeVariant();
 
   if (legacy) {
@@ -21,13 +25,27 @@ export function LandingPage() {
     );
   }
 
+  if (altVariant) {
+    return (
+      <div
+        className="min-h-full bg-white text-[#3c3c3c]"
+        style={{ fontFamily: "var(--font-learn)" }}
+        data-home-variant={variant}
+      >
+        <DuoHomeHero />
+        <HowSection soft />
+        <FooterCta />
+      </div>
+    );
+  }
+
   return (
     <div
-      className="min-h-full bg-white text-[#3c3c3c]"
+      className="min-h-full bg-[#fffcf5] text-[#1b2a4a]"
       style={{ fontFamily: "var(--font-learn)" }}
-      data-home-variant={variant}
+      data-home-variant="h2"
     >
-      <DuoHomeHero />
+      <BeeHomeHero />
       <HowSection soft />
       <FooterCta />
     </div>
@@ -38,10 +56,10 @@ function HowSection({ soft }: { soft?: boolean }) {
   return (
     <section
       id="how"
-      className={`mx-auto max-w-6xl px-6 py-16 ${soft ? "bg-[#f7f7f7]" : "py-[var(--space-section)]"}`}
+      className={`mx-auto max-w-6xl px-6 py-16 ${soft ? "bg-[#f7f7f7]" : ""}`}
     >
       <h2
-        className="text-3xl font-black tracking-tight text-[#3c3c3c] md:text-4xl"
+        className="text-3xl font-black tracking-tight text-[#1b2a4a] md:text-4xl"
         style={{ fontFamily: "var(--font-learn)" }}
       >
         x-pi nasıl çalışır?
@@ -82,12 +100,13 @@ function HowSection({ soft }: { soft?: boolean }) {
 }
 
 function FooterCta() {
+  const token = useAppStore((s) => s.token);
   return (
     <section className="border-t-2 border-[#e5e5e5] bg-white px-6 py-14">
       <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 md:flex-row md:items-center">
         <div>
           <p
-            className="text-3xl font-black tracking-tight text-[#3c3c3c]"
+            className="text-3xl font-black tracking-tight text-[#1b2a4a]"
             style={{ fontFamily: "var(--font-learn)" }}
           >
             Hazır olduğunda başla.
@@ -97,8 +116,8 @@ function FooterCta() {
           </p>
         </div>
         <Link
-          to="/auth"
-          className="inline-flex rounded-2xl bg-[#58cc02] px-7 py-3.5 text-base font-black uppercase text-white shadow-[0_4px_0_#46a302]"
+          to={token ? "/learn" : "/auth"}
+          className="inline-flex rounded-2xl bg-[#58cc02] px-7 py-3.5 text-base font-black text-white shadow-[0_4px_0_#46a302]"
         >
           Öğrenmeye başla
         </Link>

@@ -15,7 +15,7 @@ const LANGS = [
 
 export function useHomeVariant(): HomeVariant {
   const [params] = useSearchParams();
-  const raw = Number(params.get("home") || "1");
+  const raw = Number(params.get("home"));
   if (raw >= 1 && raw <= 5) return raw as HomeVariant;
   return 1;
 }

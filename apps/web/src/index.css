@@ -158,3 +158,22 @@ body {
 .duo-bubble:nth-child(3n) {
   animation-delay: 1.2s;
 }
+
+/* --- H2 bee home --- */
+@keyframes bee-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.bee-home {
+  font-family: var(--font-learn);
+}
+
+.bee-bob {
+  animation: bee-bob 3.2s ease-in-out infinite;
+}
