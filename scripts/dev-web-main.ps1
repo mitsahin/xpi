@@ -7,11 +7,15 @@
   For Windows PowerShell 5.1. Stops only this repo's Vite processes (ports
   5173-5179 or node command lines mentioning vite / apps/web), then
   fetch + checkout main + reset --hard origin/main (discards local dirty
-  tree — intentional so package-lock / stray edits cannot block sync),
+  tree - intentional so package-lock / stray edits cannot block sync),
   builds @x-pi/shared, then runs npm run dev:web.
 
   Purpose: show the H2 bee homepage from origin/main, not a dirty or
   cinematic branch tree.
+
+  IMPORTANT: Keep this file ASCII-only (no em-dash, curly quotes, or
+  non-ASCII letters). Windows PowerShell 5.1 often mis-parses UTF-8
+  without BOM and reports "string missing terminator".
 
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File .\scripts\dev-web-main.ps1
@@ -47,7 +51,7 @@ function Invoke-Native {
 }
 
 function Stop-RepoVite {
-  # Only Vite for this monorepo — never kill every node.exe on the machine.
+  # Only Vite for this monorepo - never kill every node.exe on the machine.
   $stopped = @{}
 
   function Stop-PidSafe([int]$ProcessId, [string]$Reason) {
@@ -79,22 +83,18 @@ function Stop-RepoVite {
   }
 
   # Command-line match: vite or apps/web (do not kill unrelated node / API).
-  $rootNorm = ($Root.Path -replace '/', '\').TrimEnd('\').ToLowerInvariant()
   try {
     $nodes = Get-CimInstance Win32_Process -Filter "Name = 'node.exe'" -ErrorAction SilentlyContinue
     foreach ($n in @($nodes)) {
       $cmd = [string]$n.CommandLine
       if ([string]::IsNullOrWhiteSpace($cmd)) { continue }
       $cmdLower = $cmd.ToLowerInvariant()
-      $mentionsViteOrWeb = ($cmdLower -match '\bvite\b') -or ($cmdLower -match 'apps[\\/]web')
-      if (-not $mentionsViteOrWeb) { continue }
-      # If the command line includes a path, prefer this repo; otherwise still stop (port may already have).
-      if ($cmdLower.Contains($rootNorm) -or $cmdLower -match 'apps[\\/]web' -or $cmdLower -match '\bvite\b') {
+      if (($cmdLower -match '\bvite\b') -or ($cmdLower -match 'apps[\\/]web')) {
         Stop-PidSafe -ProcessId ([int]$n.ProcessId) -Reason "command line matches vite/apps/web"
       }
     }
   } catch {
-    # WMI/CIM unavailable — port-based stop may still have worked.
+    # WMI/CIM unavailable - port-based stop may still have worked.
   }
 
   if ($stopped.Count -eq 0) {
@@ -119,7 +119,7 @@ Write-Host ""
 Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" -ForegroundColor Yellow
 Write-Host "  WARNING: HARD RESET to origin/main" -ForegroundColor Yellow
 Write-Host "  This DISCARDS all local uncommitted changes (including a" -ForegroundColor Yellow
-Write-Host "  dirty package-lock.json). That is intentional — this" -ForegroundColor Yellow
+Write-Host "  dirty package-lock.json). That is intentional - this" -ForegroundColor Yellow
 Write-Host "  script's job is to show H2 from origin/main, not your" -ForegroundColor Yellow
 Write-Host "  dirty working tree. Stash first if you need to keep work." -ForegroundColor Yellow
 Write-Host "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" -ForegroundColor Yellow
@@ -153,7 +153,7 @@ Write-Host "==> Building @x-pi/shared (if needed)..." -ForegroundColor Cyan
 Invoke-Native "@x-pi/shared build" { npm run build -w @x-pi/shared }
 
 Write-Host "==> Starting web on main (npm run dev:web)..." -ForegroundColor Cyan
-Write-Host "    Open http://localhost:5173/ (or :5174) — expect H2 bee + 'Dili oyun gibi öğren'" -ForegroundColor Green
+Write-Host "    Open http://localhost:5173/ (or :5174) - expect H2 bee homepage" -ForegroundColor Green
 
 # Final npm is long-running; still use Continue so stderr progress does not abort.
 $ErrorActionPreference = "Continue"
