@@ -38,9 +38,9 @@ function useHeroMode(): HeroMode {
 }
 
 /**
- * Default marketing homepage: Spline scene hero (react-spline when Export URL
- * is set; otherwise Community preview iframe). Light static fallback on mobile /
- * reduced-motion / low-memory.
+ * Default marketing homepage (**Walky Talky**): Spline scene hero (react-spline
+ * when Export URL is set; otherwise Community preview iframe). Light static
+ * fallback on mobile / reduced-motion / low-memory.
  */
 export function SplineHomeHero() {
   const token = useAppStore((s) => s.token);
@@ -52,6 +52,7 @@ export function SplineHomeHero() {
     <section
       className="spline-home relative isolate min-h-[100svh] overflow-hidden bg-[#0b1220] text-white"
       data-home="spline"
+      data-brand="walky-talky"
     >
       <div aria-hidden className="absolute inset-0 -z-20">
         {mode === "light" || mode === "pending" ? (
@@ -66,7 +67,7 @@ export function SplineHomeHero() {
           </Suspense>
         ) : (
           <iframe
-            title="x-pi Spline scene"
+            title="Walky Talky Spline scene"
             src={COMMUNITY_PREVIEW_IFRAME}
             className="h-full w-full border-0"
             allow="fullscreen; autoplay"
@@ -90,10 +91,10 @@ export function SplineHomeHero() {
       <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-3xl flex-col items-center justify-center px-5 pb-24 pt-16 text-center">
         <Link
           to="/"
-          className="mkt-rise text-[clamp(3.5rem,12vw,6.5rem)] font-extrabold leading-[0.9] tracking-[-0.04em] text-white"
+          className="mkt-rise text-[clamp(2.75rem,10vw,5.75rem)] font-extrabold leading-[0.9] tracking-[-0.04em] text-white"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          x-pi
+          Walky Talky
         </Link>
 
         <h1

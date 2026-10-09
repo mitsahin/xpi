@@ -6,7 +6,7 @@ import { MarketingHero } from "./MarketingHero";
 import { SplineHomeHero } from "./SplineHomeHero";
 
 /**
- * Marketing `/` — **defaults to Spline hero** (`SplineHomeHero`).
+ * Marketing `/` — **Walky Talky** default via Spline hero (`SplineHomeHero`).
  *
  * - No cinematic / R3F / “Preview themes” on default `/`.
  * - `?theme=*` (old cinematic PR) is ignored.
@@ -67,7 +67,8 @@ export function LandingPage() {
       className="min-h-full bg-[#0b1220] text-white"
       style={{ fontFamily: "var(--font-learn)" }}
       data-home-variant="spline"
-      data-home-default="spline"
+      data-home-default="walky-talky-spline"
+      data-brand="walky-talky"
     >
       <SplineHomeHero />
       <HowSection soft />
@@ -86,7 +87,7 @@ function HowSection({ soft }: { soft?: boolean }) {
         className="text-3xl font-black tracking-tight text-[#1b2a4a] md:text-4xl"
         style={{ fontFamily: "var(--font-learn)" }}
       >
-        x-pi nasıl çalışır?
+        Walky Talky nasıl çalışır?
       </h2>
       <p className="mt-3 max-w-xl font-bold text-[#777]">
         Kısa dersler, net ilerleme, ihtiyaç duyduğunda tekrarlar.
