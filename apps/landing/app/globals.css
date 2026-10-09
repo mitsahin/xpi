@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-yellow: #ffc93c;
+  --color-brand-navy: #0f1f3d;
+  --color-brand-cream: #fff3c4;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #fffdf7;
+  color: var(--color-brand-navy);
+}
+
+@keyframes mascot-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.mascot-float {
+  animation: mascot-float 3.5s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mascot-float {
+    animation: none;
+  }
+}

@@ -19,7 +19,7 @@ describe("lesson resume (integration)", { skip: !hasDb }, () => {
     ({ prisma } = await import("../../lib/prisma"));
     ({ startLesson, getActiveSession } = await import("../../services/lessons"));
 
-    const email = `resume-test-${Date.now()}@x-pi.test`;
+    const email = `resume-test-${Date.now()}@walky-talky.test`;
     const user = await prisma.user.create({
       data: {
         email,

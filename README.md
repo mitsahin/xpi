@@ -7,6 +7,7 @@ Gamified micro-learning (Duolingo-like UX, **Walky Talky** branding). Monorepo w
 | `apps/api` | Node.js, Express, Prisma, PostgreSQL, JWT |
 | `apps/web` | React, TypeScript, Tailwind, Zustand |
 | `apps/mobile` | React Native Expo |
+| `apps/landing` | Next.js opening page (`npm run dev:landing`) |
 | `packages/shared` | Shared types, XP/level curve, modified SM-2, date helpers |
 
 Phase 1 MVP: MCQ + fill-in-blank lessons, XP/levels, timezone-aware streaks, daily XP goal, modified SM-2 SRS.
@@ -44,12 +45,12 @@ Full production spec (frontend + backend, AuthN/AuthZ, security, algorithms, fol
 
 → **[`docs/technical-requirements.md`](./docs/technical-requirements.md)**
 
-Product phases: [`docs/x-pi-mvp-plan.md`](./docs/x-pi-mvp-plan.md) · dependency CVE notes: [`docs/security-deps.md`](./docs/security-deps.md)
+Product phases: [`docs/walky-talky-mvp-plan.md`](./docs/walky-talky-mvp-plan.md) · dependency CVE notes: [`docs/security-deps.md`](./docs/security-deps.md)
 
 ## Repository structure
 
 ```
-xpi/
+walky-talky/
 ├── apps/
 │   ├── api/                      # Express + Prisma + PostgreSQL
 │   │   ├── prisma/               # schema, migrations, seed.ts (+ seed/ modules)
@@ -75,12 +76,13 @@ xpi/
 │   │       ├── stores/           # Zustand barrels → store.ts
 │   │       ├── api/ · lib/       # API client
 │   │       └── styles/           # tokens.css
-│   └── mobile/                   # Expo
-│       └── src/
-│           ├── screens/
-│           ├── components/
-│           ├── services/         # API client barrel
-│           └── navigation/       # extract from App.tsx
+│   ├── mobile/                   # Expo
+│   │   └── src/
+│   │       ├── screens/
+│   │       ├── components/
+│   │       ├── services/         # API client barrel
+│   │       └── navigation/       # extract from App.tsx
+│   └── landing/                  # Next.js opening page
 ├── packages/
 │   └── shared/src/
 │       ├── types/                # DTOs
@@ -90,7 +92,7 @@ xpi/
 │       └── utils/                # dates, normalize
 └── docs/
     ├── technical-requirements.md
-    ├── x-pi-mvp-plan.md
+    ├── walky-talky-mvp-plan.md
     ├── ide-handoff.md
     └── security-deps.md
 ```
@@ -110,7 +112,7 @@ If the Vite app is up (e.g. `:5173` / `:5174`) but `/api` fails because nothing 
 powershell -ExecutionPolicy Bypass -File .\scripts\dev-api.ps1
 ```
 
-That script starts Postgres in Docker (if needed), writes `apps/api/.env`, runs migrate + seed, then starts `npm run dev:api` on **http://localhost:4000**. Leave that window open; keep `npm run dev:web` in another terminal. Demo login: `demo@x-pi.app` / `demo1234`.
+That script starts Postgres in Docker (if needed), writes `apps/api/.env`, runs migrate + seed, then starts `npm run dev:api` on **http://localhost:4000**. Leave that window open; keep `npm run dev:web` in another terminal. Demo login: `demo@walky-talky.app` / `demo1234`.
 
 ### Common PowerShell one-liners (no `&&` — run line by line)
 
@@ -119,7 +121,7 @@ git fetch origin
 git checkout main
 git pull origin main
 npm install
-npm run build -w @x-pi/shared
+npm run build -w @walky-talky/shared
 npm run dev:api
 ```
 
@@ -136,12 +138,12 @@ npm run dev:web
 npm install
 
 # 2) Database
-createdb xpi   # or use Docker / existing Postgres
+createdb walkytalky   # or use Docker / existing Postgres
 cp apps/api/.env.example apps/api/.env
 # edit DATABASE_URL / JWT_SECRET as needed
 
 # 3) Build shared + migrate + seed
-npm run build -w @x-pi/shared
+npm run build -w @walky-talky/shared
 cd apps/api
 npx prisma migrate deploy
 npx prisma generate
@@ -164,7 +166,7 @@ ALLOW_SEED_RESET=true npx tsx prisma/seed.ts
 
 Demo user from seed:
 
-- Email: `demo@x-pi.app`
+- Email: `demo@walky-talky.app`
 - Password: `demo1234`
 
 ## CI

@@ -111,7 +111,7 @@ export default function App() {
   useEffect(() => {
     // Expose logout that also revokes refresh server-side
     const onStorage = (e: StorageEvent) => {
-      if (e.key === "xpi_token" && !e.newValue) logout();
+      if (e.key === "walky-talky:token" && !e.newValue) logout();
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);

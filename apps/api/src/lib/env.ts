@@ -34,7 +34,7 @@ const jwtRefreshMs = parseDurationToMs(jwtRefreshExpiresIn, 30 * 86_400_000);
 export const env = {
   port: Number(process.env.PORT || 4000),
   nodeEnv,
-  jwtSecret: jwtFromEnv || "x-pi-dev-secret",
+  jwtSecret: jwtFromEnv || "walky-talky-dev-secret",
   jwtExpiresIn,
   jwtExpiresSeconds: Math.max(1, Math.floor(jwtExpiresMs / 1000)),
   jwtRefreshExpiresIn,
@@ -50,7 +50,7 @@ export const env = {
   /** Max JSON body size for express.json */
   jsonLimit: process.env.JSON_BODY_LIMIT || "32kb",
   /**
-   * When true, refresh/login responses may Set-Cookie `xpi_refresh`
+   * When true, refresh/login responses may Set-Cookie `walky-talky:refresh`
    * (httpOnly, Secure in production, SameSite=Lax). SPA still receives body tokens.
    */
   authSetCookie: process.env.AUTH_SET_COOKIE === "true",

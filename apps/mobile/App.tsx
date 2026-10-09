@@ -57,8 +57,8 @@ export default function App() {
 
   useEffect(() => {
     (async () => {
-      const t = await AsyncStorage.getItem("xpi_token");
-      const refresh = await AsyncStorage.getItem("xpi_refresh");
+      const t = await AsyncStorage.getItem("walky-talky:token");
+      const refresh = await AsyncStorage.getItem("walky-talky:refresh");
       if (!t && !refresh) {
         setBooting(false);
         return;
@@ -72,9 +72,9 @@ export default function App() {
           try {
             const pair = await api.refresh(refresh);
             const access = pair.accessToken || pair.token;
-            await AsyncStorage.setItem("xpi_token", access);
+            await AsyncStorage.setItem("walky-talky:token", access);
             if (pair.refreshToken) {
-              await AsyncStorage.setItem("xpi_refresh", pair.refreshToken);
+              await AsyncStorage.setItem("walky-talky:refresh", pair.refreshToken);
             }
             setUser(pair.user);
             setShowSplash(false);
@@ -84,7 +84,7 @@ export default function App() {
             /* fall through */
           }
         }
-        await AsyncStorage.multiRemove(["xpi_token", "xpi_refresh"]);
+        await AsyncStorage.multiRemove(["walky-talky:token", "walky-talky:refresh"]);
       } finally {
         setBooting(false);
       }

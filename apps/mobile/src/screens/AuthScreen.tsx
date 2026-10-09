@@ -15,7 +15,7 @@ export function AuthScreen({
 }: {
   onAuth: (token: string, user: AuthUser) => void;
 }) {
-  const [email, setEmail] = useState("demo@x-pi.app");
+  const [email, setEmail] = useState("demo@walky-talky.app");
   const [password, setPassword] = useState("demo1234");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,9 +26,9 @@ export function AuthScreen({
     try {
       const res = await api.login({ email, password });
       const access = res.accessToken || res.token;
-      await AsyncStorage.setItem("xpi_token", access);
+      await AsyncStorage.setItem("walky-talky:token", access);
       if (res.refreshToken) {
-        await AsyncStorage.setItem("xpi_refresh", res.refreshToken);
+        await AsyncStorage.setItem("walky-talky:refresh", res.refreshToken);
       }
       onAuth(access, res.user);
     } catch (e) {

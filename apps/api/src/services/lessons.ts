@@ -6,7 +6,7 @@ import {
   type LessonSessionState,
   type PublicLesson,
   type QuestionPayload,
-} from "@x-pi/shared";
+} from "@walky-talky/shared";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import {

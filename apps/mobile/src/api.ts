@@ -76,7 +76,7 @@ let refreshInFlight: Promise<boolean> | null = null;
 async function tryRefresh(): Promise<boolean> {
   if (refreshInFlight) return refreshInFlight;
   refreshInFlight = (async () => {
-    const refreshToken = await AsyncStorage.getItem("xpi_refresh");
+    const refreshToken = await AsyncStorage.getItem("walky-talky:refresh");
     if (!refreshToken) return false;
     try {
       const res = await fetch(`${BASE}/auth/refresh`, {
@@ -87,9 +87,9 @@ async function tryRefresh(): Promise<boolean> {
       const data = (await res.json().catch(() => ({}))) as Partial<AuthTokens>;
       const access = data.accessToken || data.token;
       if (!res.ok || !access) return false;
-      await AsyncStorage.setItem("xpi_token", access);
+      await AsyncStorage.setItem("walky-talky:token", access);
       if (data.refreshToken) {
-        await AsyncStorage.setItem("xpi_refresh", data.refreshToken);
+        await AsyncStorage.setItem("walky-talky:refresh", data.refreshToken);
       }
       return true;
     } catch {
@@ -110,7 +110,7 @@ async function request<T>(
     "Content-Type": "application/json",
     ...(init?.headers as Record<string, string>),
   };
-  const t = await AsyncStorage.getItem("xpi_token");
+  const t = await AsyncStorage.getItem("walky-talky:token");
   if (t) headers.Authorization = `Bearer ${t}`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 20_000);

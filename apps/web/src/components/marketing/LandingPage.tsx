@@ -25,7 +25,7 @@ export function LandingPage() {
 
   if (legacy) {
     return (
-      <div className="min-h-full bg-[#f4f7f4] text-[var(--xpi-ink)]">
+      <div className="min-h-full bg-[#f4f7f4] text-[var(--walky-talky-ink)]">
         <MarketingHero />
         <HowSection />
         <FooterCta />

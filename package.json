@@ -7,14 +7,15 @@
     "packages/*"
   ],
   "scripts": {
-    "dev:api": "npm run dev -w @x-pi/api",
-    "dev:web": "npm run dev -w @x-pi/web",
-    "dev:mobile": "npm run start -w @x-pi/mobile",
-    "build": "npm run build -w @x-pi/shared && npm run build -w @x-pi/api && npm run build -w @x-pi/web",
-    "db:migrate": "npm run db:migrate -w @x-pi/api",
-    "db:seed": "npm run db:seed -w @x-pi/api",
-    "db:studio": "npm run db:studio -w @x-pi/api",
-    "test": "npm test -w @x-pi/api"
+    "dev:api": "npm run dev -w @walky-talky/api",
+    "dev:web": "npm run dev -w @walky-talky/web",
+    "dev:mobile": "npm run start -w @walky-talky/mobile",
+    "dev:landing": "npm run dev -w @walky-talky/landing",
+    "build": "npm run build -w @walky-talky/shared && npm run build -w @walky-talky/api && npm run build -w @walky-talky/web && npm run build -w @walky-talky/landing",
+    "db:migrate": "npm run db:migrate -w @walky-talky/api",
+    "db:seed": "npm run db:seed -w @walky-talky/api",
+    "db:studio": "npm run db:studio -w @walky-talky/api",
+    "test": "npm test -w @walky-talky/api"
   },
   "engines": {
     "node": ">=20"

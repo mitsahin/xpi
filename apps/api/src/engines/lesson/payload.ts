@@ -1,4 +1,4 @@
-import type { QuestionPayload } from "@x-pi/shared";
+import type { QuestionPayload } from "@walky-talky/shared";
 import type { Prisma } from "@prisma/client";
 
 type QuestionRow = {

@@ -31,7 +31,7 @@ export function ProfileScreen({
   );
 
   async function logout() {
-    await AsyncStorage.multiRemove(["xpi_token", "xpi_refresh"]);
+    await AsyncStorage.multiRemove(["walky-talky:token", "walky-talky:refresh"]);
     onLogout();
   }
 

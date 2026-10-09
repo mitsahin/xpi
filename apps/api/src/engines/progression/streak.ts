@@ -1,4 +1,4 @@
-import { calendarDateInTz } from "@x-pi/shared";
+import { calendarDateInTz } from "@walky-talky/shared";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { resolveStreakTransition } from "./streakLogic";
 

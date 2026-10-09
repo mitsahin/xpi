@@ -27,7 +27,7 @@ describe("refresh tokens (integration)", { skip: !hasDb }, () => {
       hashRefreshTokenForTests,
     } = await import("../../services/authTokens"));
 
-    const email = `refresh-test-${Date.now()}@x-pi.test`;
+    const email = `refresh-test-${Date.now()}@walky-talky.test`;
     const user = await prisma.user.create({
       data: {
         email,
@@ -49,7 +49,7 @@ describe("refresh tokens (integration)", { skip: !hasDb }, () => {
   it("issues pair, rotates once, rejects reuse", async () => {
     const pair = await issueTokenPair({
       userId,
-      email: "refresh-test@x-pi.test",
+      email: "refresh-test@walky-talky.test",
     });
     assert.ok(pair.accessToken);
     assert.ok(pair.refreshToken);
@@ -83,7 +83,7 @@ describe("refresh tokens (integration)", { skip: !hasDb }, () => {
   it("rejects expired refresh token as REFRESH_EXPIRED", async () => {
     const pair = await issueTokenPair({
       userId,
-      email: "refresh-test@x-pi.test",
+      email: "refresh-test@walky-talky.test",
     });
     const tokenHash = hashRefreshTokenForTests(pair.refreshToken);
     await prisma.refreshToken.update({
@@ -99,8 +99,8 @@ describe("refresh tokens (integration)", { skip: !hasDb }, () => {
   });
 
   it("revokeAllRefreshTokens invalidates every active device", async () => {
-    const a = await issueTokenPair({ userId, email: "refresh-test@x-pi.test" });
-    const b = await issueTokenPair({ userId, email: "refresh-test@x-pi.test" });
+    const a = await issueTokenPair({ userId, email: "refresh-test@walky-talky.test" });
+    const b = await issueTokenPair({ userId, email: "refresh-test@walky-talky.test" });
 
     const n = await revokeAllRefreshTokens(userId);
     assert.ok(n >= 2);
@@ -120,13 +120,13 @@ describe("refresh tokens (integration)", { skip: !hasDb }, () => {
   it("reuse of one revoked token revokes the whole family", async () => {
     const first = await issueTokenPair({
       userId,
-      email: "refresh-test@x-pi.test",
+      email: "refresh-test@walky-talky.test",
     });
     const second = await rotateRefreshToken(first.refreshToken);
     // Sibling still active until reuse detection
     const sibling = await issueTokenPair({
       userId,
-      email: "refresh-test@x-pi.test",
+      email: "refresh-test@walky-talky.test",
     });
 
     await assert.rejects(

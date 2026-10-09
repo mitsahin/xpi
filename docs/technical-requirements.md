@@ -1,6 +1,6 @@
 # Walky Talky — Technical Requirements
 
-Authoritative production engineering spec for the **Walky Talky** monorepo. Aligns with [`x-pi-mvp-plan.md`](./x-pi-mvp-plan.md). Implementation lives on branch `cursor/x-pi-learning-platform-332f` (PR [#1](https://github.com/mitsahin/xpi/pull/1)).
+Authoritative production engineering spec for the **Walky Talky** monorepo. Aligns with [`walky-talky-mvp-plan.md`](./walky-talky-mvp-plan.md). Implementation lives on branch `cursor/walky-talky-learning-platform-332f` (PR [#1](https://github.com/mitsahin/walky-talky/pull/1)).
 
 ---
 
@@ -37,7 +37,7 @@ Workspaces: npm workspaces at repo root. CI: `.github/workflows/ci.yml` (Postgre
 Every package has a single responsibility. Empty folders hold `README.md` stubs — not fake business logic.
 
 ```
-xpi/
+walky-talky/
 ├── apps/
 │   ├── api/
 │   │   ├── prisma/                 # schema.prisma, migrations/, seed.ts (+ seed modules)
@@ -48,7 +48,7 @@ xpi/
 │   │       ├── engines/            # pure-ish lesson grade/payload + progression/streak
 │   │       │   ├── lesson/         # gradeLessonAnswer, toQuestionPayload, shuffle
 │   │       │   ├── progression/    # streakLogic, applyStreakActivity, freeze award
-│   │       │   └── srs/            # reserved; SM-2 math stays in @x-pi/shared
+│   │       │   └── srs/            # reserved; SM-2 math stays in @walky-talky/shared
 │   │       ├── controllers/        # reserved (request/response shaping)
 │   │       ├── validators/         # Zod schemas (ids, auth, answer bodies)
 │   │       ├── middleware/         # requireAuth, assertOwner, authRateLimit
@@ -88,7 +88,7 @@ xpi/
 | `engines/*` | Pure transforms / streak math | Hit Prisma (except thin wrappers already in progression) |
 | `validators/*` | Zod only | Side effects |
 | `middleware/*` | AuthN, rate limit, AuthZ helpers | Domain scoring |
-| `@x-pi/shared` | Portable math/types | Node/React/RN imports |
+| `@walky-talky/shared` | Portable math/types | Node/React/RN imports |
 
 ---
 
@@ -99,8 +99,8 @@ xpi/
 - Bind HTTP to `0.0.0.0:$PORT` (default `4000`) — Render/container friendly.
 - Single Express process; Prisma Client as the sole data access layer.
 - `app.set("trust proxy", 1)` so rate-limit keys honor `X-Forwarded-For`.
-- Liveness: `GET /health` returns `{ ok: true, service: "x-pi-api" }` with no DB call.
-- Readiness: `GET /ready` runs `SELECT 1` and returns `{ ok: true, service: "x-pi-api", ready: true }`.
+- Liveness: `GET /health` returns `{ ok: true, service: "walky-talky-api" }` with no DB call.
+- Readiness: `GET /ready` runs `SELECT 1` and returns `{ ok: true, service: "walky-talky-api", ready: true }`.
 - Ephemeral filesystem: no durable local writes beyond process memory (rate-limit buckets are in-memory).
 
 ### 4.2 Environment
@@ -111,7 +111,7 @@ xpi/
 | `JWT_SECRET` | Yes in production | Fail-closed if missing; must be ≥32 chars and not the example value |
 | `JWT_EXPIRES_IN` | No | Short-lived access JWT (default `15m`) |
 | `JWT_REFRESH_EXPIRES_IN` | No | Opaque refresh lifetime (default `30d`) |
-| `AUTH_SET_COOKIE` | No | When `true`, also Set-Cookie httpOnly `xpi_refresh` (cookie-ready) |
+| `AUTH_SET_COOKIE` | No | When `true`, also Set-Cookie httpOnly `walky-talky:refresh` (cookie-ready) |
 | `PORT` | No | Default `4000` |
 | `CORS_ORIGIN` | No | Comma-separated allowlist; default `http://localhost:5173,http://localhost:5174` |
 | `JSON_BODY_LIMIT` | No | `express.json` limit (default `32kb`) |
@@ -126,7 +126,7 @@ See `apps/api/.env.example`. Never commit real secrets.
 | --- | --- | --- |
 | Lesson engine | `engines/lesson` | Wired — grade, payload, shuffle |
 | Progression / streak | `engines/progression` | Wired — freeze consume/award, effective streak |
-| SRS math | `@x-pi/shared` `srs/` | Wired via `services/srs` |
+| SRS math | `@walky-talky/shared` `srs/` | Wired via `services/srs` |
 | Auth middleware | `middleware/auth` | Wired — `requireAuth`, `signToken`, `assertOwner` |
 | Rate limit | `middleware/rateLimit` | Wired — 20 / 15m on `/auth/*` |
 | Validators | `validators/{ids,auth}` | Wired on auth, lessons, me routes |
@@ -153,7 +153,7 @@ See `apps/api/.env.example`. Never commit real secrets.
 - Refresh: 48-byte `base64url` secret; only SHA-256 hash persisted; lifetime `JWT_REFRESH_EXPIRES_IN` (default **30d**); rotated on every `/auth/refresh`.
 - Reuse detection: presenting a revoked refresh revokes **all** active refresh tokens for that user (`REFRESH_REUSE`).
 - Response shape: `{ accessToken, refreshToken, token, expiresIn, tokenType, user }` where `token` aliases `accessToken` for backward compatibility.
-- **httpOnly-ready:** when `AUTH_SET_COOKIE=true`, login/refresh also Set-Cookie `xpi_refresh` (`HttpOnly`, `SameSite=Lax`, `Secure` in production, `Path=/auth`). SPA may keep using JSON body; cookie path is for future BFF / same-site deploy.
+- **httpOnly-ready:** when `AUTH_SET_COOKIE=true`, login/refresh also Set-Cookie `walky-talky:refresh` (`HttpOnly`, `SameSite=Lax`, `Secure` in production, `Path=/auth`). SPA may keep using JSON body; cookie path is for future BFF / same-site deploy.
 - Web client: stores both tokens; auto-refresh on `401` before failing; logout calls `/auth/logout`.
 - Verification: `requireAuth` rejects missing/malformed/expired access tokens with `401` + `AUTH_REQUIRED | AUTH_INVALID`.
 - **Planned:** optional email verification; Redis-backed rate limits.
@@ -168,7 +168,7 @@ See `apps/api/.env.example`. Never commit real secrets.
 | Environment | Rule |
 | --- | --- |
 | `production` | Must be set; length ≥ 32; must not equal `change-me-in-production`. Process exits on boot otherwise. |
-| `development` | Falls back to `x-pi-dev-secret` if unset (local only). |
+| `development` | Falls back to `walky-talky-dev-secret` if unset (local only). |
 
 ### 5.5 Privacy on register
 
@@ -368,7 +368,7 @@ Defined in `packages/shared` (`xp/levels.ts`):
 - Start with `forceNew`: abandon prior in-progress, create new (user row `FOR UPDATE`).
 - Answers: session row `FOR UPDATE`; duplicate submit for same question is idempotent; wrong `questionId` → 409.
 - Hearts persist to `User.hearts` on incorrect answers; new sessions read persisted hearts.
-- Types graded via `@x-pi/shared` `gradeQuestionAnswer` (MCQ, FILL_BLANK, TRANSLATE, LISTEN, MATCH).
+- Types graded via `@walky-talky/shared` `gradeQuestionAnswer` (MCQ, FILL_BLANK, TRANSLATE, LISTEN, MATCH).
 
 ### 10.6 Resume
 
@@ -459,9 +459,9 @@ Must remain free of Node/React/RN imports.
 | Layer | Expectation | Status |
 | --- | --- | --- |
 | Unit | grade, SM-2, streak, levels, rateLimit, validators, ownership, duration | Done (CI) |
-| Typecheck | `npm run typecheck -w @x-pi/api` | Done (CI) |
+| Typecheck | `npm run typecheck -w @walky-talky/api` | Done (CI) |
 | Seed/migrate | Prisma migrate deploy + seed in CI | Done |
-| Web build | `npm run build -w @x-pi/web` | Done (CI) |
+| Web build | `npm run build -w @walky-talky/web` | Done (CI) |
 | Integration | Refresh token rotate/reuse against Postgres | Done (CI when `DATABASE_URL` set) |
 | Integration | Session/XP/SRS concurrency | Planned |
 | E2E | Playwright learn path | Planned |
@@ -520,7 +520,7 @@ New algorithm changes must add/extend unit tests under `apps/api/src/tests/unit/
 
 | Concern | Requirement |
 | --- | --- |
-| Consistency | XP/SRS/grade math only from `@x-pi/shared` |
+| Consistency | XP/SRS/grade math only from `@walky-talky/shared` |
 | Concurrency | Session / streak / card rows use `FOR UPDATE`; XP idempotent |
 | Idempotency | `XpEvent(userId, reason, refId)` unique |
 | Security | Fail-closed secrets, helmet, CORS allowlist, Zod, ownership 404 |
@@ -531,7 +531,7 @@ New algorithm changes must add/extend unit tests under `apps/api/src/tests/unit/
 
 ## 18. Related docs
 
-- [`x-pi-mvp-plan.md`](./x-pi-mvp-plan.md) — product phases
+- [`walky-talky-mvp-plan.md`](./walky-talky-mvp-plan.md) — product phases
 - [`ide-handoff.md`](./ide-handoff.md) — local continuation
 - [`security-deps.md`](./security-deps.md) — dependency CVE posture
 - Root [`README.md`](../README.md) — setup, API table, structure map, **Technical requirements** link

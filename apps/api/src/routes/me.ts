@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { xpProgressInLevel } from "@x-pi/shared";
+import { xpProgressInLevel } from "@walky-talky/shared";
 import { asyncHandler } from "../lib/asyncHandler";
 import { requireAuth } from "../middleware/auth";
 import { prisma } from "../lib/prisma";

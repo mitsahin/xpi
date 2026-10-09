@@ -8,7 +8,7 @@
   5173-5179 or node command lines mentioning vite / apps/web), then
   fetch + checkout main + reset --hard origin/main (discards local dirty
   tree - intentional so package-lock / stray edits cannot block sync),
-  builds @x-pi/shared, then runs npm run dev:web.
+  builds @walky-talky/shared, then runs npm run dev:web.
 
   Purpose: show the H2 bee homepage from origin/main, not a dirty or
   cinematic branch tree.
@@ -149,8 +149,8 @@ if ($head -ne $originMain) {
   throw "HEAD does not match origin/main after reset. Aborting."
 }
 
-Write-Host "==> Building @x-pi/shared (if needed)..." -ForegroundColor Cyan
-Invoke-Native "@x-pi/shared build" { npm run build -w @x-pi/shared }
+Write-Host "==> Building @walky-talky/shared (if needed)..." -ForegroundColor Cyan
+Invoke-Native "@walky-talky/shared build" { npm run build -w @walky-talky/shared }
 
 Write-Host "==> Starting web on main (npm run dev:web)..." -ForegroundColor Cyan
 Write-Host "    Open http://localhost:5173/ (or :5174) - expect H2 bee homepage" -ForegroundColor Green

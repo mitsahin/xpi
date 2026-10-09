@@ -4,7 +4,7 @@ import {
   newSm2Card,
   qualityFromAnswer,
   scheduleSm2,
-} from "@x-pi/shared";
+} from "@walky-talky/shared";
 
 describe("SM-2 schedule", () => {
   it("maps answer quality from speed", () => {

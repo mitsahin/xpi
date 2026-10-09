@@ -1,3 +1,3 @@
 # SRS engine
 
-Scheduling math: `@x-pi/shared` (`scheduleSm2`). Persistence: `src/services/srs.ts`.
+Scheduling math: `@walky-talky/shared` (`scheduleSm2`). Persistence: `src/services/srs.ts`.

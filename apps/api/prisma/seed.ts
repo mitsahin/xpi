@@ -42,7 +42,7 @@ async function main() {
   const passwordHash = await bcrypt.hash("demo1234", 10);
   const demo = await prisma.user.create({
     data: {
-      email: "demo@x-pi.app",
+      email: "demo@walky-talky.app",
       passwordHash,
       displayName: "Demo Learner",
       timezone: "America/New_York",
@@ -330,7 +330,7 @@ async function main() {
     }
   }
 
-  console.log("Seeded demo user demo@x-pi.app / demo1234");
+  console.log("Seeded demo user demo@walky-talky.app / demo1234");
   console.log("Course spanish-basics with", lessons.length, "lessons");
   console.log("User id:", demo.id);
 }

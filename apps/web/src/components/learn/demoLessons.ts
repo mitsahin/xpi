@@ -4,7 +4,7 @@ import type { AuthUser, StreakSummary } from "../../lib/api";
 /** Visual-QA fixtures for `?demo=1` (no API / no trademarks). */
 export const DEMO_USER: AuthUser = {
   id: "demo-user",
-  email: "demo@x-pi.app",
+  email: "demo@walky-talky.app",
   displayName: "Demo Learner",
   timezone: "UTC",
   xp: 240,
