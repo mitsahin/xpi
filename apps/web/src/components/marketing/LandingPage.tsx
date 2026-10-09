@@ -5,14 +5,19 @@ import { DuoHomeHero, useHomeVariant } from "./DuoHomeVariants";
 import { MarketingHero } from "./MarketingHero";
 
 /**
- * Marketing `/` — default is H2 centered bee (BeeHomeHero).
- * Optional alt layouts: `?home=1..5`. Prior hero: `?home=legacy`.
+ * Marketing `/` — **always defaults to H2 centered bee** (`BeeHomeHero`).
+ *
+ * - No cinematic / R3F / “Preview themes” on this branch of `main`.
+ * - `?theme=*` (old cinematic PR) is ignored — still H2.
+ * - Optional alts only via explicit `?home=1..5`.
+ * - Prior atmospheric hero only via `?home=legacy` (not cinematic A/B/C).
  */
 export function LandingPage() {
   const [params] = useSearchParams();
   const home = params.get("home");
+  // Explicit opt-in only — never treat missing/unknown/theme params as cinematic.
   const legacy = home === "legacy";
-  const altVariant = home && /^[1-5]$/.test(home);
+  const altVariant = home === "1" || home === "2" || home === "3" || home === "4" || home === "5";
   const variant = useHomeVariant();
 
   if (legacy) {
@@ -44,6 +49,7 @@ export function LandingPage() {
       className="min-h-full bg-[#fffcf5] text-[#1b2a4a]"
       style={{ fontFamily: "var(--font-learn)" }}
       data-home-variant="h2"
+      data-home-default="bee-h2"
     >
       <BeeHomeHero />
       <HowSection soft />
