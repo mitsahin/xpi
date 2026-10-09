@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { BeeMascot, InteractiveBeeMascot } from "../brand/BeeMascot";
+import { BeeLogoIcon } from "../brand/BeeLogoIcon";
+import { InteractiveBeeMascot } from "../brand/BeeMascot";
 import { useAppStore } from "../../store";
 
 /**
@@ -65,7 +66,7 @@ export function BeeHomeHero() {
           className="flex items-center gap-2.5 text-[1.65rem] font-black tracking-tight text-[#0c213c]"
           style={{ fontFamily: "var(--font-learn)" }}
         >
-          <BeeMascot size={40} title="" />
+          <BeeLogoIcon size={40} />
           <span>Walky Talky</span>
         </Link>
 
