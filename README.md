@@ -136,12 +136,21 @@ npm run build -w @x-pi/shared
 cd apps/api
 npx prisma migrate deploy
 npx prisma generate
-ALLOW_SEED_RESET=true npx tsx prisma/seed.ts
+npx tsx prisma/seed.ts
 cd ../..
 
 # 4) Run
 npm run dev:api   # :4000
 npm run dev:web   # :5173 (or :5174)
+```
+
+Local seed runs in development by default (`NODE_ENV` unset or `development`). It **wipes and recreates** demo data — use only on a disposable local database.
+
+**Destructive seed reset (override):** only when you intentionally need to force a wipe outside local development (e.g. CI). Never set this against a shared or production database:
+
+```bash
+# WARNING: deletes users, courses, progress, and related rows, then reseeds
+ALLOW_SEED_RESET=true npx tsx prisma/seed.ts
 ```
 
 Demo user from seed:
@@ -157,7 +166,8 @@ GitHub Actions (`.github/workflows/ci.yml`) installs deps, migrates Postgres, se
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| GET | `/health` | Liveness |
+| GET | `/health` | Process liveness (no DB) |
+| GET | `/ready` | Readiness — Postgres `SELECT 1` |
 | POST | `/auth/register` | Create user + tokens |
 | POST | `/auth/login` | Access + refresh |
 | POST | `/auth/refresh` | Rotate refresh |
