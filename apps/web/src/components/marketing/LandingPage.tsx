@@ -3,21 +3,24 @@ import { useAppStore } from "../../store";
 import { BeeHomeHero } from "./BeeHomeHero";
 import { DuoHomeHero, useHomeVariant } from "./DuoHomeVariants";
 import { MarketingHero } from "./MarketingHero";
+import { SplineHomeHero } from "./SplineHomeHero";
 
 /**
- * Marketing `/` — **always defaults to H2 centered bee** (`BeeHomeHero`).
+ * Marketing `/` — **defaults to Spline hero** (`SplineHomeHero`).
  *
- * - No cinematic / R3F / “Preview themes” on this branch of `main`.
- * - `?theme=*` (old cinematic PR) is ignored — still H2.
- * - Optional alts only via explicit `?home=1..5`.
- * - Prior atmospheric hero only via `?home=legacy` (not cinematic A/B/C).
+ * - No cinematic / R3F / “Preview themes” on default `/`.
+ * - `?theme=*` (old cinematic PR) is ignored.
+ * - H2 bee only via explicit `?home=h2`.
+ * - Optional alts via `?home=1..5`.
+ * - Prior atmospheric hero via `?home=legacy`.
  */
 export function LandingPage() {
   const [params] = useSearchParams();
   const home = params.get("home");
-  // Explicit opt-in only — never treat missing/unknown/theme params as cinematic.
   const legacy = home === "legacy";
-  const altVariant = home === "1" || home === "2" || home === "3" || home === "4" || home === "5";
+  const beeH2 = home === "h2";
+  const altVariant =
+    home === "1" || home === "2" || home === "3" || home === "4" || home === "5";
   const variant = useHomeVariant();
 
   if (legacy) {
@@ -25,6 +28,21 @@ export function LandingPage() {
       <div className="min-h-full bg-[#f4f7f4] text-[var(--xpi-ink)]">
         <MarketingHero />
         <HowSection />
+        <FooterCta />
+      </div>
+    );
+  }
+
+  if (beeH2) {
+    return (
+      <div
+        className="min-h-full bg-[#fffcf5] text-[#1b2a4a]"
+        style={{ fontFamily: "var(--font-learn)" }}
+        data-home-variant="h2"
+        data-home-default="bee-h2"
+      >
+        <BeeHomeHero />
+        <HowSection soft />
         <FooterCta />
       </div>
     );
@@ -46,12 +64,12 @@ export function LandingPage() {
 
   return (
     <div
-      className="min-h-full bg-[#fffcf5] text-[#1b2a4a]"
+      className="min-h-full bg-[#0b1220] text-white"
       style={{ fontFamily: "var(--font-learn)" }}
-      data-home-variant="h2"
-      data-home-default="bee-h2"
+      data-home-variant="spline"
+      data-home-default="spline"
     >
-      <BeeHomeHero />
+      <SplineHomeHero />
       <HowSection soft />
       <FooterCta />
     </div>
@@ -62,7 +80,7 @@ function HowSection({ soft }: { soft?: boolean }) {
   return (
     <section
       id="how"
-      className={`mx-auto max-w-6xl px-6 py-16 ${soft ? "bg-[#f7f7f7]" : ""}`}
+      className={`mx-auto max-w-6xl px-6 py-16 ${soft ? "bg-[#f7f7f7] text-[#1b2a4a]" : ""}`}
     >
       <h2
         className="text-3xl font-black tracking-tight text-[#1b2a4a] md:text-4xl"
@@ -108,7 +126,7 @@ function HowSection({ soft }: { soft?: boolean }) {
 function FooterCta() {
   const token = useAppStore((s) => s.token);
   return (
-    <section className="border-t-2 border-[#e5e5e5] bg-white px-6 py-14">
+    <section className="border-t-2 border-[#e5e5e5] bg-white px-6 py-14 text-[#1b2a4a]">
       <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 md:flex-row md:items-center">
         <div>
           <p
