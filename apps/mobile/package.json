@@ -1,5 +1,5 @@
 {
-  "name": "@x-pi/mobile",
+  "name": "@walky-talky/mobile",
   "version": "0.1.0",
   "main": "index.ts",
   "dependencies": {

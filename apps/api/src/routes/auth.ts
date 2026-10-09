@@ -128,7 +128,7 @@ authRouter.post(
 
 /**
  * Rotate refresh → new access + refresh.
- * Accepts refreshToken in JSON body and/or httpOnly cookie `xpi_refresh` (cookie-ready).
+ * Accepts refreshToken in JSON body and/or httpOnly cookie `walky-talky:refresh` (cookie-ready).
  */
 authRouter.post(
   "/refresh",

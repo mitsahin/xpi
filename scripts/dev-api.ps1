@@ -15,9 +15,9 @@ $ErrorActionPreference = "Stop"
 $Root = Resolve-Path (Join-Path $PSScriptRoot "..")
 Set-Location $Root
 
-$ContainerName = "xpi-postgres"
+$ContainerName = "walky-talky-postgres"
 $PgImage = "postgres:16"
-$DatabaseUrl = "postgresql://xpi:xpi@localhost:5432/xpi?schema=public"
+$DatabaseUrl = "postgresql://walkytalky:walkytalky@localhost:5432/walkytalky?schema=public"
 $ApiDir = Join-Path $Root "apps\api"
 $EnvFile = Join-Path $ApiDir ".env"
 $EnvExample = Join-Path $ApiDir ".env.example"
@@ -50,9 +50,9 @@ if (-not $existing) {
   Write-Host "    Creating container from $PgImage (port 5432)..."
   docker run -d `
     --name $ContainerName `
-    -e POSTGRES_USER=xpi `
-    -e POSTGRES_PASSWORD=xpi `
-    -e POSTGRES_DB=xpi `
+    -e POSTGRES_USER=walkytalky `
+    -e POSTGRES_PASSWORD=walkytalky `
+    -e POSTGRES_DB=walkytalky `
     -p 5432:5432 `
     $PgImage | Out-Null
 } else {
@@ -70,7 +70,7 @@ Write-Host "==> Waiting for Postgres to accept connections..." -ForegroundColor 
 $ready = $false
 for ($i = 1; $i -le 40; $i++) {
   # Do not pipe docker output — piping resets $LASTEXITCODE in Windows PowerShell 5.1
-  & docker exec $ContainerName pg_isready -U xpi -d xpi 1>$null 2>$null
+  & docker exec $ContainerName pg_isready -U walkytalky -d walkytalky 1>$null 2>$null
   if ($LASTEXITCODE -eq 0) {
     $ready = $true
     break
@@ -119,9 +119,9 @@ if ($envText -notmatch '5174') {
   }
 }
 
-# --- shared build (API imports @x-pi/shared) ---
-Write-Host "==> Building @x-pi/shared..." -ForegroundColor Cyan
-npm run build -w @x-pi/shared
+# --- shared build (API imports @walky-talky/shared) ---
+Write-Host "==> Building @walky-talky/shared..." -ForegroundColor Cyan
+npm run build -w @walky-talky/shared
 if ($LASTEXITCODE -ne 0) { throw "shared build failed" }
 
 # --- migrate + generate ---
@@ -148,7 +148,7 @@ try {
 }
 
 Write-Host ""
-Write-Host "Demo user: demo@x-pi.app / demo1234" -ForegroundColor Green
+Write-Host "Demo user: demo@walky-talky.app / demo1234" -ForegroundColor Green
 Write-Host "API will listen on http://localhost:4000" -ForegroundColor Green
 Write-Host "Keep this window open. In another terminal: npm run dev:web" -ForegroundColor Green
 Write-Host "Web proxy /api -> :4000 (Vite may use :5173 or :5174)." -ForegroundColor Green

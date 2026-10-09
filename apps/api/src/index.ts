@@ -32,7 +32,7 @@ app.use(express.json({ limit: env.jsonLimit }));
 
 // Process liveness — no DB (safe for orchestrator restart probes)
 app.get("/health", (_req, res) => {
-  res.json({ ok: true, service: "x-pi-api" });
+  res.json({ ok: true, service: "walky-talky-api" });
 });
 
 // Readiness — Postgres reachable
@@ -40,7 +40,7 @@ app.get(
   "/ready",
   asyncHandler(async (_req, res) => {
     await prisma.$queryRaw`SELECT 1`;
-    res.json({ ok: true, service: "x-pi-api", ready: true });
+    res.json({ ok: true, service: "walky-talky-api", ready: true });
   })
 );
 app.use("/auth", authRouter);

@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { levelFromXp, xpForLevel, xpProgressInLevel } from "@x-pi/shared";
+import { levelFromXp, xpForLevel, xpProgressInLevel } from "@walky-talky/shared";
 
 describe("XP / levels", () => {
   it("maps XP to levels monotonically", () => {

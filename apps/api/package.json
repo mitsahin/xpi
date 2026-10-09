@@ -1,5 +1,5 @@
 {
-  "name": "@x-pi/api",
+  "name": "@walky-talky/api",
   "version": "0.1.0",
   "private": true,
   "main": "dist/index.js",
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.3.1",
-    "@x-pi/shared": "*",
+    "@walky-talky/shared": "*",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",

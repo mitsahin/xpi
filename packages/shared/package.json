@@ -1,5 +1,5 @@
 {
-  "name": "@x-pi/shared",
+  "name": "@walky-talky/shared",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/index.js",

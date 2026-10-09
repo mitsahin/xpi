@@ -5,7 +5,7 @@ import {
   scheduleSm2,
   type DailyQueueItem,
   type SrsReviewItem,
-} from "@x-pi/shared";
+} from "@walky-talky/shared";
 import { Prisma } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import { awardXp, updateStreak } from "./stats";

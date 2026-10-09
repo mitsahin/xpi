@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import type { AuthUser, StreakSummary } from "./lib/api";
 
-const ACCESS_KEY = "xpi_token";
-const REFRESH_KEY = "xpi_refresh";
+const ACCESS_KEY = "walky-talky:token";
+const REFRESH_KEY = "walky-talky:refresh";
 
 type AppState = {
   token: string | null;

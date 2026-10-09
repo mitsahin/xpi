@@ -4,5 +4,5 @@
 - `integration/` — reserved for Postgres/HTTP tests
 
 ```bash
-npm test -w @x-pi/api
+npm test -w @walky-talky/api
 ```

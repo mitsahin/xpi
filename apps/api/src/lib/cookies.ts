@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { env } from "./env";
 
-export const REFRESH_COOKIE = "xpi_refresh";
+export const REFRESH_COOKIE = "walky-talky:refresh";
 
 export function readCookie(req: Request, name: string): string | undefined {
   const header = req.headers.cookie;

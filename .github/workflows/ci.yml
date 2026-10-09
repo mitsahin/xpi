@@ -14,19 +14,19 @@ jobs:
         # ECR public mirror avoids Docker Hub pull rate limits on GHA runners.
         image: public.ecr.aws/docker/library/postgres:16
         env:
-          POSTGRES_USER: xpi
-          POSTGRES_PASSWORD: xpi
-          POSTGRES_DB: xpi
+          POSTGRES_USER: walkytalky
+          POSTGRES_PASSWORD: walkytalky
+          POSTGRES_DB: walkytalky
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U xpi -d xpi"
+          --health-cmd "pg_isready -U walkytalky -d walkytalky"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
 
     env:
-      DATABASE_URL: postgresql://xpi:xpi@localhost:5432/xpi?schema=public
+      DATABASE_URL: postgresql://walkytalky:walkytalky@localhost:5432/walkytalky?schema=public
       JWT_SECRET: ci-test-secret
       ALLOW_SEED_RESET: "true"
       NODE_ENV: development
@@ -44,7 +44,7 @@ jobs:
         run: npm ci
 
       - name: Build shared
-        run: npm run build -w @x-pi/shared
+        run: npm run build -w @walky-talky/shared
 
       - name: Prisma migrate + generate
         working-directory: apps/api
@@ -66,4 +66,7 @@ jobs:
         run: npx tsx prisma/seed.ts
 
       - name: Build web
-        run: npm run build -w @x-pi/web
+        run: npm run build -w @walky-talky/web
+
+      - name: Build landing
+        run: npm run build -w @walky-talky/landing

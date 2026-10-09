@@ -1,4 +1,4 @@
-import { daysBetween, previousCalendarDate } from "@x-pi/shared";
+import { daysBetween, previousCalendarDate } from "@walky-talky/shared";
 
 export type StreakSnapshot = {
   currentStreak: number;

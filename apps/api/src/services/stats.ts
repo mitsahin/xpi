@@ -1,4 +1,4 @@
-import { calendarDateInTz, levelFromXp } from "@x-pi/shared";
+import { calendarDateInTz, levelFromXp } from "@walky-talky/shared";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { prisma } from "../lib/prisma";
 import {

@@ -1,7 +1,7 @@
 import {
   gradeQuestionAnswer,
   type QuestionType,
-} from "@x-pi/shared";
+} from "@walky-talky/shared";
 
 export function gradeLessonAnswer(
   type: QuestionType,

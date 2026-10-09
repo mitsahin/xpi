@@ -6,14 +6,14 @@
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Syne", ui-sans-serif, sans-serif;
   --font-learn: "Nunito", ui-sans-serif, sans-serif;
-  --color-xpi-green: #58cc02;
-  --color-xpi-green-deep: #3d9a00;
-  --color-xpi-green-soft: #d7ffb8;
-  --color-xpi-ink: #0f1712;
-  --color-xpi-muted: #7a857c;
-  --color-xpi-blue: #1cb0f6;
-  --color-xpi-red: #ff4b4b;
-  --color-xpi-gold: #ffc800;
+  --color-walky-talky-green: #58cc02;
+  --color-walky-talky-green-deep: #3d9a00;
+  --color-walky-talky-green-soft: #d7ffb8;
+  --color-walky-talky-ink: #0f1712;
+  --color-walky-talky-muted: #7a857c;
+  --color-walky-talky-blue: #1cb0f6;
+  --color-walky-talky-red: #ff4b4b;
+  --color-walky-talky-gold: #ffc800;
 }
 
 html,
@@ -25,13 +25,13 @@ body,
 body {
   margin: 0;
   font-family: var(--font-body);
-  color: var(--xpi-ink);
+  color: var(--walky-talky-ink);
   background: #f4f7f4;
   -webkit-font-smoothing: antialiased;
 }
 
 /* --- Marketing motion --- */
-@keyframes xpi-drift {
+@keyframes walky-talky-drift {
   0% {
     transform: translate3d(0, 0, 0) scale(1);
   }
@@ -43,7 +43,7 @@ body {
   }
 }
 
-@keyframes xpi-rise {
+@keyframes walky-talky-rise {
   from {
     opacity: 0;
     transform: translateY(18px);
@@ -54,7 +54,7 @@ body {
   }
 }
 
-@keyframes xpi-sheen {
+@keyframes walky-talky-sheen {
   0% {
     background-position: 0% 50%;
   }
@@ -64,42 +64,42 @@ body {
 }
 
 .mkt-drift {
-  animation: xpi-drift 14s ease-in-out infinite;
+  animation: walky-talky-drift 14s ease-in-out infinite;
 }
 
 .mkt-rise {
-  animation: xpi-rise 0.7s ease-out both;
+  animation: walky-talky-rise 0.7s ease-out both;
 }
 
 .mkt-rise-delay {
-  animation: xpi-rise 0.7s ease-out 0.12s both;
+  animation: walky-talky-rise 0.7s ease-out 0.12s both;
 }
 
 .mkt-rise-delay-2 {
-  animation: xpi-rise 0.7s ease-out 0.24s both;
+  animation: walky-talky-rise 0.7s ease-out 0.24s both;
 }
 
 .mkt-brand-sheen {
   background: linear-gradient(
     105deg,
-    var(--xpi-green-deep) 0%,
-    var(--xpi-green) 40%,
+    var(--walky-talky-green-deep) 0%,
+    var(--walky-talky-green) 40%,
     #9dff4a 55%,
-    var(--xpi-green) 70%,
-    var(--xpi-green-deep) 100%
+    var(--walky-talky-green) 70%,
+    var(--walky-talky-green-deep) 100%
   );
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: xpi-sheen 5s ease-in-out infinite alternate;
+  animation: walky-talky-sheen 5s ease-in-out infinite alternate;
 }
 
 /* --- Learn shell --- */
 .learn-shell {
   font-family: var(--font-learn);
-  color: var(--xpi-ink-soft);
-  background: var(--xpi-learn-bg);
+  color: var(--walky-talky-ink-soft);
+  background: var(--walky-talky-learn-bg);
   min-height: 100%;
   /* Safe area for mobile web / notched devices */
   padding-bottom: env(safe-area-inset-bottom, 0);

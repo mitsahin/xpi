@@ -41,12 +41,12 @@ export function MarketingHero() {
       </svg>
 
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-6">
-        <span className="font-[family-name:var(--font-display)] text-xl font-extrabold tracking-tight text-[var(--xpi-ink)]">
+        <span className="font-[family-name:var(--font-display)] text-xl font-extrabold tracking-tight text-[var(--walky-talky-ink)]">
           Walky Talky
         </span>
         <Link
           to="/auth"
-          className="text-sm font-semibold text-[var(--xpi-ink)]/70 transition hover:text-[var(--xpi-ink)]"
+          className="text-sm font-semibold text-[var(--walky-talky-ink)]/70 transition hover:text-[var(--walky-talky-ink)]"
         >
           Sign in
         </Link>
@@ -56,22 +56,22 @@ export function MarketingHero() {
         <p className="mkt-rise font-[family-name:var(--font-display)] text-[clamp(4.5rem,14vw,9.5rem)] font-extrabold leading-[0.9] tracking-[-0.04em]">
           <span className="mkt-brand-sheen">Walky Talky</span>
         </p>
-        <h1 className="mkt-rise-delay mt-6 max-w-2xl font-[family-name:var(--font-display)] text-[clamp(1.75rem,4vw,3rem)] font-bold leading-[1.1] tracking-tight text-[var(--xpi-ink)]">
+        <h1 className="mkt-rise-delay mt-6 max-w-2xl font-[family-name:var(--font-display)] text-[clamp(1.75rem,4vw,3rem)] font-bold leading-[1.1] tracking-tight text-[var(--walky-talky-ink)]">
           Micro-lessons that move with you.
         </h1>
-        <p className="mkt-rise-delay-2 mt-4 max-w-md text-lg font-medium leading-relaxed text-[var(--xpi-muted)]">
+        <p className="mkt-rise-delay-2 mt-4 max-w-md text-lg font-medium leading-relaxed text-[var(--walky-talky-muted)]">
           Streaks, XP, and spaced practice — built for daily momentum, not marathon study.
         </p>
         <div className="mkt-rise-delay-2 mt-8 flex flex-wrap items-center gap-3">
           <Link
             to="/auth"
-            className="inline-flex items-center justify-center rounded-full bg-[var(--xpi-green)] px-7 py-3.5 text-base font-bold text-white transition hover:bg-[var(--xpi-green-deep)]"
+            className="inline-flex items-center justify-center rounded-full bg-[var(--walky-talky-green)] px-7 py-3.5 text-base font-bold text-white transition hover:bg-[var(--walky-talky-green-deep)]"
           >
             Start learning
           </Link>
           <a
             href="#how"
-            className="inline-flex items-center justify-center rounded-full border border-[var(--xpi-ink)]/15 bg-white/50 px-7 py-3.5 text-base font-semibold text-[var(--xpi-ink)] backdrop-blur transition hover:border-[var(--xpi-ink)]/30"
+            className="inline-flex items-center justify-center rounded-full border border-[var(--walky-talky-ink)]/15 bg-white/50 px-7 py-3.5 text-base font-semibold text-[var(--walky-talky-ink)] backdrop-blur transition hover:border-[var(--walky-talky-ink)]/30"
           >
             How it works
           </a>

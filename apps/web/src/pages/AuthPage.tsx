@@ -5,7 +5,7 @@ import { useAppStore } from "../store";
 export function AuthPage() {
   const setAuth = useAppStore((s) => s.setAuth);
   const [mode, setMode] = useState<"login" | "register">("login");
-  const [email, setEmail] = useState("demo@x-pi.app");
+  const [email, setEmail] = useState("demo@walky-talky.app");
   const [password, setPassword] = useState("demo1234");
   const [displayName, setDisplayName] = useState("Demo Learner");
   const [error, setError] = useState("");
@@ -32,7 +32,7 @@ export function AuthPage() {
   return (
     <div className="learn-shell flex min-h-full flex-col items-center justify-center bg-[radial-gradient(circle_at_top,#d7ffb8,transparent_55%),linear-gradient(#f0fff0,#ffffff)] px-4">
       <div className="animate-pop w-full max-w-md text-center">
-        <div className="text-5xl font-black tracking-tight text-[var(--xpi-green)] sm:text-6xl">
+        <div className="text-5xl font-black tracking-tight text-[var(--walky-talky-green)] sm:text-6xl">
           Walky Talky
         </div>
         <p className="mt-2 text-lg font-bold text-[#777]">
