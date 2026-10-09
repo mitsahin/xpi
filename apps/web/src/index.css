@@ -6,6 +6,8 @@
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Syne", ui-sans-serif, sans-serif;
   --font-learn: "Nunito", ui-sans-serif, sans-serif;
+  --font-walky: "Fredoka", ui-rounded, sans-serif;
+  --font-walky-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
   --color-xpi-green: #58cc02;
   --color-xpi-green-deep: #3d9a00;
   --color-xpi-green-soft: #d7ffb8;
@@ -14,6 +16,11 @@
   --color-xpi-blue: #1cb0f6;
   --color-xpi-red: #ff4b4b;
   --color-xpi-gold: #ffc800;
+  --color-walky-green: #2bb673;
+  --color-walky-green-deep: #0f8a4b;
+  --color-walky-orange: #ff6b2c;
+  --color-walky-gold: #ffb020;
+  --color-walky-ink: #143528;
 }
 
 html,
@@ -222,6 +229,82 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .bee-bob {
+    animation: none;
+  }
+}
+
+/* --- Walky Talky --- */
+:root {
+  --font-walky: "Fredoka", ui-rounded, sans-serif;
+  --font-walky-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
+}
+
+@keyframes walky-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes walky-wing {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(8deg);
+  }
+}
+
+@keyframes walky-signal {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes walky-node-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 176, 32, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(255, 176, 32, 0);
+  }
+}
+
+.walky-bee-float {
+  animation: walky-float 3.6s ease-in-out infinite;
+}
+
+.walky-wing-left {
+  animation: walky-wing 0.45s ease-in-out infinite;
+}
+
+.walky-wing-right {
+  animation: walky-wing 0.45s ease-in-out infinite reverse;
+}
+
+.walky-signal {
+  animation: walky-signal 1.2s ease-in-out infinite;
+}
+
+.walky-node-active {
+  animation: walky-node-pulse 1.8s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .walky-bee-float,
+  .walky-wing-left,
+  .walky-wing-right,
+  .walky-signal,
+  .walky-node-active {
     animation: none;
   }
 }

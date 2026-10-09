@@ -1,24 +1,26 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { useAppStore } from "../../store";
+import { WalkyLandingPage } from "../../features/walky/pages/WalkyLandingPage";
 import { BeeHomeHero } from "./BeeHomeHero";
 import { DuoHomeHero, useHomeVariant } from "./DuoHomeVariants";
 import { MarketingHero } from "./MarketingHero";
 import { SplineHomeHero } from "./SplineHomeHero";
 
 /**
- * Marketing `/` — **defaults to Spline hero** (`SplineHomeHero`).
+ * Marketing `/` — **defaults to Walky Talky** LocalStorage demo landing.
  *
- * - No cinematic / R3F / “Preview themes” on default `/`.
- * - `?theme=*` (old cinematic PR) is ignored.
- * - H2 bee only via explicit `?home=h2`.
- * - Optional alts via `?home=1..5`.
- * - Prior atmospheric hero via `?home=legacy`.
+ * Opt-in alts:
+ * - `?home=spline` — Spline 3D hero
+ * - `?home=h2` — H2 bee
+ * - `?home=1..5` — Duo-style variants
+ * - `?home=legacy` — atmospheric MarketingHero
  */
 export function LandingPage() {
   const [params] = useSearchParams();
   const home = params.get("home");
   const legacy = home === "legacy";
   const beeH2 = home === "h2";
+  const spline = home === "spline";
   const altVariant =
     home === "1" || home === "2" || home === "3" || home === "4" || home === "5";
   const variant = useHomeVariant();
@@ -39,9 +41,22 @@ export function LandingPage() {
         className="min-h-full bg-[#fffcf5] text-[#1b2a4a]"
         style={{ fontFamily: "var(--font-learn)" }}
         data-home-variant="h2"
-        data-home-default="bee-h2"
       >
         <BeeHomeHero />
+        <HowSection soft />
+        <FooterCta />
+      </div>
+    );
+  }
+
+  if (spline) {
+    return (
+      <div
+        className="min-h-full bg-[#0b1220] text-white"
+        style={{ fontFamily: "var(--font-learn)" }}
+        data-home-variant="spline"
+      >
+        <SplineHomeHero />
         <HowSection soft />
         <FooterCta />
       </div>
@@ -62,18 +77,7 @@ export function LandingPage() {
     );
   }
 
-  return (
-    <div
-      className="min-h-full bg-[#0b1220] text-white"
-      style={{ fontFamily: "var(--font-learn)" }}
-      data-home-variant="spline"
-      data-home-default="spline"
-    >
-      <SplineHomeHero />
-      <HowSection soft />
-      <FooterCta />
-    </div>
-  );
+  return <WalkyLandingPage />;
 }
 
 function HowSection({ soft }: { soft?: boolean }) {
