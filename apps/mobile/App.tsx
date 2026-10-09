@@ -56,8 +56,10 @@ export default function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    AsyncStorage.getItem("xpi_token").then(async (t) => {
-      if (!t) {
+    (async () => {
+      const t = await AsyncStorage.getItem("xpi_token");
+      const refresh = await AsyncStorage.getItem("xpi_refresh");
+      if (!t && !refresh) {
         setBooting(false);
         return;
       }
@@ -66,11 +68,27 @@ export default function App() {
         setUser(me.user);
         setShowSplash(false);
       } catch {
-        await AsyncStorage.removeItem("xpi_token");
+        if (refresh) {
+          try {
+            const pair = await api.refresh(refresh);
+            const access = pair.accessToken || pair.token;
+            await AsyncStorage.setItem("xpi_token", access);
+            if (pair.refreshToken) {
+              await AsyncStorage.setItem("xpi_refresh", pair.refreshToken);
+            }
+            setUser(pair.user);
+            setShowSplash(false);
+            setBooting(false);
+            return;
+          } catch {
+            /* fall through */
+          }
+        }
+        await AsyncStorage.multiRemove(["xpi_token", "xpi_refresh"]);
       } finally {
         setBooting(false);
       }
-    });
+    })();
   }, []);
 
   if (booting) {

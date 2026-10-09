@@ -243,6 +243,62 @@ async function main() {
           answer: ["é", "e", "café", "cafe"],
           orderIndex: 4,
         },
+        {
+          type: "TRANSLATE",
+          prompt: 'Translate to Spanish: "I want water"',
+          answer: ["Quiero agua", "quiero agua"],
+          orderIndex: 5,
+          hint: "Quiero…",
+        },
+      ],
+    },
+    {
+      slug: "colors",
+      title: "Colors",
+      description: "Basic color words",
+      unitOrder: 2,
+      lessonOrder: 2,
+      questions: [
+        {
+          type: "MCQ",
+          prompt: 'What does "rojo" mean?',
+          options: ["Blue", "Red", "Green", "Yellow"],
+          answer: "Red",
+          orderIndex: 0,
+        },
+        {
+          type: "FILL_BLANK",
+          prompt: 'Spanish for blue: "az___"',
+          answer: ["ul", "azul", "Azul"],
+          orderIndex: 1,
+        },
+        {
+          type: "MATCH",
+          prompt: "Match color ↔ English",
+          options: {
+            left: ["verde", "amarillo", "negro"],
+            right: ["green", "yellow", "black"],
+          },
+          answer: {
+            verde: "green",
+            amarillo: "yellow",
+            negro: "black",
+          },
+          orderIndex: 2,
+        },
+        {
+          type: "TRANSLATE",
+          prompt: 'Translate to English: "blanco"',
+          answer: ["white", "White"],
+          orderIndex: 3,
+        },
+        {
+          type: "LISTEN",
+          prompt: "Listen and type the color",
+          options: { speakText: "rojo", locale: "es-ES" },
+          answer: ["rojo", "Rojo"],
+          orderIndex: 4,
+        },
       ],
     },
   ];

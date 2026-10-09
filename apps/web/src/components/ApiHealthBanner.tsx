@@ -8,13 +8,18 @@ export function ApiHealthBanner() {
   const { pathname } = useLocation();
   const [params] = useSearchParams();
   const onLearn = pathname.startsWith("/learn");
+  const demo = params.get("demo") === "1";
   const shot = params.get("shot") === "1";
+  const skip = !onLearn || demo || shot;
   const healthy = useAppStore((s) => s.apiHealthy);
   const setApiHealthy = useAppStore((s) => s.setApiHealthy);
   const [checking, setChecking] = useState(false);
 
   useEffect(() => {
-    if (!onLearn || shot) return;
+    if (skip) {
+      if (demo || shot) setApiHealthy(true);
+      return;
+    }
     let cancelled = false;
     const tick = async () => {
       const r = await api.health();
@@ -26,9 +31,9 @@ export function ApiHealthBanner() {
       cancelled = true;
       window.clearInterval(id);
     };
-  }, [onLearn, shot, setApiHealthy]);
+  }, [skip, demo, shot, setApiHealthy]);
 
-  if (!onLearn || shot || healthy !== false) return null;
+  if (skip || healthy !== false) return null;
 
   return (
     <div

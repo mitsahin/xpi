@@ -1,28 +1,54 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { ApiError, api, type PublicLesson } from "../lib/api";
-import { BeeMascotMini } from "../components/brand/BeeMascot";
 import { BottomNav } from "../components/BottomNav";
 import { TopStats } from "../components/TopStats";
+import {
+  LearnEmptyState,
+  LearnErrorState,
+  LearnLoading,
+  LearnPath,
+  usePathVariant,
+} from "../components/learn/LessonShell";
+import {
+  DEMO_LESSONS,
+  DEMO_STREAK,
+  DEMO_USER,
+} from "../components/learn/demoLessons";
 import { useAppStore } from "../store";
 
 export function HomePage() {
+  const [params] = useSearchParams();
+  const demo = params.get("demo") === "1";
+  const pathVariant = usePathVariant();
   const [lessons, setLessons] = useState<PublicLesson[]>([]);
   const [dueReviews, setDueReviews] = useState(0);
   const [error, setError] = useState("");
   const [offline, setOffline] = useState(false);
+  const [loading, setLoading] = useState(true);
   const setUser = useAppStore((s) => s.setUser);
   const setStreak = useAppStore((s) => s.setStreak);
   const setApiHealthy = useAppStore((s) => s.setApiHealthy);
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    if (demo) {
+      setLessons(DEMO_LESSONS);
+      setUser(DEMO_USER);
+      setStreak(DEMO_STREAK);
+      setDueReviews(2);
+      setError("");
+      setOffline(false);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError("");
     Promise.all([api.lessons(), api.stats(), api.reviews()])
       .then(([l, s, r]) => {
         setLessons(l.lessons);
         setUser(s.user);
         setStreak(s.streak);
         setDueReviews(r.reviews.length);
-        setError("");
         setOffline(false);
         setApiHealthy(true);
       })
@@ -33,108 +59,72 @@ export function HomePage() {
           setOffline(true);
           setApiHealthy(false);
         }
-      });
-  }, [setUser, setStreak, setApiHealthy]);
+      })
+      .finally(() => setLoading(false));
+  }, [demo, setUser, setStreak, setApiHealthy]);
 
-  const units = lessons.reduce<Record<number, PublicLesson[]>>((acc, l) => {
-    (acc[l.unitOrder] ||= []).push(l);
-    return acc;
-  }, {});
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const currentId =
-    lessons.find((l) => !l.locked && !l.completed)?.id ??
-    lessons.find((l) => l.hasActiveSession)?.id ??
-    null;
+  const compareHref = useMemo(() => {
+    const next = pathVariant === "classic" ? "pro" : "classic";
+    const q = new URLSearchParams(params);
+    q.set("path", next);
+    if (demo) q.set("demo", "1");
+    return `/learn?${q.toString()}`;
+  }, [params, pathVariant, demo]);
 
   return (
-    <div className="min-h-full bg-[linear-gradient(180deg,#f7fff0_0%,#ffffff_280px)] pb-24">
+    <div className="learn-path-page min-h-full bg-[#f7f7f7] pb-28">
       <TopStats />
-      <main className="mx-auto max-w-lg px-4 py-6">
-        <h1 className="text-2xl font-black">Spanish Basics</h1>
-        <p className="mt-1 font-bold text-[#777]">Follow the path. Earn XP. Keep your streak.</p>
+      <main className="mx-auto max-w-md px-4 pb-6 pt-4">
+        <div className="mb-1 flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#afafaf]">
+              Section 1
+            </p>
+            <h1 className="text-[1.65rem] font-black leading-tight text-[#3c3c3c]">
+              Spanish Basics
+            </h1>
+          </div>
+          <Link
+            to={compareHref}
+            className="shrink-0 rounded-xl border-2 border-[#e5e5e5] bg-white px-2.5 py-1.5 text-[11px] font-black uppercase tracking-wide text-[#777]"
+            title="Toggle path density variant"
+          >
+            Path: {pathVariant}
+          </Link>
+        </div>
+        <p className="font-bold text-[#afafaf]">
+          Follow the path · Earn XP · Keep your streak
+        </p>
+
         {dueReviews > 0 && (
           <Link
-            to="/learn/reviews"
+            to={demo ? "/learn/reviews?demo=1" : "/learn/reviews"}
             className="mt-4 flex items-center justify-between rounded-2xl border-2 border-b-4 border-[#ce82ff] bg-[#f3e8ff] px-4 py-3 font-extrabold text-[#7c3aed]"
           >
-            <span>↻ {dueReviews} review{dueReviews === 1 ? "" : "s"} due</span>
+            <span>
+              ↻ {dueReviews} review{dueReviews === 1 ? "" : "s"} due
+            </span>
             <span>Practice →</span>
           </Link>
         )}
-        {error && (
-          <div
-            className={`mt-4 rounded-2xl border-2 px-4 py-3 font-bold ${
-              offline
-                ? "border-[#ffb02e] bg-[#fff4ce] text-[#915f10]"
-                : "border-[#ff4b4b] bg-[#fff0f0] text-[#ff4b4b]"
-            }`}
-          >
-            <p>{error}</p>
-            {offline && (
-              <button
-                type="button"
-                className="mt-2 underline"
-                onClick={() => window.location.reload()}
-              >
-                Retry
-              </button>
-            )}
-          </div>
-        )}
-        <div className="relative mt-8 space-y-10">
-          <div className="pointer-events-none absolute left-1/2 top-4 bottom-4 w-1 -translate-x-1/2 rounded-full bg-[#e5e5e5]" />
-          {Object.entries(units).map(([unit, items]) => (
-            <section key={unit} className="relative">
-              <div className="mb-4 inline-block rounded-xl bg-[#58cc02] px-3 py-1 text-sm font-black uppercase tracking-wide text-white">
-                Unit {unit}
-              </div>
-              <ul className="space-y-6">
-                {items.map((lesson, idx) => {
-                  const offset = idx % 2 === 0 ? "ml-[18%]" : "ml-[52%]";
-                  const isCurrent = lesson.id === currentId;
-                  return (
-                    <li key={lesson.id} className={`relative ${offset}`}>
-                      {isCurrent ? (
-                        <div
-                          className="pointer-events-none absolute -right-14 top-2 z-10 bee-bob sm:-right-16"
-                          aria-hidden
-                        >
-                          <BeeMascotMini size={64} />
-                        </div>
-                      ) : null}
-                      {lesson.locked ? (
-                        <div className="flex h-20 w-20 flex-col items-center justify-center rounded-full border-4 border-[#e5e5e5] bg-[#f0f0f0] text-[#afafaf]">
-                          <span className="text-2xl">🔒</span>
-                        </div>
-                      ) : (
-                        <Link
-                          to={`/learn/lesson/${lesson.id}`}
-                          className={`flex h-20 w-20 flex-col items-center justify-center rounded-full border-b-8 text-white transition hover:brightness-105 active:border-b-4 active:translate-y-1 ${
-                            lesson.completed
-                              ? "border-[#46a302] bg-[var(--xpi-green)]"
-                              : "border-[#1899d6] bg-[var(--xpi-blue)]"
-                          } ${isCurrent ? "ring-4 ring-[#58cc02]/35" : ""}`}
-                        >
-                          <span className="text-2xl font-black">
-                            {lesson.completed ? "★" : "▶"}
-                          </span>
-                        </Link>
-                      )}
-                      <div className="mt-2 max-w-[140px]">
-                        <div className="font-extrabold leading-tight">{lesson.title}</div>
-                        <div className="text-xs font-bold text-[#777]">
-                          +{lesson.xpReward} XP
-                          {lesson.stars > 0 ? ` · ${"★".repeat(lesson.stars)}` : ""}
-                          {lesson.hasActiveSession ? " · resume" : ""}
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          ))}
-        </div>
+
+        {error ? (
+          <LearnErrorState message={error} offline={offline} onRetry={load} />
+        ) : null}
+        {loading ? <LearnLoading label="Loading your path..." /> : null}
+        {!loading && !error && lessons.length === 0 ? (
+          <LearnEmptyState
+            title="No lessons yet"
+            detail="Your course path will show up here once content is available."
+          />
+        ) : null}
+        {!loading && lessons.length > 0 ? (
+          <LearnPath lessons={lessons} variant={pathVariant} />
+        ) : null}
       </main>
       <BottomNav />
     </div>

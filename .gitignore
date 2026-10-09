@@ -9,6 +9,7 @@ build/
 .DS_Store
 coverage/
 *.tsbuildinfo
+.playwright-mcp/
 apps/api/prisma/*.db
 apps/api/prisma/*.db-journal
 apps/mobile/.expo/
