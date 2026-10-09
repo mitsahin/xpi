@@ -211,7 +211,7 @@ body {
 .bee-dot-grid {
   width: 3.25rem;
   height: 3.25rem;
-  background-image: radial-gradient(circle, #ffc800 2px, transparent 2.2px);
+  background-image: radial-gradient(circle, #e6b84a 1.7px, transparent 1.9px);
   background-size: 13px 13px;
   background-repeat: repeat;
 }
