@@ -69,7 +69,8 @@ if (-not $existing) {
 Write-Host "==> Waiting for Postgres to accept connections..." -ForegroundColor Cyan
 $ready = $false
 for ($i = 1; $i -le 40; $i++) {
-  docker exec $ContainerName pg_isready -U xpi -d xpi 2>$null | Out-Null
+  # Do not pipe docker output — piping resets $LASTEXITCODE in Windows PowerShell 5.1
+  & docker exec $ContainerName pg_isready -U xpi -d xpi 1>$null 2>$null
   if ($LASTEXITCODE -eq 0) {
     $ready = $true
     break
@@ -94,8 +95,9 @@ if (-not (Test-Path $EnvFile)) {
 
 # Ensure DATABASE_URL + CORS include Vite ports (5173/5174)
 $envText = Get-Content $EnvFile -Raw
-if ($envText -notmatch 'DATABASE_URL=') {
+if ($envText -notmatch '(?m)^DATABASE_URL=') {
   Add-Content $EnvFile "`nDATABASE_URL=`"$DatabaseUrl`""
+  $envText = Get-Content $EnvFile -Raw
 }
 if ($envText -notmatch '5174') {
   if ($envText -match 'CORS_ORIGIN="([^"]*)"') {
@@ -103,6 +105,14 @@ if ($envText -notmatch '5174') {
     if ($cors -notmatch '5174') {
       $cors = ($cors.TrimEnd(',') + ",http://localhost:5174")
       $envText = $envText -replace 'CORS_ORIGIN="[^"]*"', "CORS_ORIGIN=`"$cors`""
+      Set-Content -Path $EnvFile -Value $envText -NoNewline
+      Write-Host "    Added http://localhost:5174 to CORS_ORIGIN"
+    }
+  } elseif ($envText -match '(?m)^CORS_ORIGIN=([^\r\n]+)') {
+    $cors = $Matches[1].Trim('"')
+    if ($cors -notmatch '5174') {
+      $cors = ($cors.TrimEnd(',') + ",http://localhost:5174")
+      $envText = $envText -replace '(?m)^CORS_ORIGIN=[^\r\n]+', "CORS_ORIGIN=`"$cors`""
       Set-Content -Path $EnvFile -Value $envText -NoNewline
       Write-Host "    Added http://localhost:5174 to CORS_ORIGIN"
     }

@@ -63,7 +63,49 @@ export type LessonSessionState = {
   } | null;
 };
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+export type AuthTokens = {
+  accessToken?: string;
+  refreshToken?: string;
+  /** @deprecated alias of accessToken */
+  token: string;
+  user: AuthUser;
+};
+
+let refreshInFlight: Promise<boolean> | null = null;
+
+async function tryRefresh(): Promise<boolean> {
+  if (refreshInFlight) return refreshInFlight;
+  refreshInFlight = (async () => {
+    const refreshToken = await AsyncStorage.getItem("xpi_refresh");
+    if (!refreshToken) return false;
+    try {
+      const res = await fetch(`${BASE}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken }),
+      });
+      const data = (await res.json().catch(() => ({}))) as Partial<AuthTokens>;
+      const access = data.accessToken || data.token;
+      if (!res.ok || !access) return false;
+      await AsyncStorage.setItem("xpi_token", access);
+      if (data.refreshToken) {
+        await AsyncStorage.setItem("xpi_refresh", data.refreshToken);
+      }
+      return true;
+    } catch {
+      return false;
+    } finally {
+      refreshInFlight = null;
+    }
+  })();
+  return refreshInFlight;
+}
+
+async function request<T>(
+  path: string,
+  init?: RequestInit,
+  opts?: { skipAuthRetry?: boolean }
+): Promise<T> {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...(init?.headers as Record<string, string>),
@@ -78,6 +120,16 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       headers,
       signal: controller.signal,
     });
+
+    if (
+      res.status === 401 &&
+      !opts?.skipAuthRetry &&
+      !path.startsWith("/auth/")
+    ) {
+      const ok = await tryRefresh();
+      if (ok) return request<T>(path, init, { skipAuthRetry: true });
+    }
+
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || res.statusText);
     return data as T;
@@ -90,14 +142,6 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     clearTimeout(timer);
   }
 }
-
-export type AuthTokens = {
-  accessToken?: string;
-  refreshToken?: string;
-  /** @deprecated alias of accessToken */
-  token: string;
-  user: AuthUser;
-};
 
 export const api = {
   login: (body: { email: string; password: string }) =>
@@ -116,10 +160,14 @@ export const api = {
       body: JSON.stringify(body),
     }),
   refresh: (refreshToken: string) =>
-    request<AuthTokens>("/auth/refresh", {
-      method: "POST",
-      body: JSON.stringify({ refreshToken }),
-    }),
+    request<AuthTokens>(
+      "/auth/refresh",
+      {
+        method: "POST",
+        body: JSON.stringify({ refreshToken }),
+      },
+      { skipAuthRetry: true }
+    ),
   me: () => request<{ user: AuthUser }>("/auth/me"),
   stats: () =>
     request<{

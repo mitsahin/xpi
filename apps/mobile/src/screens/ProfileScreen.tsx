@@ -31,7 +31,7 @@ export function ProfileScreen({
   );
 
   async function logout() {
-    await AsyncStorage.removeItem("xpi_token");
+    await AsyncStorage.multiRemove(["xpi_token", "xpi_refresh"]);
     onLogout();
   }
 
