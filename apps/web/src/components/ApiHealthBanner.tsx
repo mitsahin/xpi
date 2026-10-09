@@ -1,14 +1,20 @@
 import { useEffect, useState } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAppStore } from "../store";
 
-/** Non-blocking banner when the API is unreachable (demo unblocker). */
+/** Non-blocking banner when the API is unreachable (learn routes only). */
 export function ApiHealthBanner() {
+  const { pathname } = useLocation();
+  const [params] = useSearchParams();
+  const onLearn = pathname.startsWith("/learn");
+  const shot = params.get("shot") === "1";
   const healthy = useAppStore((s) => s.apiHealthy);
   const setApiHealthy = useAppStore((s) => s.setApiHealthy);
   const [checking, setChecking] = useState(false);
 
   useEffect(() => {
+    if (!onLearn || shot) return;
     let cancelled = false;
     const tick = async () => {
       const r = await api.health();
@@ -20,9 +26,9 @@ export function ApiHealthBanner() {
       cancelled = true;
       window.clearInterval(id);
     };
-  }, [setApiHealthy]);
+  }, [onLearn, shot, setApiHealthy]);
 
-  if (healthy !== false) return null;
+  if (!onLearn || shot || healthy !== false) return null;
 
   return (
     <div

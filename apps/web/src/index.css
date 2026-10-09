@@ -117,3 +117,63 @@ body {
 .animate-pop {
   animation: pop-in 0.25s ease-out;
 }
+
+/* --- Duolingo-inspired marketing home --- */
+@keyframes duo-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes duo-bubble {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+.duo-home {
+  font-family: var(--font-learn);
+}
+
+.duo-float {
+  animation: duo-float 4s ease-in-out infinite;
+}
+
+.duo-bubble {
+  animation: duo-bubble 5s ease-in-out infinite;
+}
+
+.duo-bubble:nth-child(2n) {
+  animation-delay: 0.6s;
+}
+
+.duo-bubble:nth-child(3n) {
+  animation-delay: 1.2s;
+}
+
+/* --- H2 bee home --- */
+@keyframes bee-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.bee-home {
+  font-family: var(--font-learn);
+}
+
+.bee-bob {
+  animation: bee-bob 3.2s ease-in-out infinite;
+}

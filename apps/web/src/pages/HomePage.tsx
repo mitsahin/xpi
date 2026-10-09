@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ApiError, api, type PublicLesson } from "../lib/api";
+import { BeeMascotMini } from "../components/brand/BeeMascot";
 import { BottomNav } from "../components/BottomNav";
 import { TopStats } from "../components/TopStats";
 import { useAppStore } from "../store";
@@ -39,6 +40,11 @@ export function HomePage() {
     (acc[l.unitOrder] ||= []).push(l);
     return acc;
   }, {});
+
+  const currentId =
+    lessons.find((l) => !l.locked && !l.completed)?.id ??
+    lessons.find((l) => l.hasActiveSession)?.id ??
+    null;
 
   return (
     <div className="min-h-full bg-[linear-gradient(180deg,#f7fff0_0%,#ffffff_280px)] pb-24">
@@ -85,8 +91,17 @@ export function HomePage() {
               <ul className="space-y-6">
                 {items.map((lesson, idx) => {
                   const offset = idx % 2 === 0 ? "ml-[18%]" : "ml-[52%]";
+                  const isCurrent = lesson.id === currentId;
                   return (
                     <li key={lesson.id} className={`relative ${offset}`}>
+                      {isCurrent ? (
+                        <div
+                          className="pointer-events-none absolute -right-14 top-2 z-10 bee-bob sm:-right-16"
+                          aria-hidden
+                        >
+                          <BeeMascotMini size={64} />
+                        </div>
+                      ) : null}
                       {lesson.locked ? (
                         <div className="flex h-20 w-20 flex-col items-center justify-center rounded-full border-4 border-[#e5e5e5] bg-[#f0f0f0] text-[#afafaf]">
                           <span className="text-2xl">🔒</span>
@@ -98,7 +113,7 @@ export function HomePage() {
                             lesson.completed
                               ? "border-[#46a302] bg-[var(--xpi-green)]"
                               : "border-[#1899d6] bg-[var(--xpi-blue)]"
-                          }`}
+                          } ${isCurrent ? "ring-4 ring-[#58cc02]/35" : ""}`}
                         >
                           <span className="text-2xl font-black">
                             {lesson.completed ? "★" : "▶"}
