@@ -15,8 +15,11 @@ export const SPLINE_SCENE_URL = (
 )?.trim() ?? "";
 
 export const COMMUNITY_FILE_ID = "f98bdec5-a9ce-48e7-9929-f04dfae468bb";
-/** `uuidFile` from https://community-api.spline.design/file/<communityId> */
-export const COMMUNITY_PREVIEW_UUID = "91dc6061-fe0e-420a-a24c-4611ec57dd3b";
+/**
+ * Preview uuid from `community-api.spline.design/file/open/<communityId>`
+ * (not the listing `uuidFile` — that id 403s in the viewer).
+ */
+export const COMMUNITY_PREVIEW_UUID = "5f189bbc-d747-45fb-a210-0bcf0e27e5df";
 export const COMMUNITY_PAGE_URL = `https://app.spline.design/community/file/${COMMUNITY_FILE_ID}`;
 /** Hana 2D community preview (not a `.splinecode` URL). */
 export const COMMUNITY_PREVIEW_IFRAME = `https://app.spline.design/ui/${COMMUNITY_PREVIEW_UUID}?view=preview`;
