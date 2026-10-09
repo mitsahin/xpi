@@ -14,7 +14,7 @@ Phase 1 MVP: MCQ + fill-in-blank lessons, XP/levels, timezone-aware streaks, dai
 > **Homepage on `main`:** `/` defaults to the **H2 centered bee** landing (`BeeHomeHero`).
 > There is **no** cinematic “Preview themes A/B/C” / navy sphere on `main` — that lives only on the unmerged cinematic branch (PR #2).
 >
-> If localhost still shows cinematic themes, you are **not on `main`**. Use the PowerShell lines below (no `&&`), then restart the web app.
+> If localhost still shows cinematic themes, you are **not on `main`**. To see the H2 bee homepage run `.\scripts\dev-web-main.ps1`.
 
 ### Get H2 bee homepage (PowerShell — run each line separately)
 
@@ -24,6 +24,8 @@ git checkout main
 git pull origin main
 npm run dev:web
 ```
+
+Or one shot: `.\scripts\dev-web-main.ps1`
 
 Then open `http://localhost:5173/` (or `:5174`). You should see the bee and **“Dili oyun gibi öğren”**.
 
