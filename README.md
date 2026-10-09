@@ -11,10 +11,23 @@ Gamified micro-learning (Duolingo-like UX, original **x-pi** branding). Monorepo
 
 Phase 1 MVP: MCQ + fill-in-blank lessons, XP/levels, timezone-aware streaks, daily XP goal, modified SM-2 SRS.
 
-> **Homepage on `main`:** `/` defaults to the **H2 centered bee** landing (`BeeHomeHero`), not the older cinematic hero.
-> If you still see cinematic / 3D themes locally, you are on an old branch — run:
-> `git fetch origin && git checkout main && git pull origin main`
-> Then restart `npm run dev:web`. Legacy hero: `/?home=legacy`.
+> **Homepage on `main`:** `/` defaults to the **H2 centered bee** landing (`BeeHomeHero`).
+> There is **no** cinematic “Preview themes A/B/C” / navy sphere on `main` — that lives only on the unmerged cinematic branch (PR #2).
+>
+> If localhost still shows cinematic themes, you are **not on `main`**. Use the PowerShell lines below (no `&&`), then restart the web app.
+
+### Get H2 bee homepage (PowerShell — run each line separately)
+
+```powershell
+git fetch origin
+git checkout main
+git pull origin main
+npm run dev:web
+```
+
+Then open `http://localhost:5173/` (or `:5174`). You should see the bee and **“Dili oyun gibi öğren”**.
+
+Legacy atmospheric hero (not cinematic A/B/C): `http://localhost:5173/?home=legacy`
 
 ## Technical requirements
 
@@ -45,7 +58,8 @@ xpi/
 │   │       ├── pages/            # route screens
 │   │       ├── features/         # auth / learn / reviews (growth)
 │   │       ├── components/
-│   │       │   ├── marketing/    # `/` landing only
+│   │       │   ├── marketing/    # `/` landing only (BeeHomeHero default)
+│   │       │   ├── brand/        # BeeMascot
 │   │       │   ├── learn/        # `/learn` shell
 │   │       │   └── common/       # shared presentational
 │   │       ├── hooks/
@@ -89,6 +103,23 @@ powershell -ExecutionPolicy Bypass -File .\scripts\dev-api.ps1
 
 That script starts Postgres in Docker (if needed), writes `apps/api/.env`, runs migrate + seed, then starts `npm run dev:api` on **http://localhost:4000**. Leave that window open; keep `npm run dev:web` in another terminal. Demo login: `demo@x-pi.app` / `demo1234`.
 
+### Common PowerShell one-liners (no `&&` — run line by line)
+
+```powershell
+git fetch origin
+git checkout main
+git pull origin main
+npm install
+npm run build -w @x-pi/shared
+npm run dev:api
+```
+
+In a **second** terminal:
+
+```powershell
+npm run dev:web
+```
+
 ## Setup
 
 ```bash
@@ -103,30 +134,20 @@ cp apps/api/.env.example apps/api/.env
 # 3) Build shared + migrate + seed
 npm run build -w @x-pi/shared
 cd apps/api
-npx prisma migrate deploy   # use `migrate dev` only when changing the schema
+npx prisma migrate deploy
 npx prisma generate
-npx tsx prisma/seed.ts
+ALLOW_SEED_RESET=true npx tsx prisma/seed.ts
 cd ../..
+
+# 4) Run
+npm run dev:api   # :4000
+npm run dev:web   # :5173 (or :5174)
 ```
 
 Demo user from seed:
 
 - Email: `demo@x-pi.app`
 - Password: `demo1234`
-
-## Run
-
-```bash
-# API — http://localhost:4000
-npm run dev:api
-
-# Web — http://localhost:5173  (proxies /api → :4000)
-npm run dev:web
-
-# Mobile — Expo (set API URL for device/emulator)
-EXPO_PUBLIC_API_URL=http://localhost:4000 npm run dev:mobile
-# On a physical device, use your machine LAN IP instead of localhost.
-```
 
 ## CI
 
@@ -136,12 +157,13 @@ GitHub Actions (`.github/workflows/ci.yml`) installs deps, migrates Postgres, se
 
 | Method | Path | Notes |
 | --- | --- | --- |
-| POST | `/auth/register` | Create user + access/refresh tokens |
-| POST | `/auth/login` | Login + access/refresh |
-| POST | `/auth/refresh` | Rotate refresh → new pair |
-| POST | `/auth/logout` | Revoke refresh (optional all devices) |
+| GET | `/health` | Liveness |
+| POST | `/auth/register` | Create user + tokens |
+| POST | `/auth/login` | Access + refresh |
+| POST | `/auth/refresh` | Rotate refresh |
+| POST | `/auth/logout` | Revoke refresh |
 | GET | `/auth/me` | Current user |
-| GET | `/lessons` | Path with lock/complete state |
+| GET | `/lessons` | Path + lock state |
 | GET | `/lessons/:id/active` | In-progress session (resume probe) |
 | POST | `/lessons/:id/start` | Start or resume lesson (`forceNew` to abandon) |
 | POST | `/lessons/sessions/:id/answer` | Submit answer (MCQ / fill / translate / listen / match) |
@@ -161,16 +183,16 @@ GitHub Actions (`.github/workflows/ci.yml`) installs deps, migrates Postgres, se
 
 | Path | Shell |
 | --- | --- |
-| `/` | Marketing landing (`MarketingHero`) |
+| `/` | Marketing — **H2 bee** homepage (`BeeHomeHero`; alts `?home=1..5`, legacy `?home=legacy`) |
 | `/auth` | Login / register |
-| `/learn` | Duolingo-like lesson path (`LessonShell`) |
+| `/learn` | Duolingo-like lesson path (`LessonShell` + brand bee at current node) |
 | `/learn/lesson/:id` | Lesson session |
 | `/learn/reviews` | Due SRS reviews |
 | `/learn/profile` | Profile / stats |
 
 ## Demo path
 
-1. Start API + web — open `/` for the marketing landing, then **Start learning**.
+1. Ensure you are on **`main`** (PowerShell lines above). Start API + web — open `/` for the bee homepage, then **Öğrenmeye başla**.
 2. Log in as demo user → `/learn` path → play **Greetings** (MCQ + fill-blank).
 3. Finish lesson → see XP / streak / daily goal update on home + profile.
 4. Mobile: light splash → login → Learn tab → lesson → Profile.
