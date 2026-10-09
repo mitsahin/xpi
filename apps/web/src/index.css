@@ -101,6 +101,28 @@ body {
   color: var(--xpi-ink-soft);
   background: var(--xpi-learn-bg);
   min-height: 100%;
+  /* Safe area for mobile web / notched devices */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+@keyframes learn-path-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.85;
+  }
+}
+
+.learn-path-pulse {
+  animation: learn-path-pulse 1.2s ease-in-out infinite;
+}
+
+.learn-path-current {
+  animation: learn-path-pulse 1.8s ease-in-out infinite;
 }
 
 @keyframes pop-in {
