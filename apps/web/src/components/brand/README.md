@@ -1,6 +1,6 @@
 # Brand assets
 
-Shared original x-pi visuals (not Duolingo trademarks).
+Shared original Walky Talky visuals (not Duolingo trademarks).
 
 - `BeeMascot` / `BeeMascotMini` — yellow/black bee used on marketing H2 home and learn path
 - `BeeLogoMark` — compact bee-head icon for top-left brand mark

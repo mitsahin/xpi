@@ -30,7 +30,7 @@ function HomeNav({ light = false }: { light?: boolean }) {
         }`}
         style={{ fontFamily: "var(--font-learn)" }}
       >
-        x-pi
+        Walky Talky
       </Link>
       <Link
         to="/auth"
@@ -135,7 +135,7 @@ function Variant1() {
             Ücretsiz, eğlenceli ve etkili dil öğrenmenin yolu!
           </h1>
           <p className="mt-4 text-lg font-bold text-[#777]">
-            Kısa dersler, streak’ler ve XP ile her gün bir adım — x-pi ile.
+            Kısa dersler, streak’ler ve XP ile her gün bir adım — Walky Talky ile.
           </p>
           <div className="mt-8 flex flex-col items-center gap-3 md:items-start">
             <PrimaryCta />
@@ -238,7 +238,7 @@ function Variant4() {
             Dil öğrenmenin en eğlenceli yolu
           </h1>
           <p className="mt-3 text-lg font-bold text-white/90">
-            x-pi ile ücretsiz başla — streak’ini yak, her gün bir ders bitir.
+            Walky Talky ile ücretsiz başla — streak’ini yak, her gün bir ders bitir.
           </p>
         </div>
       </div>

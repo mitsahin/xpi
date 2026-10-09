@@ -5,7 +5,7 @@ import { useAppStore } from "../../store";
 
 /**
  * Default marketing homepage (H2): centered bee splash matching bee-home-2.
- * Logo top-center (small bee + x-pi). Discreet Giriş top-right only.
+ * Logo top-center (small bee + Walky Talky). Discreet Giriş top-right only.
  */
 export function BeeHomeHero() {
   const token = useAppStore((s) => s.token);
@@ -66,7 +66,7 @@ export function BeeHomeHero() {
           style={{ fontFamily: "var(--font-learn)" }}
         >
           <BeeMascot size={40} title="" />
-          <span>x-pi</span>
+          <span>Walky Talky</span>
         </Link>
 
         <motion.div

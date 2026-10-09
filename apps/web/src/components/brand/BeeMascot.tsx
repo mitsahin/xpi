@@ -9,14 +9,14 @@ import {
 import { animate, motion, useReducedMotion } from "framer-motion";
 
 /**
- * Soft x-pi bee from the bee-home-2 splash:
+ * Soft Walky Talky bee from the bee-home-2 splash:
  * round yellow body with a top highlight, three thick black stripes,
  * blush, light-blue wings, yellow antenna tips, white eye highlights.
  */
 export function BeeMascot({
   className = "",
   size = 200,
-  title = "x-pi bee",
+  title = "Walky Talky bee",
   wingPhase = 0,
 }: {
   className?: string;

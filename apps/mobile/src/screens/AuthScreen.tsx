@@ -40,7 +40,7 @@ export function AuthScreen({
 
   return (
     <View style={styles.root}>
-      <Text style={styles.brand}>x-pi</Text>
+      <Text style={styles.brand}>Walky Talky</Text>
       <Text style={styles.sub}>Learn in streaks. Level up daily.</Text>
       <TextInput
         style={styles.input}

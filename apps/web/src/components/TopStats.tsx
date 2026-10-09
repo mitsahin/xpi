@@ -11,8 +11,8 @@ export function TopStats() {
   return (
     <header className="sticky top-0 z-20 border-b-2 border-[#e5e5e5] bg-white px-3 py-2.5">
       <div className="mx-auto flex max-w-md items-center justify-between gap-2">
-        <div className="text-[1.35rem] font-black tracking-tight text-[#58cc02]">
-          x-pi
+        <div className="text-[1.1rem] font-black tracking-tight text-[#58cc02] sm:text-[1.35rem]">
+          Walky Talky
         </div>
         <div className="flex items-center gap-3 text-[15px] font-extrabold">
           <span className="inline-flex items-center gap-1 text-[#ff9600]" title="Streak">

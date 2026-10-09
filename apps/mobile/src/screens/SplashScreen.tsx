@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 export function SplashScreen({ onContinue }: { onContinue: () => void }) {
   return (
     <View style={styles.root}>
-      <Text style={styles.brand}>x-pi</Text>
+      <Text style={styles.brand}>Walky Talky</Text>
       <Text style={styles.line}>Micro-lessons that move with you.</Text>
       <Pressable style={styles.btn} onPress={onContinue}>
         <Text style={styles.btnText}>START LEARNING</Text>

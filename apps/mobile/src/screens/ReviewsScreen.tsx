@@ -101,7 +101,7 @@ export function ReviewsScreen({ onUser }: { onUser?: (u: Awaited<ReturnType<type
       contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
       refreshControl={<RefreshControl refreshing={false} onRefresh={load} />}
     >
-      <Text style={styles.brand}>x-pi</Text>
+      <Text style={styles.brand}>Walky Talky</Text>
       <Text style={styles.h1}>Reviews</Text>
       <Text style={styles.sub}>Due SRS cards from your lessons.</Text>
       {!!error && <Text style={styles.error}>{error}</Text>}

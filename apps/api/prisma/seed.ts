@@ -55,7 +55,7 @@ async function main() {
     data: {
       slug: "spanish-basics",
       title: "Spanish Basics",
-      description: "Start speaking Spanish with x-pi",
+      description: "Start speaking Spanish with Walky Talky",
       language: "es",
     },
   });
