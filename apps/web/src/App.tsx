@@ -12,6 +12,10 @@ import { LandingPage } from "./components/marketing/LandingPage";
 import { LessonShell } from "./components/learn/LessonShell";
 import { ApiHealthBanner } from "./components/ApiHealthBanner";
 import { DEMO_STREAK, DEMO_USER } from "./components/learn/demoLessons";
+import { WalkyAppLayout } from "./features/walky/pages/WalkyAppLayout";
+import { PathPage } from "./features/walky/pages/PathPage";
+import { ExercisePage } from "./features/walky/pages/ExercisePage";
+import { VoicePage } from "./features/walky/pages/VoicePage";
 import { AuthPage } from "./pages/AuthPage";
 import { HomePage } from "./pages/HomePage";
 import { LessonPage } from "./pages/LessonPage";
@@ -122,6 +126,11 @@ export default function App() {
       <ApiHealthBanner />
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/app" element={<WalkyAppLayout />}>
+          <Route index element={<PathPage />} />
+          <Route path="lesson/:skillId" element={<ExercisePage />} />
+          <Route path="voice" element={<VoicePage />} />
+        </Route>
         <Route
           path="/auth"
           element={token ? <Navigate to="/learn" replace /> : <AuthPage />}
