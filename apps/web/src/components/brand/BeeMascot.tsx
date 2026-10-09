@@ -1,4 +1,10 @@
-/** Original x-pi bee mascot — cute yellow/black 2D SVG (not Duo owl). */
+import { useId } from "react";
+
+/**
+ * Original x-pi bee mascot — flat Duolingo-like yellow/black buddy.
+ * Matches bee-home-2 concept: round body, two thick stripes, simple smile,
+ * blush cheeks, antennae with ball tips, soft translucent light-blue wings.
+ */
 export function BeeMascot({
   className = "",
   size = 200,
@@ -8,6 +14,9 @@ export function BeeMascot({
   size?: number;
   title?: string;
 }) {
+  const clipId = useId().replace(/:/g, "");
+  const bodyClip = `bee-body-${clipId}`;
+
   return (
     <svg
       className={className}
@@ -16,102 +25,100 @@ export function BeeMascot({
       viewBox="0 0 200 200"
       fill="none"
       role="img"
-      aria-label={title}
+      aria-label={title || undefined}
+      aria-hidden={title ? undefined : true}
     >
-      <title>{title}</title>
+      {title ? <title>{title}</title> : null}
+
+      <defs>
+        <clipPath id={bodyClip}>
+          <ellipse cx="100" cy="106" rx="58" ry="64" />
+        </clipPath>
+      </defs>
+
       {/* soft ground shadow */}
-      <ellipse cx="100" cy="186" rx="42" ry="8" fill="#00000010" />
+      <ellipse cx="100" cy="188" rx="42" ry="7" fill="#00000014" />
 
-      {/* back wings */}
+      {/* four soft translucent light-blue wings (behind body) */}
       <ellipse
-        cx="52"
-        cy="88"
-        rx="34"
-        ry="22"
-        fill="#b8e4ff"
-        fillOpacity="0.55"
-        transform="rotate(-18 52 88)"
+        cx="44"
+        cy="90"
+        rx="40"
+        ry="28"
+        fill="#a8e0ff"
+        fillOpacity="0.48"
+        transform="rotate(-30 44 90)"
       />
       <ellipse
-        cx="148"
-        cy="88"
+        cx="156"
+        cy="90"
+        rx="40"
+        ry="28"
+        fill="#a8e0ff"
+        fillOpacity="0.48"
+        transform="rotate(30 156 90)"
+      />
+      <ellipse
+        cx="50"
+        cy="112"
         rx="34"
-        ry="22"
-        fill="#b8e4ff"
-        fillOpacity="0.55"
-        transform="rotate(18 148 88)"
+        ry="24"
+        fill="#c4eeff"
+        fillOpacity="0.58"
+        transform="rotate(-12 50 112)"
+      />
+      <ellipse
+        cx="150"
+        cy="112"
+        rx="34"
+        ry="24"
+        fill="#c4eeff"
+        fillOpacity="0.58"
+        transform="rotate(12 150 112)"
       />
 
-      {/* body */}
-      <ellipse cx="100" cy="112" rx="48" ry="54" fill="#ffc800" />
-      {/* stripes */}
-      <path
-        d="M58 96h84a40 40 0 0 1-4 14H62a40 40 0 0 1-4-14z"
-        fill="#1a1a1a"
-      />
-      <path
-        d="M60 120h80a48 48 0 0 1-6 16H66a48 48 0 0 1-6-16z"
-        fill="#1a1a1a"
-      />
-      {/* belly highlight */}
-      <ellipse cx="100" cy="148" rx="22" ry="14" fill="#ffe566" opacity="0.85" />
+      {/* single round yellow body */}
+      <ellipse cx="100" cy="106" rx="58" ry="64" fill="#ffc800" />
 
-      {/* head */}
-      <circle cx="100" cy="62" r="32" fill="#ffc800" />
-      {/* eyes */}
-      <circle cx="88" cy="62" r="5.5" fill="#1a1a1a" />
-      <circle cx="112" cy="62" r="5.5" fill="#1a1a1a" />
-      <circle cx="89.5" cy="60.5" r="1.6" fill="#fff" />
-      <circle cx="113.5" cy="60.5" r="1.6" fill="#fff" />
-      {/* smile */}
-      <path
-        d="M90 74c4 6 16 6 20 0"
-        stroke="#1a1a1a"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-      {/* cheeks */}
-      <circle cx="76" cy="72" r="5" fill="#ff8a80" opacity="0.9" />
-      <circle cx="124" cy="72" r="5" fill="#ff8a80" opacity="0.9" />
+      {/* two thick black horizontal stripes */}
+      <g clipPath={`url(#${bodyClip})`}>
+        <rect x="40" y="112" width="120" height="22" fill="#1a1a1a" />
+        <rect x="40" y="144" width="120" height="22" fill="#1a1a1a" />
+      </g>
 
-      {/* antennae */}
+      {/* cute face — oval eyes, smile, soft pink blush */}
+      <ellipse cx="78" cy="84" rx="6" ry="7.5" fill="#1a1a1a" />
+      <ellipse cx="122" cy="84" rx="6" ry="7.5" fill="#1a1a1a" />
       <path
-        d="M88 38c-4-14-10-18-14-18"
+        d="M86 100c5 8 23 8 28 0"
         stroke="#1a1a1a"
         strokeWidth="3.5"
         strokeLinecap="round"
       />
+      <ellipse cx="62" cy="96" rx="9" ry="6.5" fill="#ff8fa3" opacity="0.85" />
+      <ellipse cx="138" cy="96" rx="9" ry="6.5" fill="#ff8fa3" opacity="0.85" />
+
+      {/* antennae with small round tips */}
       <path
-        d="M112 38c4-14 10-18 14-18"
+        d="M82 48c-8-20-18-26-24-26"
         stroke="#1a1a1a"
-        strokeWidth="3.5"
+        strokeWidth="4.2"
         strokeLinecap="round"
       />
-      <circle cx="72" cy="18" r="5" fill="#1a1a1a" />
-      <circle cx="128" cy="18" r="5" fill="#1a1a1a" />
-
-      {/* front wings (slightly opaque) */}
-      <ellipse
-        cx="58"
-        cy="96"
-        rx="28"
-        ry="16"
-        fill="#d9f0ff"
-        fillOpacity="0.75"
-        transform="rotate(-12 58 96)"
+      <path
+        d="M118 48c8-20 18-26 24-26"
+        stroke="#1a1a1a"
+        strokeWidth="4.2"
+        strokeLinecap="round"
       />
-      <ellipse
-        cx="142"
-        cy="96"
-        rx="28"
-        ry="16"
-        fill="#d9f0ff"
-        fillOpacity="0.75"
-        transform="rotate(12 142 96)"
-      />
+      <circle cx="56" cy="20" r="6" fill="#1a1a1a" />
+      <circle cx="144" cy="20" r="6" fill="#1a1a1a" />
 
-      {/* tiny stinger */}
-      <path d="M100 164l-5 10h10l-5-10z" fill="#1a1a1a" />
+      {/* tiny rounded feet (bee-home-2) */}
+      <ellipse cx="78" cy="168" rx="6" ry="4.5" fill="#1a1a1a" />
+      <ellipse cx="92" cy="170" rx="5.5" ry="4" fill="#1a1a1a" />
+      <ellipse cx="108" cy="170" rx="5.5" ry="4" fill="#1a1a1a" />
+      <ellipse cx="122" cy="168" rx="6" ry="4.5" fill="#1a1a1a" />
     </svg>
   );
 }
