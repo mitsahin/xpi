@@ -6,6 +6,7 @@ Gamified micro-learning (Duolingo-like UX, original **x-pi** branding). Monorepo
 | --- | --- |
 | `apps/api` | Node.js, Express, Prisma, PostgreSQL, JWT |
 | `apps/web` | React, TypeScript, Tailwind, Zustand |
+| `apps/walky-talky` | Frontend-only language demo (localStorage, no API) — `npm run dev:walky` → `:5174` |
 | `apps/mobile` | React Native Expo |
 | `packages/shared` | Shared types, XP/level curve, modified SM-2, date helpers |
 

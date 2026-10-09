@@ -1,0 +1,97 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Outfit:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Nunito", ui-sans-serif, sans-serif;
+  --color-wt-primary: #10b981;
+  --color-wt-primary-deep: #059669;
+  --color-wt-primary-soft: #d1fae5;
+  --color-wt-accent: #f59e0b;
+  --color-wt-accent-warm: #fbbf24;
+  --color-wt-ink: #1a2e1f;
+  --color-wt-muted: #6b7280;
+  --color-wt-surface: #f0fdf4;
+  --color-wt-card: #ffffff;
+  --color-wt-success: #22c55e;
+  --color-wt-error: #ef4444;
+  --radius-wt-lg: 20px;
+  --radius-wt-xl: 24px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--color-wt-ink);
+  background: var(--color-wt-surface);
+  -webkit-font-smoothing: antialiased;
+}
+
+@keyframes wt-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+.wt-float {
+  animation: wt-float 3.5s ease-in-out infinite;
+}
+
+@keyframes wt-wave {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.wt-wave-bar {
+  animation: wt-wave 0.6s ease-in-out infinite;
+}
+
+.wt-wave-bar:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.wt-wave-bar:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.wt-wave-bar:nth-child(4) {
+  animation-delay: 0.15s;
+}
+.wt-wave-bar:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+@keyframes wt-pulse-ring {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(16, 185, 129, 0);
+  }
+}
+
+.wt-node-active {
+  animation: wt-pulse-ring 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wt-float,
+  .wt-wave-bar,
+  .wt-node-active {
+    animation: none;
+  }
+}
