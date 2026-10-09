@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useSearchParams,
+} from "react-router-dom";
 import { ApiError, api } from "./lib/api";
 import { useAppStore } from "./store";
 import { LandingPage } from "./components/marketing/LandingPage";
 import { LessonShell } from "./components/learn/LessonShell";
 import { ApiHealthBanner } from "./components/ApiHealthBanner";
+import { DEMO_STREAK, DEMO_USER } from "./components/learn/demoLessons";
 import { AuthPage } from "./pages/AuthPage";
 import { HomePage } from "./pages/HomePage";
 import { LessonPage } from "./pages/LessonPage";
@@ -12,15 +19,24 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { ReviewsPage } from "./pages/ReviewsPage";
 
 function Guard({ children }: { children: React.ReactNode }) {
+  const [params] = useSearchParams();
+  const demo = params.get("demo") === "1";
   const token = useAppStore((s) => s.token);
   const refreshToken = useAppStore((s) => s.refreshToken);
   const setUser = useAppStore((s) => s.setUser);
+  const setStreak = useAppStore((s) => s.setStreak);
   const logout = useAppStore((s) => s.logout);
   const setApiHealthy = useAppStore((s) => s.setApiHealthy);
-  const [ready, setReady] = useState(!token);
+  const [ready, setReady] = useState(!token || demo);
   const [bootError, setBootError] = useState("");
 
   useEffect(() => {
+    if (demo) {
+      setUser(DEMO_USER);
+      setStreak(DEMO_STREAK);
+      setReady(true);
+      return;
+    }
     if (!token) return;
     let cancelled = false;
     (async () => {
@@ -64,9 +80,9 @@ function Guard({ children }: { children: React.ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [token, refreshToken, setUser, logout, setApiHealthy]);
+  }, [demo, token, refreshToken, setUser, setStreak, logout, setApiHealthy]);
 
-  if (!token) return <Navigate to="/auth" replace />;
+  if (!token && !demo) return <Navigate to="/auth" replace />;
   if (!ready) {
     return (
       <LessonShell>
