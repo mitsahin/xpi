@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { api } from "../lib/api";
 import { useAppStore } from "../store";
 
 /** Non-blocking banner when the API is unreachable (demo unblocker). */
 export function ApiHealthBanner() {
+  const [params] = useSearchParams();
+  const demo = params.get("demo") === "1";
   const healthy = useAppStore((s) => s.apiHealthy);
   const setApiHealthy = useAppStore((s) => s.setApiHealthy);
   const [checking, setChecking] = useState(false);
 
   useEffect(() => {
+    if (demo) {
+      setApiHealthy(true);
+      return;
+    }
     let cancelled = false;
     const tick = async () => {
       const r = await api.health();
@@ -20,9 +27,9 @@ export function ApiHealthBanner() {
       cancelled = true;
       window.clearInterval(id);
     };
-  }, [setApiHealthy]);
+  }, [demo, setApiHealthy]);
 
-  if (healthy !== false) return null;
+  if (demo || healthy !== false) return null;
 
   return (
     <div

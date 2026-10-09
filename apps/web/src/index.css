@@ -123,6 +123,13 @@ body {
 
 .learn-path-current {
   animation: learn-path-pulse 1.8s ease-in-out infinite;
+  box-shadow: 0 0 0 6px rgba(28, 176, 246, 0.22);
+}
+
+.learn-path-page {
+  background:
+    radial-gradient(ellipse 80% 40% at 50% 0%, #e8ffd4 0%, transparent 55%),
+    #f7f7f7;
 }
 
 @keyframes pop-in {

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { ApiError, api, type PublicLesson } from "../lib/api";
 import { BottomNav } from "../components/BottomNav";
 import { TopStats } from "../components/TopStats";
@@ -8,10 +8,19 @@ import {
   LearnErrorState,
   LearnLoading,
   LearnPath,
+  usePathVariant,
 } from "../components/learn/LessonShell";
+import {
+  DEMO_LESSONS,
+  DEMO_STREAK,
+  DEMO_USER,
+} from "../components/learn/demoLessons";
 import { useAppStore } from "../store";
 
 export function HomePage() {
+  const [params] = useSearchParams();
+  const demo = params.get("demo") === "1";
+  const pathVariant = usePathVariant();
   const [lessons, setLessons] = useState<PublicLesson[]>([]);
   const [dueReviews, setDueReviews] = useState(0);
   const [error, setError] = useState("");
@@ -22,6 +31,16 @@ export function HomePage() {
   const setApiHealthy = useAppStore((s) => s.setApiHealthy);
 
   const load = useCallback(() => {
+    if (demo) {
+      setLessons(DEMO_LESSONS);
+      setUser(DEMO_USER);
+      setStreak(DEMO_STREAK);
+      setDueReviews(2);
+      setError("");
+      setOffline(false);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError("");
     Promise.all([api.lessons(), api.stats(), api.reviews()])
@@ -42,23 +61,48 @@ export function HomePage() {
         }
       })
       .finally(() => setLoading(false));
-  }, [setUser, setStreak, setApiHealthy]);
+  }, [demo, setUser, setStreak, setApiHealthy]);
 
   useEffect(() => {
     load();
   }, [load]);
 
+  const compareHref = useMemo(() => {
+    const next = pathVariant === "classic" ? "pro" : "classic";
+    const q = new URLSearchParams(params);
+    q.set("path", next);
+    if (demo) q.set("demo", "1");
+    return `/learn?${q.toString()}`;
+  }, [params, pathVariant, demo]);
+
   return (
-    <div className="min-h-full bg-[linear-gradient(180deg,#f7fff0_0%,#ffffff_280px)] pb-24">
+    <div className="learn-path-page min-h-full bg-[#f7f7f7] pb-28">
       <TopStats />
-      <main className="mx-auto max-w-lg px-4 py-6">
-        <h1 className="text-2xl font-black">Spanish Basics</h1>
-        <p className="mt-1 font-bold text-[#777]">
-          Follow the path. Earn XP. Keep your streak.
+      <main className="mx-auto max-w-md px-4 pb-6 pt-4">
+        <div className="mb-1 flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.14em] text-[#afafaf]">
+              Section 1
+            </p>
+            <h1 className="text-[1.65rem] font-black leading-tight text-[#3c3c3c]">
+              Spanish Basics
+            </h1>
+          </div>
+          <Link
+            to={compareHref}
+            className="shrink-0 rounded-xl border-2 border-[#e5e5e5] bg-white px-2.5 py-1.5 text-[11px] font-black uppercase tracking-wide text-[#777]"
+            title="Toggle path density variant"
+          >
+            Path: {pathVariant}
+          </Link>
+        </div>
+        <p className="font-bold text-[#afafaf]">
+          Follow the path · Earn XP · Keep your streak
         </p>
+
         {dueReviews > 0 && (
           <Link
-            to="/learn/reviews"
+            to={demo ? "/learn/reviews?demo=1" : "/learn/reviews"}
             className="mt-4 flex items-center justify-between rounded-2xl border-2 border-b-4 border-[#ce82ff] bg-[#f3e8ff] px-4 py-3 font-extrabold text-[#7c3aed]"
           >
             <span>
@@ -67,6 +111,7 @@ export function HomePage() {
             <span>Practice →</span>
           </Link>
         )}
+
         {error ? (
           <LearnErrorState message={error} offline={offline} onRetry={load} />
         ) : null}
@@ -77,7 +122,9 @@ export function HomePage() {
             detail="Your course path will show up here once content is available."
           />
         ) : null}
-        {!loading && lessons.length > 0 ? <LearnPath lessons={lessons} /> : null}
+        {!loading && lessons.length > 0 ? (
+          <LearnPath lessons={lessons} variant={pathVariant} />
+        ) : null}
       </main>
       <BottomNav />
     </div>
