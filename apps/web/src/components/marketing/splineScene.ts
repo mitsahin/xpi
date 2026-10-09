@@ -1,5 +1,5 @@
 /**
- * Spline scene config for the marketing homepage.
+ * Spline scene config for the Walky Talky marketing homepage.
  *
  * Community file pages are NOT valid `scene` props for `@splinetool/react-spline`.
  * That package needs Export → Code → `https://prod.spline.design/<id>/scene.splinecode`.
