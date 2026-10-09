@@ -11,6 +11,11 @@ Gamified micro-learning (Duolingo-like UX, original **x-pi** branding). Monorepo
 
 Phase 1 MVP: MCQ + fill-in-blank lessons, XP/levels, timezone-aware streaks, daily XP goal, modified SM-2 SRS.
 
+> **Homepage on `main`:** `/` defaults to the **H2 centered bee** landing (`BeeHomeHero`), not the older cinematic hero.
+> If you still see cinematic / 3D themes locally, you are on an old branch — run:
+> `git fetch origin && git checkout main && git pull origin main`
+> Then restart `npm run dev:web`. Legacy hero: `/?home=legacy`.
+
 ## Technical requirements
 
 Full production spec (frontend + backend, AuthN/AuthZ, security, algorithms, folder map, errors, testing, phase status):
