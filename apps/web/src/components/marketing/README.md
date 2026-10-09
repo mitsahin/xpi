@@ -2,8 +2,8 @@
 
 Landing-only UI. Used on `/` only — never inside `/learn`.
 
-- **`SplineHomeHero`** — default `/` hero (Spline Community preview iframe; `@splinetool/react-spline` when `VITE_SPLINE_SCENE_URL` / Export → Code URL is set)
-- `BeeHomeHero` — H2 bee splash; opt-in via `?home=h2`
+- **`BeeHomeHero`** — default `/` hero (H2 centered bee + hover)
+- **`SplineHomeHero`** — opt-in via `?home=spline` (Spline Community preview iframe; `@splinetool/react-spline` when `VITE_SPLINE_SCENE_URL` is set)
 - `DuoHomeVariants` — optional alt layouts via `?home=1`…`5`
 - `HomeMascot` — green buddy used by alt variants
 - `MarketingHero` — prior hero; `?home=legacy`
