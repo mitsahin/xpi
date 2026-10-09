@@ -123,9 +123,9 @@ function FooterCta() {
         </div>
         <Link
           to={token ? "/learn" : "/auth"}
-          className="inline-flex rounded-2xl bg-[#58cc02] px-7 py-3.5 text-base font-black text-white shadow-[0_4px_0_#46a302]"
+          className="inline-flex rounded-full bg-[#ffc800] px-7 py-3.5 text-base font-black text-[#1b2a4a] shadow-[0_4px_0_#e6b400]"
         >
-          Öğrenmeye başla
+          Öğrenmeye başla →
         </Link>
       </div>
     </section>

@@ -206,3 +206,22 @@ body {
 .bee-bob {
   animation: bee-bob 3.2s ease-in-out infinite;
 }
+
+/* Concept corner dotted accents (bee-home-2) */
+.bee-dot-grid {
+  width: 4.5rem;
+  height: 2.25rem;
+  background-image: radial-gradient(circle, #ffc800 1.35px, transparent 1.45px);
+  background-size: 10px 10px;
+  background-repeat: repeat;
+}
+
+.interactive-bee {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bee-bob {
+    animation: none;
+  }
+}
