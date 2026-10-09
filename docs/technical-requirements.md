@@ -99,7 +99,8 @@ xpi/
 - Bind HTTP to `0.0.0.0:$PORT` (default `4000`) — Render/container friendly.
 - Single Express process; Prisma Client as the sole data access layer.
 - `app.set("trust proxy", 1)` so rate-limit keys honor `X-Forwarded-For`.
-- Health: `GET /health` runs `SELECT 1` and returns `{ ok: true, service: "x-pi-api" }`.
+- Liveness: `GET /health` returns `{ ok: true, service: "x-pi-api" }` with no DB call.
+- Readiness: `GET /ready` runs `SELECT 1` and returns `{ ok: true, service: "x-pi-api", ready: true }`.
 - Ephemeral filesystem: no durable local writes beyond process memory (rate-limit buckets are in-memory).
 
 ### 4.2 Environment
@@ -196,7 +197,7 @@ All of the following require `requireAuth` (valid JWT):
 - `GET /me/stats`, `GET /me/queue`, `GET /me/reviews`
 - `POST /me/reviews/:cardId/answer`
 
-Public: `GET /health`, `POST /auth/register`, `POST /auth/login`.
+Public: `GET /health`, `GET /ready`, `POST /auth/register`, `POST /auth/login`.
 
 ### 6.2 Ownership checks
 
@@ -274,7 +275,8 @@ Authoritative schema: `apps/api/prisma/schema.prisma`.
 
 | Method | Path | Auth | Behavior |
 | --- | --- | --- | --- |
-| GET | `/health` | No | Liveness + DB readiness |
+| GET | `/health` | No | Process liveness (no DB) |
+| GET | `/ready` | No | DB readiness (`SELECT 1`) |
 | POST | `/auth/register` | No (+ rate limit) | Create user + access/refresh |
 | POST | `/auth/login` | No (+ rate limit) | Login + access/refresh |
 | POST | `/auth/refresh` | No (+ rate limit) | Rotate refresh → new pair |
@@ -445,7 +447,7 @@ Must remain free of Node/React/RN imports.
 | Signal | Requirement |
 | --- | --- |
 | Unexpected errors | `console.error` in global middleware; client gets generic 500 |
-| Health | `/health` for probes (DB `SELECT 1`) |
+| Health | `/health` liveness; `/ready` for DB probes (`SELECT 1`) |
 | Rate limit | Standard `X-RateLimit-*` headers |
 | Structured logging / APM | Planned (JSON logs, request ids) |
 | Metrics | Planned (auth failures, lesson completes, review latency) |
