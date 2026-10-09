@@ -67,5 +67,5 @@ app.use(
 );
 
 app.listen(env.port, "0.0.0.0", () => {
-  console.log(`x-pi API listening on http://0.0.0.0:${env.port}`);
+  console.log(`Walky Talky API listening on http://0.0.0.0:${env.port}`);
 });

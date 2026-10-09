@@ -1,12 +1,12 @@
-# x-pi — Technical Requirements
+# Walky Talky — Technical Requirements
 
-Authoritative production engineering spec for the **x-pi** monorepo. Aligns with [`x-pi-mvp-plan.md`](./x-pi-mvp-plan.md). Implementation lives on branch `cursor/x-pi-learning-platform-332f` (PR [#1](https://github.com/mitsahin/xpi/pull/1)).
+Authoritative production engineering spec for the **Walky Talky** monorepo. Aligns with [`x-pi-mvp-plan.md`](./x-pi-mvp-plan.md). Implementation lives on branch `cursor/x-pi-learning-platform-332f` (PR [#1](https://github.com/mitsahin/xpi/pull/1)).
 
 ---
 
 ## 1. Product summary
 
-x-pi is a gamified micro-learning platform (Duolingo-like loop, original branding). Learners authenticate, walk a locked lesson path, complete short sessions, earn XP/hearts, maintain timezone-aware streaks (with freeze), meet daily XP goals, and schedule reviews via modified SM-2.
+Walky Talky is a gamified micro-learning platform (Duolingo-like loop, original branding). Learners authenticate, walk a locked lesson path, complete short sessions, earn XP/hearts, maintain timezone-aware streaks (with freeze), meet daily XP goals, and schedule reviews via modified SM-2.
 
 | Surface | Role |
 | --- | --- |

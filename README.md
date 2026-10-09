@@ -1,4 +1,4 @@
-# Walky Talky (xpi monorepo)
+# Walky Talky
 
 Gamified micro-learning (Duolingo-like UX, **Walky Talky** branding). Monorepo with:
 

@@ -27,7 +27,7 @@ $ErrorActionPreference = "Stop"
 $Root = Resolve-Path (Join-Path $PSScriptRoot "..")
 Set-Location $Root
 
-Write-Host "==> x-pi web on main (H2 bee homepage)" -ForegroundColor Cyan
+Write-Host "==> Walky Talky web on main (H2 bee homepage)" -ForegroundColor Cyan
 Write-Host "    Repo: $Root"
 
 function Invoke-Native {

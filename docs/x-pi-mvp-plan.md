@@ -1,4 +1,4 @@
-# x-pi MVP plan
+# Walky Talky MVP plan
 
 ## Goal
 Ship a demoable Duolingo-like learning loop (web + Expo) without burning tokens on full-product polish.

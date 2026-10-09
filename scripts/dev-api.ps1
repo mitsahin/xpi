@@ -22,7 +22,7 @@ $ApiDir = Join-Path $Root "apps\api"
 $EnvFile = Join-Path $ApiDir ".env"
 $EnvExample = Join-Path $ApiDir ".env.example"
 
-Write-Host "==> x-pi API local bootstrap (Windows)" -ForegroundColor Cyan
+Write-Host "==> Walky Talky API local bootstrap (Windows)" -ForegroundColor Cyan
 Write-Host "    Repo: $Root"
 
 function Assert-Command($Name) {
