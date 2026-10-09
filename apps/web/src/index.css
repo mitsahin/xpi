@@ -207,12 +207,12 @@ body {
   animation: bee-bob 3.2s ease-in-out infinite;
 }
 
-/* Concept corner dotted accents (bee-home-2) */
+/* Concept corner dotted accents — 4×4 yellow dots (bee-home-2) */
 .bee-dot-grid {
-  width: 4.5rem;
-  height: 2.25rem;
-  background-image: radial-gradient(circle, #ffc800 1.35px, transparent 1.45px);
-  background-size: 10px 10px;
+  width: 3.25rem;
+  height: 3.25rem;
+  background-image: radial-gradient(circle, #ffc800 2px, transparent 2.2px);
+  background-size: 13px 13px;
   background-repeat: repeat;
 }
 

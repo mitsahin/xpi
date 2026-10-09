@@ -9,9 +9,10 @@ import {
 import { animate, motion, useReducedMotion } from "framer-motion";
 
 /**
- * Original x-pi bee mascot — flat Duolingo-like yellow/black buddy.
- * Matches bee-home-2 concept: round body, two thick stripes, simple smile,
- * blush cheeks, antennae with yellow ball tips, soft translucent light-blue wings.
+ * Original x-pi bee mascot — flat chibi matching bee-home-2 reference:
+ * round yellow body, THREE thick black stripes, tiny black legs,
+ * small translucent light-blue wings, black antennae with yellow tips,
+ * simple black dot eyes + curved smile.
  */
 export function BeeMascot({
   className = "",
@@ -27,10 +28,8 @@ export function BeeMascot({
 }) {
   const clipId = useId().replace(/:/g, "");
   const bodyClip = `bee-body-${clipId}`;
-  const leftRot = -30 - wingPhase;
-  const rightRot = 30 + wingPhase;
-  const leftFrontRot = -12 - wingPhase * 0.7;
-  const rightFrontRot = 12 + wingPhase * 0.7;
+  const leftRot = -28 - wingPhase;
+  const rightRot = 28 + wingPhase;
 
   return (
     <svg
@@ -47,100 +46,142 @@ export function BeeMascot({
 
       <defs>
         <clipPath id={bodyClip}>
-          <ellipse cx="100" cy="106" rx="58" ry="64" />
+          <circle cx="100" cy="108" r="62" />
         </clipPath>
       </defs>
 
-      <ellipse cx="100" cy="188" rx="42" ry="7" fill="#00000014" />
+      {/* soft ground shadow */}
+      <ellipse cx="100" cy="186" rx="38" ry="6.5" fill="#00000014" />
 
+      {/* small translucent light-blue wings (paired, overlapping) */}
       <ellipse
-        cx="44"
-        cy="90"
-        rx="40"
-        ry="28"
-        fill="#a8e0ff"
-        fillOpacity="0.48"
-        transform={`rotate(${leftRot} 44 90)`}
+        cx="46"
+        cy="96"
+        rx="26"
+        ry="17"
+        fill="#b8e8ff"
+        fillOpacity="0.5"
+        transform={`rotate(${leftRot} 46 96)`}
       />
       <ellipse
-        cx="156"
-        cy="90"
-        rx="40"
-        ry="28"
-        fill="#a8e0ff"
-        fillOpacity="0.48"
-        transform={`rotate(${rightRot} 156 90)`}
-      />
-      <ellipse
-        cx="50"
-        cy="112"
-        rx="34"
-        ry="24"
-        fill="#c4eeff"
+        cx="52"
+        cy="108"
+        rx="22"
+        ry="14"
+        fill="#c8f0ff"
         fillOpacity="0.58"
-        transform={`rotate(${leftFrontRot} 50 112)`}
+        transform={`rotate(${leftRot + 8} 52 108)`}
       />
       <ellipse
-        cx="150"
-        cy="112"
-        rx="34"
-        ry="24"
-        fill="#c4eeff"
+        cx="154"
+        cy="96"
+        rx="26"
+        ry="17"
+        fill="#b8e8ff"
+        fillOpacity="0.5"
+        transform={`rotate(${rightRot} 154 96)`}
+      />
+      <ellipse
+        cx="148"
+        cy="108"
+        rx="22"
+        ry="14"
+        fill="#c8f0ff"
         fillOpacity="0.58"
-        transform={`rotate(${rightFrontRot} 150 112)`}
+        transform={`rotate(${rightRot - 8} 148 108)`}
       />
 
-      <ellipse cx="100" cy="106" rx="58" ry="64" fill="#ffc800" />
+      {/* round yellow body */}
+      <circle cx="100" cy="108" r="62" fill="#ffc800" />
 
+      {/* THREE thick black horizontal stripes */}
       <g clipPath={`url(#${bodyClip})`}>
-        <rect x="40" y="112" width="120" height="22" fill="#1a1a1a" />
-        <rect x="40" y="144" width="120" height="22" fill="#1a1a1a" />
+        <rect x="36" y="106" width="128" height="15" fill="#1a1a1a" />
+        <rect x="36" y="128" width="128" height="15" fill="#1a1a1a" />
+        <rect x="36" y="150" width="128" height="15" fill="#1a1a1a" />
       </g>
 
-      <ellipse cx="78" cy="84" rx="6" ry="7.5" fill="#1a1a1a" />
-      <ellipse cx="122" cy="84" rx="6" ry="7.5" fill="#1a1a1a" />
-      <path
-        d="M86 100c5 8 23 8 28 0"
-        stroke="#1a1a1a"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-      />
-      <ellipse cx="62" cy="96" rx="9" ry="6.5" fill="#ff8fa3" opacity="0.85" />
-      <ellipse cx="138" cy="96" rx="9" ry="6.5" fill="#ff8fa3" opacity="0.85" />
+      {/* simple black dot eyes */}
+      <circle cx="80" cy="86" r="5.2" fill="#1a1a1a" />
+      <circle cx="120" cy="86" r="5.2" fill="#1a1a1a" />
 
+      {/* curved smile */}
       <path
-        d="M82 48c-8-20-18-26-24-26"
+        d="M88 100c4 6.5 20 6.5 24 0"
         stroke="#1a1a1a"
-        strokeWidth="4.2"
+        strokeWidth="3"
         strokeLinecap="round"
-      />
-      <path
-        d="M118 48c8-20 18-26 24-26"
-        stroke="#1a1a1a"
-        strokeWidth="4.2"
-        strokeLinecap="round"
-      />
-      <circle
-        cx="56"
-        cy="20"
-        r="6.5"
-        fill="#ffc800"
-        stroke="#1a1a1a"
-        strokeWidth="2"
-      />
-      <circle
-        cx="144"
-        cy="20"
-        r="6.5"
-        fill="#ffc800"
-        stroke="#1a1a1a"
-        strokeWidth="2"
       />
 
-      <ellipse cx="78" cy="168" rx="6" ry="4.5" fill="#1a1a1a" />
-      <ellipse cx="92" cy="170" rx="5.5" ry="4" fill="#1a1a1a" />
-      <ellipse cx="108" cy="170" rx="5.5" ry="4" fill="#1a1a1a" />
-      <ellipse cx="122" cy="168" rx="6" ry="4.5" fill="#1a1a1a" />
+      {/* soft blush */}
+      <circle cx="68" cy="98" r="6.5" fill="#ff9aab" opacity="0.72" />
+      <circle cx="132" cy="98" r="6.5" fill="#ff9aab" opacity="0.72" />
+
+      {/* black antennae with YELLOW circular tips */}
+      <path
+        d="M84 52c-6-16-14-22-20-22"
+        stroke="#1a1a1a"
+        strokeWidth="3.6"
+        strokeLinecap="round"
+      />
+      <path
+        d="M116 52c6-16 14-22 20-22"
+        stroke="#1a1a1a"
+        strokeWidth="3.6"
+        strokeLinecap="round"
+      />
+      <circle cx="62" cy="28" r="6.5" fill="#ffc800" />
+      <circle cx="138" cy="28" r="6.5" fill="#ffc800" />
+
+      {/* tiny black legs (nub-like) */}
+      <ellipse cx="78" cy="174" rx="3.2" ry="5" fill="#1a1a1a" />
+      <ellipse cx="92" cy="176" rx="3" ry="4.5" fill="#1a1a1a" />
+      <ellipse cx="108" cy="176" rx="3" ry="4.5" fill="#1a1a1a" />
+      <ellipse cx="122" cy="174" rx="3.2" ry="5" fill="#1a1a1a" />
+    </svg>
+  );
+}
+
+/** Compact bee-head mark for top-left logo (not full body). */
+export function BeeLogoMark({
+  className = "",
+  size = 32,
+}: {
+  className?: string;
+  size?: number;
+}) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 40 40"
+      fill="none"
+      aria-hidden
+    >
+      <circle cx="20" cy="24" r="12" fill="#ffc800" />
+      <path
+        d="M14 14c-3-8-6-10-9-10"
+        stroke="#1a1a1a"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M26 14c3-8 6-10 9-10"
+        stroke="#1a1a1a"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+      <circle cx="5" cy="4" r="3.2" fill="#ffc800" />
+      <circle cx="35" cy="4" r="3.2" fill="#ffc800" />
+      <circle cx="16" cy="22" r="2.2" fill="#1a1a1a" />
+      <circle cx="24" cy="22" r="2.2" fill="#1a1a1a" />
+      <path
+        d="M17 27c1.5 2.5 4.5 2.5 6 0"
+        stroke="#1a1a1a"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
