@@ -42,7 +42,7 @@ export function MarketingHero() {
 
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-6">
         <span className="font-[family-name:var(--font-display)] text-xl font-extrabold tracking-tight text-[var(--xpi-ink)]">
-          x-pi
+          Walky Talky
         </span>
         <Link
           to="/auth"
@@ -54,7 +54,7 @@ export function MarketingHero() {
 
       <div className="mx-auto flex min-h-[calc(100svh-5rem)] max-w-6xl flex-col justify-center px-6 pb-16 pt-10">
         <p className="mkt-rise font-[family-name:var(--font-display)] text-[clamp(4.5rem,14vw,9.5rem)] font-extrabold leading-[0.9] tracking-[-0.04em]">
-          <span className="mkt-brand-sheen">x-pi</span>
+          <span className="mkt-brand-sheen">Walky Talky</span>
         </p>
         <h1 className="mkt-rise-delay mt-6 max-w-2xl font-[family-name:var(--font-display)] text-[clamp(1.75rem,4vw,3rem)] font-bold leading-[1.1] tracking-tight text-[var(--xpi-ink)]">
           Micro-lessons that move with you.

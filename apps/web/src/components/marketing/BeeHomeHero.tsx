@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { BeeMascot, InteractiveBeeMascot } from "../brand/BeeMascot";
+import { BeeLogoIcon } from "../brand/BeeLogoIcon";
+import { InteractiveBeeMascot } from "../brand/BeeMascot";
 import { useAppStore } from "../../store";
 
 /**
  * Default marketing homepage (H2): centered bee splash matching bee-home-2.
- * Logo top-center (small bee + x-pi). Discreet Giriş top-right only.
+ * Logo top-center (small bee + Walky Talky). Discreet Giriş top-right only.
  */
 export function BeeHomeHero() {
   const token = useAppStore((s) => s.token);
@@ -65,8 +66,8 @@ export function BeeHomeHero() {
           className="flex items-center gap-2.5 text-[1.65rem] font-black tracking-tight text-[#0c213c]"
           style={{ fontFamily: "var(--font-learn)" }}
         >
-          <BeeMascot size={40} title="" />
-          <span>x-pi</span>
+          <BeeLogoIcon size={40} />
+          <span>Walky Talky</span>
         </Link>
 
         <motion.div

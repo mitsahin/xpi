@@ -1,4 +1,4 @@
-# x-pi — IDE handoff
+# Walky Talky — IDE handoff
 
 Continue locally in Cursor with this context.
 
@@ -17,7 +17,7 @@ Monorepo: `apps/api` (Express + Prisma + Postgres), `apps/web` (React + Vite + T
 - Demo: `demo@x-pi.app` / `demo1234`
 
 ## Plan
-See [x-pi MVP plan](./x-pi-mvp-plan.md) and full [technical requirements](./technical-requirements.md) (stack, APIs, engines, dual UI, Phase 1/2). Phase 2 still open: translation, listening/matching, disconnect resume, streak freeze, stronger mobile.
+See [Walky Talky MVP plan](./x-pi-mvp-plan.md) and full [technical requirements](./technical-requirements.md) (stack, APIs, engines, dual UI, Phase 1/2). Phase 2 still open: translation, listening/matching, disconnect resume, streak freeze, stronger mobile.
 
 ## Preference
 IDE/local for UI iteration; cloud only for large scaffold/CI/PR-wide work.
@@ -37,7 +37,7 @@ npm run dev:web    # :5173
 
 ## Paste into local Cursor chat
 ```
-x-pi monorepo on branch cursor/x-pi-learning-platform-332f (PR #1).
+Walky Talky monorepo on branch cursor/x-pi-learning-platform-332f (PR #1).
 Dual UI is in: MarketingHero on `/`, LessonShell on `/learn`.
 Continue Phase 2 from docs in Context if available, else: translation + listening/matching, mid-lesson disconnect resume, streak freeze/recovery, mobile parity.
 Keep Duolingo-like learn UI; don’t put marketing chrome in lessons.

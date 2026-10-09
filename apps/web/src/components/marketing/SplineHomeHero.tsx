@@ -66,7 +66,7 @@ export function SplineHomeHero() {
           </Suspense>
         ) : (
           <iframe
-            title="x-pi Spline scene"
+            title="Walky Talky Spline scene"
             src={COMMUNITY_PREVIEW_IFRAME}
             className="h-full w-full border-0"
             allow="fullscreen; autoplay"
@@ -93,7 +93,7 @@ export function SplineHomeHero() {
           className="mkt-rise text-[clamp(3.5rem,12vw,6.5rem)] font-extrabold leading-[0.9] tracking-[-0.04em] text-white"
           style={{ fontFamily: "var(--font-display)" }}
         >
-          x-pi
+          Walky Talky
         </Link>
 
         <h1

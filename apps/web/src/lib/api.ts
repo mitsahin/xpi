@@ -152,7 +152,7 @@ async function request<T>(
   } catch {
     useAppStore.getState().setApiHealthy(false);
     throw new ApiError(
-      "Can't reach the x-pi API. Is it running on :4000?",
+      "Can't reach the Walky Talky API. Is it running on :4000?",
       { status: 0, code: "NETWORK", offline: true }
     );
   }

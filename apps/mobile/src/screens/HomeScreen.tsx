@@ -79,7 +79,7 @@ export function HomeScreen({
       contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
       refreshControl={<RefreshControl refreshing={false} onRefresh={load} />}
     >
-      <Text style={styles.brand}>x-pi</Text>
+      <Text style={styles.brand}>Walky Talky</Text>
       {!!error && (
         <View style={styles.errorBox}>
           <Text style={styles.errorText}>{error}</Text>

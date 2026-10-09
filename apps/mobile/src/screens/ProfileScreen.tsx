@@ -37,7 +37,7 @@ export function ProfileScreen({
 
   return (
     <View style={styles.root}>
-      <Text style={styles.brand}>x-pi</Text>
+      <Text style={styles.brand}>Walky Talky</Text>
       <Text style={styles.name}>{user.displayName}</Text>
       <Text style={styles.email}>{user.email}</Text>
       <View style={styles.grid}>

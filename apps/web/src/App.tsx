@@ -87,7 +87,7 @@ function Guard({ children }: { children: React.ReactNode }) {
     return (
       <LessonShell>
         <div className="flex min-h-full items-center justify-center font-extrabold text-[#777]">
-          Loading x-pi...
+          Loading Walky Talky...
         </div>
       </LessonShell>
     );

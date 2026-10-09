@@ -6,11 +6,11 @@ import { MarketingHero } from "./MarketingHero";
 import { SplineHomeHero } from "./SplineHomeHero";
 
 /**
- * Marketing `/` — **defaults to Spline hero** (`SplineHomeHero`).
+ * Marketing `/` — **defaults to H2 bee** (`BeeHomeHero`).
  *
  * - No cinematic / R3F / “Preview themes” on default `/`.
  * - `?theme=*` (old cinematic PR) is ignored.
- * - H2 bee only via explicit `?home=h2`.
+ * - Spline hero only via `?home=spline` (`?home=h2` is an alias of default).
  * - Optional alts via `?home=1..5`.
  * - Prior atmospheric hero via `?home=legacy`.
  */
@@ -18,7 +18,7 @@ export function LandingPage() {
   const [params] = useSearchParams();
   const home = params.get("home");
   const legacy = home === "legacy";
-  const beeH2 = home === "h2";
+  const spline = home === "spline";
   const altVariant =
     home === "1" || home === "2" || home === "3" || home === "4" || home === "5";
   const variant = useHomeVariant();
@@ -33,15 +33,14 @@ export function LandingPage() {
     );
   }
 
-  if (beeH2) {
+  if (spline) {
     return (
       <div
-        className="min-h-full bg-[#fffcf5] text-[#1b2a4a]"
+        className="min-h-full bg-[#0b1220] text-white"
         style={{ fontFamily: "var(--font-learn)" }}
-        data-home-variant="h2"
-        data-home-default="bee-h2"
+        data-home-variant="spline"
       >
-        <BeeHomeHero />
+        <SplineHomeHero />
         <HowSection soft />
         <FooterCta />
       </div>
@@ -64,12 +63,12 @@ export function LandingPage() {
 
   return (
     <div
-      className="min-h-full bg-[#0b1220] text-white"
+      className="min-h-full bg-[#fffcf5] text-[#1b2a4a]"
       style={{ fontFamily: "var(--font-learn)" }}
-      data-home-variant="spline"
-      data-home-default="spline"
+      data-home-variant="h2"
+      data-home-default="bee-h2"
     >
-      <SplineHomeHero />
+      <BeeHomeHero />
       <HowSection soft />
       <FooterCta />
     </div>
@@ -86,7 +85,7 @@ function HowSection({ soft }: { soft?: boolean }) {
         className="text-3xl font-black tracking-tight text-[#1b2a4a] md:text-4xl"
         style={{ fontFamily: "var(--font-learn)" }}
       >
-        x-pi nasıl çalışır?
+        Walky Talky nasıl çalışır?
       </h2>
       <p className="mt-3 max-w-xl font-bold text-[#777]">
         Kısa dersler, net ilerleme, ihtiyaç duyduğunda tekrarlar.

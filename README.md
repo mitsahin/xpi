@@ -1,6 +1,6 @@
-# x-pi
+# Walky Talky
 
-Gamified micro-learning (Duolingo-like UX, original **x-pi** branding). Monorepo with:
+Gamified micro-learning (Duolingo-like UX, **Walky Talky** branding). Monorepo with:
 
 | App | Stack |
 | --- | --- |
@@ -202,7 +202,7 @@ GitHub Actions (`.github/workflows/ci.yml`) installs deps, migrates Postgres, se
 
 | Path | Shell |
 | --- | --- |
-| `/` | Marketing — **H2 bee** homepage (`BeeHomeHero`; alts `?home=1..5`, legacy `?home=legacy`) |
+| `/` | Marketing — **H2 bee** homepage (`BeeHomeHero`; Spline `?home=spline`, alts `?home=1..5`, legacy `?home=legacy`) |
 | `/auth` | Login / register |
 | `/learn` | Duolingo-like lesson path (`LessonShell` + brand bee at current node) |
 | `/learn/lesson/:id` | Lesson session |
