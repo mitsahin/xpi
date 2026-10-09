@@ -10,7 +10,7 @@ import { animate, motion, useReducedMotion } from "framer-motion";
 
 /**
  * Soft Walky Talky bee from the bee-home-2 splash:
- * round yellow body with a top highlight, three thick black stripes,
+ * round yellow body with a top highlight, two thick black stripes,
  * blush, light-blue wings, yellow antenna tips, white eye highlights.
  */
 export function BeeMascot({
@@ -70,9 +70,8 @@ export function BeeMascot({
       <ellipse cx="84" cy="82" rx="16" ry="10" fill="#fff" opacity="0.32" />
 
       <g clipPath={`url(#${bodyClip})`}>
-        <rect x="42" y="116" width="116" height="12" fill="#1c1c1a" />
-        <rect x="42" y="134" width="116" height="12" fill="#1c1c1a" />
-        <rect x="42" y="152" width="116" height="12" fill="#1c1c1a" />
+        <rect x="42" y="122" width="116" height="13" fill="#1c1c1a" />
+        <rect x="42" y="144" width="116" height="13" fill="#1c1c1a" />
       </g>
 
       <ellipse cx="84" cy="96" rx="6.6" ry="8.2" fill="#1c1c1a" />
